@@ -101,16 +101,19 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('position')
                     ->searchable(),
                 
-                Tables\Columns\TextColumn::make('auth.role')
-                    ->label('Role')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'superadmin' => 'danger',
-                        'admin' => 'warning', 
-                        'user' => 'success',
-                        default => 'gray',
+                Tables\Columns\TextColumn::make('active_assignments_count')
+                    ->label('Devices Assigned')
+                    ->getStateUsing(function ($record) {
+                        return $record->deviceAssignments()->whereNull('returned_date')->count();
                     })
-                    ->default('No Access'),
+                    ->badge()
+                    ->color(fn (int $state): string => match (true) {
+                        $state === 0 => 'gray',
+                        $state <= 2 => 'success',
+                        $state <= 5 => 'warning',
+                        default => 'danger',
+                    })
+                    ->suffix(' devices'),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('department_id')
