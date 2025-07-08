@@ -102,12 +102,15 @@ class DeviceResource extends Resource
                             ->label('Created By')
                             ->default(auth()->user()?->pn ?? session('authenticated_user.pn'))
                             ->maxLength(7)
-                            ->required(),
+                            ->disabled()
+                            ->dehydrated(),
                         
                         Forms\Components\TextInput::make('updated_by')
                             ->label('Updated By')
                             ->default(auth()->user()?->pn ?? session('authenticated_user.pn'))
-                            ->maxLength(7),
+                            ->maxLength(7)
+                            ->disabled()
+                            ->dehydrated(),
                     ])
                     ->columns(2)
                     ->visibleOn('edit'),
