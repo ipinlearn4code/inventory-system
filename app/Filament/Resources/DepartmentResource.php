@@ -17,6 +17,30 @@ class DepartmentResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-building-office';
     protected static ?string $navigationGroup = 'Master Data';
 
+    public static function canViewAny(): bool
+    {
+        $auth = session('authenticated_user');
+        if (!$auth) return false;
+        
+        $authModel = \App\Models\Auth::where('pn', $auth['pn'])->first();
+        return $authModel && $authModel->hasRole('superadmin'); // Only superadmin can manage master data
+    }
+
+    public static function canCreate(): bool
+    {
+        return self::canViewAny();
+    }
+
+    public static function canEdit($record): bool
+    {
+        return self::canViewAny();
+    }
+
+    public static function canDelete($record): bool
+    {
+        return self::canViewAny();
+    }
+
     public static function form(Form $form): Form
     {
         return $form

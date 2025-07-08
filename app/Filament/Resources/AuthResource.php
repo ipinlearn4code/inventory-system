@@ -20,6 +20,62 @@ class AuthResource extends Resource
     protected static ?string $navigationGroup = 'User Management';
     protected static ?string $navigationLabel = 'Authentication';
 
+    public static function canViewAny(): bool
+    {
+        $auth = session('authenticated_user');
+        if (!$auth) return false;
+        
+        $authModel = \App\Models\Auth::where('pn', $auth['pn'])->first();
+        return $authModel && ($authModel->hasRole('superadmin') || $authModel->hasRole('admin'));
+    }
+
+    public static function canCreate(): bool
+    {
+        $auth = session('authenticated_user');
+        if (!$auth) return false;
+        
+        $authModel = \App\Models\Auth::where('pn', $auth['pn'])->first();
+        return $authModel && ($authModel->hasRole('superadmin') || $authModel->hasRole('admin'));
+    }
+
+    public static function canEdit($record): bool
+    {
+        $auth = session('authenticated_user');
+        if (!$auth) return false;
+        
+        $authModel = \App\Models\Auth::where('pn', $auth['pn'])->first();
+        
+        // Superadmin can edit all, admin can only edit regular users
+        if ($authModel->hasRole('superadmin')) {
+            return true;
+        }
+        
+        if ($authModel->hasRole('admin')) {
+            return $record->role === 'user'; // Admin can only edit regular users
+        }
+        
+        return false;
+    }
+
+    public static function canDelete($record): bool
+    {
+        $auth = session('authenticated_user');
+        if (!$auth) return false;
+        
+        $authModel = \App\Models\Auth::where('pn', $auth['pn'])->first();
+        
+        // Superadmin can delete all, admin can only delete regular users
+        if ($authModel->hasRole('superadmin')) {
+            return true;
+        }
+        
+        if ($authModel->hasRole('admin')) {
+            return $record->role === 'user'; // Admin can only delete regular users
+        }
+        
+        return false;
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -40,11 +96,28 @@ class AuthResource extends Resource
                     ->maxLength(50),
                 
                 Forms\Components\Select::make('role')
-                    ->options([
-                        'user' => 'User',
-                        'admin' => 'Admin',
-                        'superadmin' => 'Super Admin',
-                    ])
+                    ->options(function () {
+                        $auth = session('authenticated_user');
+                        if (!$auth) return [];
+                        
+                        $authModel = \App\Models\Auth::where('pn', $auth['pn'])->first();
+                        
+                        if ($authModel && $authModel->hasRole('superadmin')) {
+                            // Superadmin can assign any role
+                            return [
+                                'user' => 'User',
+                                'admin' => 'Admin',
+                                'superadmin' => 'Super Admin',
+                            ];
+                        } elseif ($authModel && $authModel->hasRole('admin')) {
+                            // Admin can only assign user role
+                            return [
+                                'user' => 'User',
+                            ];
+                        }
+                        
+                        return [];
+                    })
                     ->required(),
             ]);
     }

@@ -4,9 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Traits\HasRoles;
 
 class Auth extends Model
 {
+    use HasRoles;
+
+    protected $guard_name = 'web'; // Define the guard for Spatie permissions
+
     protected $table = 'auth';
     protected $primaryKey = 'pn';
     protected $keyType = 'string';

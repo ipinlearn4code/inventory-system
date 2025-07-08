@@ -19,6 +19,42 @@ class UserResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-users';
     protected static ?string $navigationGroup = 'User Management';
 
+    public static function canViewAny(): bool
+    {
+        $auth = session('authenticated_user');
+        if (!$auth) return false;
+        
+        $authModel = \App\Models\Auth::where('pn', $auth['pn'])->first();
+        return $authModel && ($authModel->hasRole('superadmin') || $authModel->hasRole('admin'));
+    }
+
+    public static function canCreate(): bool
+    {
+        $auth = session('authenticated_user');
+        if (!$auth) return false;
+        
+        $authModel = \App\Models\Auth::where('pn', $auth['pn'])->first();
+        return $authModel && $authModel->hasRole('superadmin');
+    }
+
+    public static function canEdit($record): bool
+    {
+        $auth = session('authenticated_user');
+        if (!$auth) return false;
+        
+        $authModel = \App\Models\Auth::where('pn', $auth['pn'])->first();
+        return $authModel && $authModel->hasRole('superadmin');
+    }
+
+    public static function canDelete($record): bool
+    {
+        $auth = session('authenticated_user');
+        if (!$auth) return false;
+        
+        $authModel = \App\Models\Auth::where('pn', $auth['pn'])->first();
+        return $authModel && $authModel->hasRole('superadmin');
+    }
+
     public static function form(Form $form): Form
     {
         return $form
