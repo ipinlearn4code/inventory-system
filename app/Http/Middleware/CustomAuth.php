@@ -2,8 +2,10 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class CustomAuth
@@ -20,6 +22,7 @@ class CustomAuth
             return redirect('/login');
         }
 
+        // Just proceed - no need to mess with Laravel's Auth system
         return $next($request);
     }
 }

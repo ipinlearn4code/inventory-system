@@ -49,8 +49,11 @@ class LoginController extends Controller
             'department_id' => $user->department_id,
         ]);
 
-        // Redirect to admin panel
-        return redirect()->intended('/admin');
+        // Debug: let's first test if session is working
+        Session::save(); // Force save session
+        
+        // Redirect to test page first to verify authentication
+        return redirect('/admin');
     }
 
     public function logout(Request $request)

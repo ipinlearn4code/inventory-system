@@ -27,7 +27,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login(false) // Disable Filament's built-in login
+            ->login(false) // Still disable Filament's login page
             ->colors([
                 'primary' => Color::Blue,
             ])
@@ -39,7 +39,6 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 \App\Filament\Widgets\UserInfoWidget::class,
-                Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
             ])
             ->navigationItems([
@@ -53,15 +52,15 @@ class AdminPanelProvider extends PanelProvider
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
-                AuthenticateSession::class,
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                \App\Http\Middleware\CustomAuth::class,
             ])
             ->authMiddleware([
-                \App\Http\Middleware\CustomAuth::class, // Use our custom auth middleware
+                \App\Http\Middleware\CustomAuth::class, // Only our custom auth
             ]);
     }
 }
