@@ -14,6 +14,11 @@ class LoginController extends Controller
 {
     public function showLoginForm()
     {
+        // If user is already authenticated, redirect to admin
+        if (session()->has('authenticated_user')) {
+            return redirect('/admin');
+        }
+        
         return view('auth.login');
     }
 

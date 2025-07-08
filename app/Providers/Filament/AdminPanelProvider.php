@@ -57,10 +57,9 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
-                \App\Http\Middleware\CustomAuth::class,
             ])
             ->authMiddleware([
-                \App\Http\Middleware\CustomAuth::class, // Only our custom auth
+                \App\Http\Middleware\CustomAuth::class, // Only in auth middleware
             ]);
     }
 }

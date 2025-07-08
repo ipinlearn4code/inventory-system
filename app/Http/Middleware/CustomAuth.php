@@ -17,12 +17,20 @@ class CustomAuth
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // Debug: log what's happening
+        \Log::info('CustomAuth middleware triggered', [
+            'url' => $request->url(),
+            'has_session' => session()->has('authenticated_user'),
+            'session_data' => session('authenticated_user')
+        ]);
+        
         // Check if user is authenticated via our custom session
         if (!session()->has('authenticated_user')) {
+            \Log::info('No authenticated user session, redirecting to login');
             return redirect('/login');
         }
 
-        // Just proceed - no need to mess with Laravel's Auth system
+        \Log::info('User is authenticated, allowing access');
         return $next($request);
     }
 }
