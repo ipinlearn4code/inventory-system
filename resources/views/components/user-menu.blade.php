@@ -31,14 +31,16 @@
     <div x-data="{ open: false }" class="relative">
         <!-- Avatar Button -->
         <button 
+            x-ref="button"
             @click="open = !open" 
             @click.away="open = false"
             class="flex items-center space-x-8 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         >
             <!-- Avatar Circle with Enhanced Styling -->
-            <div class="w-9 h-9 bg-gradient-to-br-{{ $colorClass }} rounded-full flex items-center justify-center text-{{ $colorClass }} text-sm font-bold shadow-lg ring-2 ring-{{ $colorClass }} dark:ring-gray-700 hover:shadow-xl transition-all duration-200">
+            <div class="w-9 h-9 bg-gradient-to-br {{ $colorClass }} rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg ring-2 ring-white dark:ring-gray-700 hover:shadow-xl transition-all duration-200">
                 {{ $initials }}
             </div>
+            
             
             <!-- Dropdown Arrow -->
             <svg 
@@ -61,15 +63,34 @@
             x-transition:leave="transition ease-in duration-75"
             x-transition:leave-start="transform opacity-100 scale-100"
             x-transition:leave-end="transform opacity-0 scale-95"
-            class="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 z-50"
+            class="absolute mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 z-50"
             style="display: none;"
+            x-init="
+                $watch('open', value => {
+                    if (value) {
+                        $nextTick(() => {
+                            const rect = $refs.button.getBoundingClientRect();
+                            const dropdown = $el;
+                            const viewportWidth = window.innerWidth;
+                            const dropdownWidth = 224; // w-56 = 14rem = 224px
+                            
+                            // Check if dropdown would overflow on the right
+                            if (rect.right + dropdownWidth > viewportWidth) {
+                                // Position to the left of the button
+                                dropdown.style.right = '0px';
+                                dropdown.style.left = 'auto';
+                            } else {
+                                // Position to the right of the button
+                                dropdown.style.left = '0px';
+                                dropdown.style.right = 'auto';
+                            }
+                        });
+                    }
+                })
+            "
         >
             <div class="p-4 border-b border-gray-200 dark:border-gray-700">
                 <div class="flex items-center space-x-4">
-                    <!-- Larger Avatar Circle in Dropdown -->
-                    <div class="w-12 h-12 bg-gradient-to-br {{ $colorClass }} rounded-full flex items-center justify-center text-white text-lg font-bold shadow-lg ring-3">
-                        {{ $initials }}
-                    </div>
                     <div>
                         <div class="font-medium text-gray-900 dark:text-white">
                             {{ $user['name'] ?? 'Unknown User' }}
