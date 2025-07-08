@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\UserResource\Pages;
+use App\Filament\Resources\AuthResource\Pages;
+use App\Models\Auth;
 use App\Models\User;
-use App\Models\Department;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -12,35 +12,40 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
-class UserResource extends Resource
+class AuthResource extends Resource
 {
-    protected static ?string $model = User::class;
+    protected static ?string $model = Auth::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-users';
+    protected static ?string $navigationIcon = 'heroicon-o-key';
     protected static ?string $navigationGroup = 'User Management';
+    protected static ?string $navigationLabel = 'Authentication';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('pn')
+                Forms\Components\Select::make('pn')
                     ->label('Personnel Number')
+                    ->options(User::all()->pluck('name', 'pn')->map(function ($name, $pn) {
+                        return "$pn - $name";
+                    }))
                     ->required()
-                    ->maxLength(8)
+                    ->searchable()
                     ->unique(ignoreRecord: true),
                 
-                Forms\Components\TextInput::make('name')
-                    ->required()
+                Forms\Components\TextInput::make('password')
+                    ->password()
+                    ->required(fn (string $operation): bool => $operation === 'create')
+                    ->dehydrated(fn ($state) => filled($state))
                     ->maxLength(50),
                 
-                Forms\Components\Select::make('department_id')
-                    ->label('Department')
-                    ->options(Department::all()->pluck('name', 'department_id'))
-                    ->required()
-                    ->searchable(),
-                
-                Forms\Components\TextInput::make('position')
-                    ->maxLength(100),
+                Forms\Components\Select::make('role')
+                    ->options([
+                        'user' => 'User',
+                        'admin' => 'Admin',
+                        'superadmin' => 'Super Admin',
+                    ])
+                    ->required(),
             ]);
     }
 
@@ -53,33 +58,32 @@ class UserResource extends Resource
                     ->searchable()
                     ->sortable(),
                 
-                Tables\Columns\TextColumn::make('name')
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('Name')
                     ->searchable()
                     ->sortable(),
                 
-                Tables\Columns\TextColumn::make('department.name')
+                Tables\Columns\TextColumn::make('user.department.name')
                     ->label('Department')
                     ->searchable()
                     ->sortable(),
                 
-                Tables\Columns\TextColumn::make('position')
-                    ->searchable(),
-                
-                Tables\Columns\TextColumn::make('auth.role')
-                    ->label('Role')
+                Tables\Columns\TextColumn::make('role')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'superadmin' => 'danger',
-                        'admin' => 'warning', 
+                        'admin' => 'warning',
                         'user' => 'success',
                         default => 'gray',
-                    })
-                    ->default('No Access'),
+                    }),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('department_id')
-                    ->label('Department')
-                    ->options(Department::all()->pluck('name', 'department_id')),
+                Tables\Filters\SelectFilter::make('role')
+                    ->options([
+                        'user' => 'User',
+                        'admin' => 'Admin', 
+                        'superadmin' => 'Super Admin',
+                    ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -102,9 +106,9 @@ class UserResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListUsers::route('/'),
-            'create' => Pages\CreateUser::route('/create'),
-            'edit' => Pages\EditUser::route('/{record}/edit'),
+            'index' => Pages\ListAuths::route('/'),
+            'create' => Pages\CreateAuth::route('/create'),
+            'edit' => Pages\EditAuth::route('/{record}/edit'),
         ];
     }
 }
