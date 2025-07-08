@@ -42,7 +42,6 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 \App\Filament\Widgets\UserInfoWidget::class,
-                \App\Filament\Widgets\PermissionMatrixWidget::class,
                 Widgets\FilamentInfoWidget::class,
             ])
             ->middleware([

@@ -158,6 +158,54 @@ public static function canViewAny(): bool
 - `GET /admin` - Filament dashboard (requires authentication)
 - All admin routes require valid session
 
+## Permission Management Dashboard
+
+### SuperAdmin Permission Matrix
+SuperAdmins can access a comprehensive **Permission Matrix** page (`/admin/permission-matrix`) that provides:
+
+#### System-Defined Permissions (Cannot be Added/Deleted)
+The system uses a fixed set of permissions that are defined by the system architecture:
+
+| Permission Name | Description | User | Admin | SuperAdmin |
+|----------------|-------------|------|-------|------------|
+| `view own assignments` | View devices assigned to user | ✅ | ✅ | ✅ (Always) |
+| `make requests` | Make requests for devices | ✅ | ✅ | ✅ (Always) |
+| `manage devices` | Create, edit, delete devices | ❌ | ✅ | ✅ (Always) |
+| `manage assignments` | Create, edit, delete assignments | ❌ | ✅ | ✅ (Always) |
+| `manage regular users` | Manage users with user role | ❌ | ✅ | ✅ (Always) |
+| `manage regular auth` | Manage auth for regular users | ❌ | ✅ | ✅ (Always) |
+| `manage departments` | Manage department master data | ❌ | ❌ | ✅ (Always) |
+| `manage branches` | Manage branch master data | ❌ | ❌ | ✅ (Always) |
+| `manage briboxes` | Manage bribox categories | ❌ | ❌ | ✅ (Always) |
+| `setup master data` | Manage departments, branches, briboxes | ❌ | ❌ | ✅ (Always) |
+| `manage all users` | Manage any user | ❌ | ❌ | ✅ (Always) |
+| `manage all auth` | Manage any authentication record | ❌ | ❌ | ✅ (Always) |
+| `view audit logs` | View system audit logs | ❌ | ❌ | ✅ (Always) |
+| `export data` | Export system data | ❌ | ❌ | ✅ (Always) |
+
+#### Interactive Permission Management
+- **✅ Clickable checkboxes** for User and Admin roles
+- **🔒 Disabled checkboxes** for SuperAdmin (always has all permissions)
+- **Real-time updates** with immediate notification feedback
+- **Visual indicators** with color-coded role badges
+- **Hover tooltips** explaining each action
+
+#### Access Control
+- **Only SuperAdmins** can access the Permission Matrix
+- **System integrity** - Core permissions cannot be deleted or added
+- **Role protection** - SuperAdmin permissions cannot be modified
+- **Change notifications** - Success/warning messages for all changes
+
+### Navigation Structure
+```
+Admin Panel
+└── Permission Management
+    └── Permission Matrix (SuperAdmin only)
+└── User Management  
+    ├── Users (Admin/SuperAdmin)
+    └── Authentication (Admin/SuperAdmin with restrictions)
+```
+
 ## Development Notes
 
 ### Adding New Permissions

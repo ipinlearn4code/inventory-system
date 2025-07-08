@@ -23,11 +23,7 @@ class PermissionManagementResource extends Resource
 
     public static function canViewAny(): bool
     {
-        $auth = session('authenticated_user');
-        if (!$auth) return false;
-        
-        $authModel = \App\Models\Auth::where('pn', $auth['pn'])->first();
-        return $authModel && $authModel->hasRole('superadmin'); // Only superadmin
+        return false; // Disabled - use Permission Matrix page instead
     }
 
     public static function canCreate(): bool
