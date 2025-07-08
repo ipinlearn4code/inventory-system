@@ -60,7 +60,9 @@
                                             @if($roleData['disabled'])
                                                 <!-- SuperAdmin - Always has permission, disabled -->
                                                 <div class="flex items-center justify-center">
-                                                    <x-heroicon-s-check-circle class="h-6 w-6 text-green-500" />
+                                                    <svg class="h-6 w-6" style="color: #10b981;" viewBox="0 0 24 24" fill="currentColor">
+                                                        <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />
+                                                    </svg>
                                                     <span class="ml-1 text-xs text-gray-400">(Always)</span>
                                                 </div>
                                             @else
@@ -71,9 +73,13 @@
                                                     title="{{ $roleData['has_permission'] ? 'Click to revoke permission' : 'Click to grant permission' }}"
                                                 >
                                                     @if($roleData['has_permission'])
-                                                        <x-heroicon-s-check-circle class="h-6 w-6 text-green-500 hover:text-green-600" />
+                                                        <svg class="h-6 w-6 transition-colors duration-200" style="color: #10b981;" viewBox="0 0 24 24" fill="currentColor" onmouseover="this.style.color='#059669'" onmouseout="this.style.color='#10b981'">
+                                                            <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />
+                                                        </svg>
                                                     @else
-                                                        <x-heroicon-s-x-circle class="h-6 w-6 text-gray-300 hover:text-gray-400 dark:text-gray-600 dark:hover:text-gray-500" />
+                                                        <svg class="h-6 w-6 transition-colors duration-200" style="color: #d1d5db;" viewBox="0 0 24 24" fill="currentColor" onmouseover="this.style.color='#9ca3af'" onmouseout="this.style.color='#d1d5db'">
+                                                            <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z" clip-rule="evenodd" />
+                                                        </svg>
                                                     @endif
                                                 </button>
                                             @endif
@@ -93,15 +99,21 @@
                 <h4 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Legend</h4>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="flex items-center space-x-3">
-                        <x-heroicon-s-check-circle class="h-5 w-5 text-green-500" />
+                        <svg class="h-5 w-5" style="color: #10b981;" viewBox="0 0 24 24" fill="currentColor">
+                            <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />
+                        </svg>
                         <span class="text-sm text-gray-600 dark:text-gray-400">Permission Granted</span>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <x-heroicon-s-x-circle class="h-5 w-5 text-gray-300 dark:text-gray-600" />
+                        <svg class="h-5 w-5" style="color: #d1d5db;" viewBox="0 0 24 24" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z" clip-rule="evenodd" />
+                        </svg>
                         <span class="text-sm text-gray-600 dark:text-gray-400">Permission Denied</span>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <x-heroicon-s-check-circle class="h-5 w-5 text-green-500" />
+                        <svg class="h-5 w-5" style="color: #10b981;" viewBox="0 0 24 24" fill="currentColor">
+                            <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />
+                        </svg>
                         <span class="text-sm text-gray-600 dark:text-gray-400">(Always) - Cannot be modified</span>
                     </div>
                 </div>
