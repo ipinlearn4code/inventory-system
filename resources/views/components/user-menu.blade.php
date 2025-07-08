@@ -34,7 +34,7 @@
             class="flex items-center space-x-8 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
             <!-- Avatar Circle with Enhanced Styling -->
             <div
-                class="w-9 h-9 bg-gradient-to-br {{ $colorClass }} rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg ring-2 ring-white dark:ring-gray-700 hover:shadow-xl transition-all duration-200">
+                class="w-9 h-9 bg-gradient-to-br {{ $colorClass }} rounded-full flex items-center justify-center text-blue text-sm font-bold shadow-lg ring-2 ring-blue dark:ring-gray-00 hover:shadow-xl transition-all duration-200">
                 {{ $initials }}
             </div>
 
@@ -47,12 +47,13 @@
         </button>
 
         <!-- Dropdown Menu -->
-        <div x-show="open" x-transition:enter="transition ease-out duration-100"
+        <div x-show="open" x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="transform opacity-0 scale-95"
-            x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75"
+            x-transition:enter-end="transform opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-150"
             x-transition:leave-start="transform opacity-100 scale-100"
             x-transition:leave-end="transform opacity-0 scale-95"
-            class="absolute mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 z-50"
+            class="absolute mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-xl ring-1 ring-gray-200 dark:ring-gray-700 z-50 overflow-hidden"
             style="display: none;" x-init="
                 $watch('open', value => {
                     if (value) {
@@ -76,10 +77,17 @@
                     }
                 })
             ">
-            <div class="p-5 border-b border-gray-200 dark:border-gray-700">
-                <div class="flex items-center space-x-4">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-center">
+                <!-- Avatar Circle in Dropdown -->
+                <div
+                    class="w-9 h-9 bg-gradient-to-br {{ $colorClass }} rounded-full flex items-center justify-center text-blue text-sm font-bold shadow-lg ring-2 ring-blue dark:ring-gray-00">
+                    {{ $initials }}
+                </div>
+            </div>
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex items-center space-x-3">
                     <div class="flex-1 min-w-0">
-                        <div class="font-semibold text-gray-900 dark:text-white text-base truncate">
+                        <div class="font-semibold text-gray-900 dark:text-blue text-base truncate">
                             {{ $user['name'] ?? 'Unknown User' }}
                         </div>
                         <div class="text-sm text-gray-500 dark:text-gray-400 truncate">
@@ -92,11 +100,12 @@
                 </div>
             </div>
 
-            <div class="py-3">
+            <div class="py-2">
                 <!-- Profile/Settings (placeholder for future) -->
                 <a href="#"
-                    class="flex items-center px-5 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150">
-                    <svg class="w-4 h-4 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="flex items-center px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 rounded-md mx-2">
+                    <svg class="w-5 h-5 mr-3 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                     </svg>
@@ -104,13 +113,14 @@
                 </a>
 
                 <!-- Divider -->
-                <div class="border-t border-gray-200 dark:border-gray-700 mx-3 my-2"></div>
+                <div class="border-t border-gray-200 dark:border-gray-700 my-2"></div>
 
                 <!-- Logout -->
                 <a href="/logout"
-                    class="flex items-center px-5 py-3 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-150"
+                    class="flex items-center px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200 rounded-md mx-2"
                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                    <svg class="w-4 h-4 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 mr-3 flex-shrink-0 text-red-500" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
                         </path>
