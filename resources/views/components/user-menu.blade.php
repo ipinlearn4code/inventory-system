@@ -1,6 +1,30 @@
 @php
     $user = session('authenticated_user');
-    $initials = $user ? strtoupper(substr($user['name'], 0, 1) . substr($user['name'], strpos($user['name'], ' ') + 1, 1)) : 'UN';
+    // Enhanced initials logic to handle various name formats
+    $initials = 'UN'; // Default
+    if ($user && !empty($user['name'])) {
+        $nameParts = explode(' ', trim($user['name']));
+        if (count($nameParts) >= 2) {
+            // First name + Last name
+            $initials = strtoupper(substr($nameParts[0], 0, 1) . substr($nameParts[count($nameParts)-1], 0, 1));
+        } else {
+            // Single name - use first two characters
+            $initials = strtoupper(substr($user['name'], 0, 2));
+        }
+    }
+    
+    // Dynamic color based on user role with better fallback
+    $avatarColors = [
+        'superadmin' => 'from-red-600 to-red-700 ring-red-100 dark:ring-red-900',
+        'admin' => 'from-blue-600 to-blue-700 ring-blue-100 dark:ring-blue-900',
+        'manager' => 'from-purple-600 to-purple-700 ring-purple-100 dark:ring-purple-900',
+        'supervisor' => 'from-orange-600 to-orange-700 ring-orange-100 dark:ring-orange-900',
+        'user' => 'from-green-600 to-green-700 ring-green-100 dark:ring-green-900',
+        'guest' => 'from-gray-600 to-gray-700 ring-gray-100 dark:ring-gray-900',
+    ];
+    
+    $userRole = strtolower($user['role'] ?? 'user');
+    $colorClass = $avatarColors[$userRole] ?? $avatarColors['user'];
 @endphp
 
 <div class="flex items-center">
@@ -9,21 +33,11 @@
         <button 
             @click="open = !open" 
             @click.away="open = false"
-            class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            class="flex items-center space-x-8 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         >
-            <!-- Avatar -->
-            <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+            <!-- Avatar Circle with Enhanced Styling -->
+            <div class="w-9 h-9 bg-gradient-to-br-{{ $colorClass }} rounded-full flex items-center justify-center text-{{ $colorClass }} text-sm font-bold shadow-lg ring-2 ring-{{ $colorClass }} dark:ring-gray-700 hover:shadow-xl transition-all duration-200">
                 {{ $initials }}
-            </div>
-            
-            <!-- User Info -->
-            <div class="hidden md:block text-left">
-                <div class="text-sm font-medium text-gray-900 dark:text-white">
-                    {{ $user['name'] ?? 'Unknown User' }}
-                </div>
-                <div class="text-xs text-gray-500 dark:text-gray-400">
-                    {{ $user['pn'] ?? 'N/A' }} • {{ ucfirst($user['role'] ?? 'user') }}
-                </div>
             </div>
             
             <!-- Dropdown Arrow -->
@@ -51,8 +65,9 @@
             style="display: none;"
         >
             <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+                <div class="flex items-center space-x-4">
+                    <!-- Larger Avatar Circle in Dropdown -->
+                    <div class="w-12 h-12 bg-gradient-to-br {{ $colorClass }} rounded-full flex items-center justify-center text-white text-lg font-bold shadow-lg ring-3">
                         {{ $initials }}
                     </div>
                     <div>
