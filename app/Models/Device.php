@@ -46,6 +46,6 @@ class Device extends Model
     public function currentAssignment()
     {
         return $this->hasOne(DeviceAssignment::class, 'device_id', 'device_id')
-                    ->whereNull('date_end');
+                    ->whereNull('returned_date');
     }
 }
