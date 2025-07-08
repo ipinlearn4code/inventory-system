@@ -11,7 +11,10 @@ use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets;
+use Illuminate\Contracts\View\View;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -41,13 +44,6 @@ class AdminPanelProvider extends PanelProvider
                 \App\Filament\Widgets\UserInfoWidget::class,
                 Widgets\FilamentInfoWidget::class,
             ])
-            ->navigationItems([
-                NavigationItem::make('Logout')
-                    ->url('/logout')
-                    ->icon('heroicon-o-arrow-right-on-rectangle')
-                    ->group('Settings')
-                    ->sort(999),
-            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -61,5 +57,30 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 \App\Http\Middleware\CustomAuth::class, // Only in auth middleware
             ]);
+    }
+
+    public function boot(): void
+    {
+        // Register the user menu component in the top bar
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::TOPBAR_END,
+            fn (): View => view('components.user-menu'),
+        );
+
+        // Add custom CSS for better styling
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::HEAD_END,
+            fn (): string => '<style>
+                .fi-topbar-end-ctn { 
+                    display: flex; 
+                    align-items: center; 
+                    gap: 1rem; 
+                }
+                /* Ensure dropdown is above other elements */
+                .fi-dropdown-panel {
+                    z-index: 9999 !important;
+                }
+            </style>',
+        );
     }
 }
