@@ -1,3 +1,3 @@
 <x-filament-panels::page>
-asdkbajsfbkjsbf
+Ini dashboard
 </x-filament-panels::page>
