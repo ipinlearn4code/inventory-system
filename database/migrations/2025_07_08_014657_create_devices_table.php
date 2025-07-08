@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('spec4', 100)->nullable();
             $table->string('spec5', 100)->nullable();
             $table->date('dev_date')->nullable();
-            $table->datetime('created_at');
+            $table->timestamp('created_at')->useCurrent();
             $table->string('created_by', 7);
             $table->datetime('updated_at')->nullable();
             $table->string('updated_by', 7)->nullable();

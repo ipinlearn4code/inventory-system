@@ -16,4 +16,15 @@ class EditDevice extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        // Get the current user's PN from session or auth
+        $currentUserPn = auth()->user()?->pn ?? session('authenticated_user.pn');
+        
+        $data['updated_by'] = $currentUserPn;
+        $data['updated_at'] = now();
+        
+        return $data;
+    }
 }

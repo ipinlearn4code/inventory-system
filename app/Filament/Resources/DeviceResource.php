@@ -40,7 +40,16 @@ class DeviceResource extends Resource
                             ->label('Asset Code')
                             ->required()
                             ->maxLength(20)
-                            ->unique(ignoreRecord: true),
+                            ->unique(ignoreRecord: true)
+                            ->suffixAction(
+                                Forms\Components\Actions\Action::make('generate')
+                                    ->icon('heroicon-m-arrow-path')
+                                    ->tooltip('Generate Asset Code')
+                                    ->action(function (Forms\Set $set) {
+                                        $assetCode = self::generateAssetCode();
+                                        $set('asset_code', $assetCode);
+                                    })
+                            ),
                         
                         Forms\Components\Select::make('bribox_id')
                             ->label('Bribox Category')
@@ -189,5 +198,26 @@ class DeviceResource extends Resource
             'create' => Pages\CreateDevice::route('/create'),
             'edit' => Pages\EditDevice::route('/{record}/edit'),
         ];
+    }
+
+    /**
+     * Generate a unique 15-character alphanumeric asset code
+     */
+    public static function generateAssetCode(): string
+    {
+        do {
+            // Generate a 15-character alphanumeric code
+            $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            $assetCode = '';
+            
+            for ($i = 0; $i < 15; $i++) {
+                $assetCode .= $characters[rand(0, strlen($characters) - 1)];
+            }
+            
+            // Check if this code already exists
+            $exists = Device::where('asset_code', $assetCode)->exists();
+        } while ($exists);
+        
+        return $assetCode;
     }
 }
