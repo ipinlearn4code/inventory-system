@@ -55,6 +55,42 @@ Contains authentication credentials and roles:
 
 **Filament Access**: Full access to all resources and functions
 
+## Permission Management Dashboard
+
+### 🎛️ SuperAdmin Features
+SuperAdmins have access to a comprehensive Permission Management system with the following features:
+
+#### Permission Matrix Widget
+- **Visual Overview**: Interactive matrix showing all roles and permissions
+- **Quick Toggle**: Click on any permission cell to instantly grant/revoke permissions
+- **Real-time Updates**: Changes are applied immediately with visual feedback
+- **Color-coded Roles**: Easy identification of different role types
+
+#### Role Management Resource
+- **Create/Edit Roles**: Add new roles or modify existing ones
+- **Bulk Permission Assignment**: Assign multiple permissions to roles at once
+- **Role Statistics**: View permission count and user count per role
+- **Core Role Protection**: System prevents deletion of essential roles (user, admin, superadmin)
+
+#### Permission Management Resource
+- **Create/Edit Permissions**: Add new permissions or modify existing ones
+- **Role Assignment**: See which roles have each permission
+- **Core Permission Protection**: System prevents deletion of essential permissions
+- **Bulk Operations**: Manage multiple permissions simultaneously
+
+### 📊 Dashboard Access
+SuperAdmins can access these features from:
+- **Main Dashboard**: Permission Matrix widget for quick overview
+- **Navigation Menu**: "Permission Management" section with:
+  - Roles → Manage roles and their permissions
+  - Permissions → Manage individual permissions
+
+### 🔄 Real-time Permission Updates
+- Changes are applied instantly without page refresh
+- Visual feedback with success/warning notifications
+- Automatic matrix refresh when permissions change
+- Session-based permission checking for security
+
 ## Test Accounts
 
 ### Production Admin Account
@@ -125,9 +161,25 @@ public static function canViewAny(): bool
 ## Development Notes
 
 ### Adding New Permissions
-1. Add permission to `PermissionSeeder.php`
-2. Assign to appropriate roles
-3. Run: `php artisan db:seed --class=PermissionSeeder`
+1. Navigate to **Permission Management** in admin panel
+2. Click **Create Permission**
+3. Enter descriptive permission name (e.g., "manage reports")
+4. Assign to appropriate roles
+5. Or add permission to `PermissionSeeder.php` for permanent addition
+6. Run: `php artisan db:seed --class=PermissionSeeder`
+
+### Creating New Roles
+1. Navigate to **Role Management** in admin panel
+2. Click **Create Role**
+3. Enter role name and select permissions
+4. Save to create the role
+5. Assign to users via Auth Management
+
+### Modifying Permission Matrix
+1. Access the **Permission Matrix** widget on dashboard
+2. Click any permission cell to toggle on/off
+3. Changes apply immediately
+4. Use bulk operations in Role/Permission resources for major changes
 
 ### Creating New Users
 1. Create user record in `users` table
