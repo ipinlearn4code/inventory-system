@@ -2,37 +2,39 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\DepartmentResource\Pages;
-use App\Models\Department;
+use App\Filament\Resources\BriboxResource\Pages;
+use App\Models\Bribox;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 
-class DepartmentResource extends Resource
+class BriboxResource extends Resource
 {
-    protected static ?string $model = Department::class;
+    protected static ?string $model = Bribox::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-building-office';
+    protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
     protected static ?string $navigationGroup = 'Master Data';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('department_id')
-                    ->label('Department ID')
+                Forms\Components\TextInput::make('bribox_id')
+                    ->label('Bribox ID')
                     ->required()
-                    ->maxLength(4)
+                    ->maxLength(2)
                     ->unique(ignoreRecord: true)
-                    ->placeholder('e.g., IT01'),
+                    ->placeholder('e.g., PC'),
                 
-                Forms\Components\TextInput::make('name')
-                    ->label('Department Name')
+                Forms\Components\TextInput::make('type')
                     ->required()
-                    ->maxLength(50)
-                    ->unique(ignoreRecord: true),
+                    ->maxLength(25),
+                
+                Forms\Components\TextInput::make('category')
+                    ->required()
+                    ->maxLength(25),
             ]);
     }
 
@@ -40,19 +42,22 @@ class DepartmentResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('department_id')
-                    ->label('Department ID')
+                Tables\Columns\TextColumn::make('bribox_id')
+                    ->label('Bribox ID')
                     ->searchable()
                     ->sortable(),
                 
-                Tables\Columns\TextColumn::make('name')
-                    ->label('Department Name')
+                Tables\Columns\TextColumn::make('type')
                     ->searchable()
                     ->sortable(),
                 
-                Tables\Columns\TextColumn::make('users_count')
-                    ->label('Users Count')
-                    ->counts('users')
+                Tables\Columns\TextColumn::make('category')
+                    ->searchable()
+                    ->sortable(),
+                
+                Tables\Columns\TextColumn::make('devices_count')
+                    ->label('Devices Count')
+                    ->counts('devices')
                     ->sortable(),
             ])
             ->filters([
@@ -79,9 +84,9 @@ class DepartmentResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListDepartments::route('/'),
-            'create' => Pages\CreateDepartment::route('/create'),
-            'edit' => Pages\EditDepartment::route('/{record}/edit'),
+            'index' => Pages\ListBriboxes::route('/'),
+            'create' => Pages\CreateBribox::route('/create'),
+            'edit' => Pages\EditBribox::route('/{record}/edit'),
         ];
     }
 }

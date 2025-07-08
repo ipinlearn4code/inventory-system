@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('briboxes', function (Blueprint $table) {
             $table->string('bribox_id', 2)->primary();
-            $table->string('type', 25);
-            $table->string('category', 25);
+            $table->string('type', 50);
+            $table->string('category', 50);
             $table->index('bribox_id');
             $table->index('type');
             $table->index('category');
