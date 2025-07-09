@@ -29,7 +29,7 @@ class Auth extends Model
     ];
 
     protected $casts = [
-        'password' => 'hashed',
+        // Remove password hashing from casts since we handle it in seeder
     ];
 
     public function user()
@@ -37,11 +37,6 @@ class Auth extends Model
         return $this->belongsTo(User::class, 'pn', 'pn');
     }
 
-    // Hash password when setting
-    public function setPasswordAttribute($value)
-    {
-        if (!empty($value)) {
-            $this->attributes['password'] = Hash::make($value);
-        }
-    }
+    // Note: Password hashing is handled in the seeder using Hash::make()
+    // No need for setPasswordAttribute mutator to avoid double-hashing
 }
