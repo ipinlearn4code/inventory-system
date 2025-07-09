@@ -34,7 +34,7 @@ class AssignmentLetterResource extends Resource
                             ->get()
                             ->mapWithKeys(function ($assignment) {
                                 return [$assignment->assignment_id => 
-                                    $assignment->user->full_name . ' - ' . $assignment->device->device_name
+                                    $assignment->user->name . ' - ' . $assignment->device->asset_code
                                 ];
                             });
                     })
@@ -63,7 +63,7 @@ class AssignmentLetterResource extends Resource
 
                 Forms\Components\Select::make('approver_id')
                     ->label('Approver')
-                    ->options(\App\Models\User::pluck('full_name', 'user_id'))
+                    ->options(\App\Models\User::pluck('name', 'user_id'))
                     ->searchable()
                     ->required(),
 
@@ -101,13 +101,13 @@ class AssignmentLetterResource extends Resource
                         'maintenance' => 'danger',
                     }),
 
-                Tables\Columns\TextColumn::make('assignment.user.full_name')
+                Tables\Columns\TextColumn::make('assignment.user.name')
                     ->label('User')
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('assignment.device.device_name')
-                    ->label('Device')
+                Tables\Columns\TextColumn::make('assignment.device.asset_code')
+                    ->label('Asset Code')
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('letter_date')
@@ -115,7 +115,7 @@ class AssignmentLetterResource extends Resource
                     ->date()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('approver.full_name')
+                Tables\Columns\TextColumn::make('approver.name')
                     ->label('Approver')
                     ->searchable(),
 

@@ -34,6 +34,10 @@ class DeviceAssignment extends Model
     {
         return $this->belongsTo(Device::class, 'device_id', 'device_id');
     }
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'department_id', 'department_id');
+    }
 
     public function user()
     {

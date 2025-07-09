@@ -49,7 +49,7 @@
                                             'roleId' => $role->id,
                                             'permissionId' => $permission->id,
                                             'hasPermission' => $hasPermission
-                                        ], key: $role->id . '-' . $permission->id)
+                                        ])
                                     @endif
                                 </td>
                             @endforeach
@@ -60,16 +60,17 @@
         </div>
 
         <div class="mt-6 flex flex-wrap gap-3">
-            <a href="{{ route('filament.admin.resources.role-management.index') }}" 
+            <button 
+               onclick="window.location.reload()" 
                class="inline-flex items-center gap-2 rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
-                <x-heroicon-s-shield-check class="h-4 w-4" />
-                Manage Roles
-            </a>
+                <x-heroicon-s-arrow-path class="h-4 w-4" />
+                Refresh Matrix
+            </button>
             
-            <a href="{{ route('filament.admin.resources.permission-management.index') }}" 
+            <a href="{{ route('filament.admin.pages.dashboard') }}" 
                class="inline-flex items-center gap-2 rounded-md bg-gray-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">
-                <x-heroicon-s-key class="h-4 w-4" />
-                Manage Permissions
+                <x-heroicon-s-home class="h-4 w-4" />
+                Back to Dashboard
             </a>
         </div>
     </x-filament::section>
