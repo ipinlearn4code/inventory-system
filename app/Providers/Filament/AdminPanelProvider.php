@@ -40,6 +40,7 @@ class AdminPanelProvider extends PanelProvider
                 \App\Filament\Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+            // ->discoverWidgets(false)
             ->widgets([
                 \App\Filament\Widgets\UserInfoWidget::class,
                 \App\Filament\Widgets\GlobalFilterWidget::class,
@@ -49,7 +50,7 @@ class AdminPanelProvider extends PanelProvider
                 \App\Filament\Widgets\DevicesNeedAttentionWidget::class,
                 \App\Filament\Widgets\ActivityLogWidget::class,
                 \App\Filament\Widgets\QuickActionsWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                // Widgets\FilamentInfoWidget::class,
             ])
             ->spa() // Enable SPA mode for better performance
             ->unsavedChangesAlerts() // Add unsaved changes alerts

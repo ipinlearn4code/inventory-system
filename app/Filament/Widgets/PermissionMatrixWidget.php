@@ -16,7 +16,14 @@ class PermissionMatrixWidget extends Widget
 
     protected $listeners = ['permission-updated' => '$refresh'];
 
+    // Disable this widget from appearing on dashboard
     public static function canView(): bool
+    {
+        return false; // Never show on dashboard
+    }
+
+    // Keep the original canView logic for other places if needed
+    public static function canViewForSuperadmin(): bool
     {
         $auth = session('authenticated_user');
         if (!$auth) return false;
