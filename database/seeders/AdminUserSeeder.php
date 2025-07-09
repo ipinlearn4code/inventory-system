@@ -17,10 +17,10 @@ class AdminUserSeeder extends Seeder
     public function run(): void
     {
         // Create IT department
-        $department = Department::create([
-            'department_id' => 'IT01',
-            'name' => 'Information Technology'
-        ]);
+        // $department = Department::create([
+        //     'department_id' => 'IT01',
+        //     'name' => 'Information Technology'
+        // ]);
 
         // Create admin user
         $user = User::create([
@@ -28,12 +28,11 @@ class AdminUserSeeder extends Seeder
             'name' => 'System Administrator',
             'department_id' => 'IT01',
             'position' => 'System Administrator',
-            'email' => 'admin@inventory.com',
-            'password' => Hash::make('password123'),
+            // 'password' => Hash::make('password123'),
         ]);
 
         // Create auth record
-        Auth::create([
+        Auth::create(attributes: [
             'pn' => 'ADM001',
             'password' => Hash::make('password123'),
             'role' => 'superadmin'
