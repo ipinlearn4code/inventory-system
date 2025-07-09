@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Auth;
+use Spatie\Permission\Models\Role;
 
 class AuthSeeder extends Seeder
 {
@@ -17,8 +18,14 @@ class AuthSeeder extends Seeder
             ['pn' => 'SUPER01', 'password' => Hash::make('super123'), 'role' => 'superadmin'],
         ];
 
-        foreach ($auths as $auth) {
-            Auth::create($auth);
+        foreach ($auths as $authData) {
+            $auth = Auth::create($authData);
+            
+            // Assign Spatie role to the auth model
+            $role = Role::where('name', $authData['role'])->first();
+            if ($role) {
+                $auth->assignRole($role);
+            }
         }
     }
 }
