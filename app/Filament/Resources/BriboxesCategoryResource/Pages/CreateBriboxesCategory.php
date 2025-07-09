@@ -9,4 +9,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateBriboxesCategory extends CreateRecord
 {
     protected static string $resource = BriboxesCategoryResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

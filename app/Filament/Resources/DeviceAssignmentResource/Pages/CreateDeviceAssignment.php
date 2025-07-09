@@ -9,6 +9,11 @@ class CreateDeviceAssignment extends CreateRecord
 {
     protected static string $resource = DeviceAssignmentResource::class;
 
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $auth = session('authenticated_user');
@@ -21,10 +26,5 @@ class CreateDeviceAssignment extends CreateRecord
         }
         
         return $data;
-    }
-
-    protected function getRedirectUrl(): string
-    {
-        return $this->getResource()::getUrl('index');
     }
 }

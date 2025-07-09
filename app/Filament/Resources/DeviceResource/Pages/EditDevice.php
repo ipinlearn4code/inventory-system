@@ -10,6 +10,11 @@ class EditDevice extends EditRecord
 {
     protected static string $resource = DeviceResource::class;
 
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+
     protected function getHeaderActions(): array
     {
         return [

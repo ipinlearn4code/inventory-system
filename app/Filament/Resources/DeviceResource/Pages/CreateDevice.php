@@ -10,6 +10,11 @@ class CreateDevice extends CreateRecord
 {
     protected static string $resource = DeviceResource::class;
 
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         // Get the current user's PN from session or auth

@@ -44,6 +44,8 @@ class AdminPanelProvider extends PanelProvider
                 \App\Filament\Widgets\UserInfoWidget::class,
                 Widgets\FilamentInfoWidget::class,
             ])
+            ->spa() // Enable SPA mode for better performance
+            ->unsavedChangesAlerts() // Add unsaved changes alerts
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -67,7 +69,7 @@ class AdminPanelProvider extends PanelProvider
             fn (): View => view('components.user-menu'),
         );
 
-        // Add custom CSS for better styling
+        // Add custom CSS for better styling and performance
         FilamentView::registerRenderHook(
             PanelsRenderHook::HEAD_END,
             fn (): string => '<style>
@@ -79,6 +81,19 @@ class AdminPanelProvider extends PanelProvider
                 /* Ensure dropdown is above other elements */
                 .fi-dropdown-panel {
                     z-index: 9999 !important;
+                }
+                /* Optimize Livewire reloads */
+                [wire\\:loading] {
+                    opacity: 0.6;
+                    pointer-events: none;
+                }
+                /* Improve table performance */
+                .fi-ta-table {
+                    will-change: auto;
+                }
+                /* Cache static elements */
+                .fi-header, .fi-sidebar {
+                    transform: translateZ(0);
                 }
             </style>',
         );

@@ -10,6 +10,11 @@ class CreateAuth extends CreateRecord
 {
     protected static string $resource = AuthResource::class;
 
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         // The password hashing is handled by the Auth model's setPasswordAttribute
