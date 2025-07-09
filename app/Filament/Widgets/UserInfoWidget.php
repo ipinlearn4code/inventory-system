@@ -7,6 +7,9 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class UserInfoWidget extends BaseWidget
 {
+    protected static ?int $sort = 1;
+    protected int | string | array $columnSpan = 'full';
+    
     protected function getStats(): array
     {
         $user = session('authenticated_user');
@@ -15,21 +18,21 @@ class UserInfoWidget extends BaseWidget
             return [];
         }
 
+        $currentDate = now()->locale('id')->translatedFormat('l, j F Y');
+        
         return [
-            Stat::make('Logged in as', $user['name'])
-                ->description('PN: ' . $user['pn'])
-                ->descriptionIcon('heroicon-m-user')
-                ->color('success'),
-                
-            Stat::make('Role', ucfirst($user['role']))
-                ->description('Access Level')
-                ->descriptionIcon('heroicon-m-shield-check')
-                ->color('info'),
-                
-            Stat::make('Department', $user['department_id'])
-                ->description('Department ID')
-                ->descriptionIcon('heroicon-m-building-office')
-                ->color('warning'),
+            Stat::make('Selamat datang, ' . $user['name'] . '!', $currentDate)
+                ->description('PN: ' . $user['pn'] . ' | Role: ' . ucfirst($user['role']))
+                ->descriptionIcon('heroicon-m-user-circle')
+                ->color('primary')
+                ->extraAttributes([
+                    'class' => 'text-center',
+                ]),
         ];
+    }
+
+    protected function getColumns(): int
+    {
+        return 1;
     }
 }

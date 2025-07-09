@@ -37,11 +37,18 @@ class AdminPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
-                Pages\Dashboard::class,
+                \App\Filament\Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 \App\Filament\Widgets\UserInfoWidget::class,
+                \App\Filament\Widgets\GlobalFilterWidget::class,
+                \App\Filament\Widgets\InventoryOverviewWidget::class,
+                \App\Filament\Widgets\DeviceConditionChartWidget::class,
+                \App\Filament\Widgets\DeviceDistributionChartWidget::class,
+                \App\Filament\Widgets\DevicesNeedAttentionWidget::class,
+                \App\Filament\Widgets\ActivityLogWidget::class,
+                \App\Filament\Widgets\QuickActionsWidget::class,
                 Widgets\FilamentInfoWidget::class,
             ])
             ->spa() // Enable SPA mode for better performance
@@ -94,6 +101,33 @@ class AdminPanelProvider extends PanelProvider
                 /* Cache static elements */
                 .fi-header, .fi-sidebar {
                     transform: translateZ(0);
+                }
+                /* Dashboard responsive improvements */
+                .fi-wi-stats-overview .fi-wi-stats-overview-stat {
+                    @media (max-width: 768px) {
+                        min-height: auto;
+                    }
+                }
+                /* Chart widget improvements */
+                .fi-wi-chart {
+                    min-height: 300px;
+                }
+                /* Table widget improvements */
+                .fi-wi-table .fi-ta-content {
+                    overflow-x: auto;
+                }
+                /* Widget spacing improvements */
+                .fi-da-widgets {
+                    gap: 1.5rem;
+                }
+                /* Quick action buttons */
+                .quick-action-btn {
+                    transition: all 0.2s ease;
+                    border-radius: 0.5rem;
+                }
+                .quick-action-btn:hover {
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
                 }
             </style>',
         );
