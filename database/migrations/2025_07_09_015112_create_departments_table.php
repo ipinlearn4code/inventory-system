@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('briboxes', function (Blueprint $table) {
-            $table->string('bribox_id', 2)->primary();
-            $table->string('type', 50);
-            $table->string('category', 50);
-            $table->index('bribox_id');
-            $table->index('type');
-            $table->index('category');
+        Schema::create('departments', function (Blueprint $table) {
+            $table->string('department_id', 4)->primary();
+            $table->string('name', 50)->unique()->notNull();
+            
+            $table->index('name');
         });
     }
 
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('briboxes');
+        Schema::dropIfExists('departments');
     }
 };

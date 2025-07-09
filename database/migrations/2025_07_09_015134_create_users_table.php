@@ -12,12 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->string('pn', 8)->primary();
-            $table->string('name', 50);
-            $table->string('department_id', 4);
+            $table->smallIncrements('user_id');
+            $table->string('pn', 8)->unique()->notNull();
+            $table->string('name', 50)->notNull();
+            $table->string('department_id', 4)->notNull();
             $table->string('position', 100)->nullable();
+            
             $table->foreign('department_id')->references('department_id')->on('departments')
                   ->onDelete('restrict')->onUpdate('cascade');
+            
             $table->index('pn');
             $table->index('department_id');
         });

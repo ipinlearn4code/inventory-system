@@ -12,9 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('auth', function (Blueprint $table) {
-            $table->string('pn', 8)->unique();
-            $table->string('password', 255);
-            $table->enum('role', ['user', 'admin', 'superadmin']);
+            $table->string('pn', 8)->unique()->notNull();
+            $table->string('password', 50)->notNull();
+            $table->enum('role', ['user', 'admin', 'superadmin'])->notNull();
+            
             $table->foreign('pn')->references('pn')->on('users')
                   ->onDelete('restrict')->onUpdate('cascade');
         });

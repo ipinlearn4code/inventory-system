@@ -12,26 +12,27 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('device_assignments', function (Blueprint $table) {
-            $table->id('assignment_id');
-            $table->unsignedBigInteger('device_id');
-            $table->string('pn', 8)->nullable();
-            $table->string('branch_code', 8);
-            $table->date('assigned_date');
+            $table->increments('assignment_id');
+            $table->integer('device_id')->unsigned()->notNull();
+            $table->smallInteger('user_id')->unsigned()->notNull();
+            $table->tinyInteger('branch_id')->unsigned()->notNull();
+            $table->date('assigned_date')->notNull();
             $table->date('returned_date')->nullable();
-            $table->enum('status', ['Digunakan', 'Tidak Digunakan', 'Cadangan']);
+            $table->enum('status', ['Digunakan', 'Tidak Digunakan', 'Cadangan'])->notNull();
             $table->text('notes')->nullable();
-            $table->datetime('created_at');
-            $table->string('created_by', 7);
+            $table->datetime('created_at')->notNull();
+            $table->string('created_by', 7)->notNull();
             $table->datetime('updated_at')->nullable();
             $table->string('updated_by', 7)->nullable();
+            
             $table->foreign('device_id')->references('device_id')->on('devices')
                   ->onDelete('restrict')->onUpdate('cascade');
-            $table->foreign('pn')->references('pn')->on('users')
+            $table->foreign('user_id')->references('user_id')->on('users')
                   ->onDelete('restrict')->onUpdate('cascade');
-            $table->foreign('branch_code')->references('branch_code')->on('branches')
+            $table->foreign('branch_id')->references('branch_id')->on('branch')
                   ->onDelete('restrict')->onUpdate('cascade');
+            
             $table->index('device_id');
-            $table->index('pn');
             $table->index('assigned_date');
             $table->unique(['device_id', 'assigned_date']);
         });
