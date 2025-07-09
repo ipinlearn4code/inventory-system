@@ -18,12 +18,18 @@ class User extends Model
         'pn',
         'name',
         'department_id',
+        'branch_id',
         'position',
     ];
 
     public function department()
     {
         return $this->belongsTo(Department::class, 'department_id', 'department_id');
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class, 'branch_id', 'branch_id');
     }
 
     public function auth()

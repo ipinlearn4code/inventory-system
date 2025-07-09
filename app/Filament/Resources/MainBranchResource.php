@@ -65,23 +65,27 @@ class MainBranchResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('main_branch_id')
                     ->label('ID')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 
                 Tables\Columns\TextColumn::make('main_branch_code')
                     ->label('Code')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('main_branch_name')
                     ->label('Name')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('branches_count')
                     ->label('Branches')
                     ->counts('branches')
                     ->badge()
-                    ->color('success'),
+                    ->color('success')
+                    ->toggleable(),
             ])
             ->filters([
                 //

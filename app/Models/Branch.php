@@ -23,6 +23,11 @@ class Branch extends Model
         return $this->belongsTo(MainBranch::class, 'main_branch_id', 'main_branch_id');
     }
 
+    public function users()
+    {
+        return $this->hasMany(User::class, 'branch_id', 'branch_id');
+    }
+
     public function deviceAssignments()
     {
         return $this->hasMany(DeviceAssignment::class, 'branch_id', 'branch_id');

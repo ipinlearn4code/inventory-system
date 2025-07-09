@@ -129,17 +129,20 @@ class AuthResource extends Resource
                 Tables\Columns\TextColumn::make('pn')
                     ->label('PN')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Name')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('user.department.name')
                     ->label('Department')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('role')
                     ->badge()
@@ -148,7 +151,8 @@ class AuthResource extends Resource
                         'admin' => 'warning',
                         'user' => 'success',
                         default => 'gray',
-                    }),
+                    })
+                    ->toggleable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('role')

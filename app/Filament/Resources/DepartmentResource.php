@@ -67,17 +67,20 @@ class DepartmentResource extends Resource
                 Tables\Columns\TextColumn::make('department_id')
                     ->label('Department ID')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 
                 Tables\Columns\TextColumn::make('name')
                     ->label('Department Name')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('users_count')
                     ->label('Users Count')
                     ->counts('users')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
             ])
             ->filters([
                 //

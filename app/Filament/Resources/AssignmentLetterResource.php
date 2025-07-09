@@ -89,7 +89,8 @@ class AssignmentLetterResource extends Resource
                 Tables\Columns\TextColumn::make('letter_number')
                     ->label('Letter Number')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('letter_type')
                     ->label('Type')
@@ -99,31 +100,37 @@ class AssignmentLetterResource extends Resource
                         'return' => 'warning',
                         'transfer' => 'info',
                         'maintenance' => 'danger',
-                    }),
+                    })
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('assignment.user.name')
                     ->label('User')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('assignment.device.asset_code')
                     ->label('Asset Code')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('letter_date')
                     ->label('Letter Date')
                     ->date()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('approver.name')
                     ->label('Approver')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
 
                 Tables\Columns\IconColumn::make('file_path')
                     ->label('Has File')
                     ->boolean()
                     ->trueIcon('heroicon-o-document')
-                    ->falseIcon('heroicon-o-x-mark'),
+                    ->falseIcon('heroicon-o-x-mark')
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Created')

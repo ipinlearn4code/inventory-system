@@ -87,19 +87,29 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('pn')
                     ->label('PN')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('department.name')
                     ->label('Department')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
+                
+                Tables\Columns\TextColumn::make('branch.unit_name')
+                    ->label('Branch')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('position')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('active_assignments_count')
                     ->label('Devices Assigned')
@@ -113,7 +123,8 @@ class UserResource extends Resource
                         $state <= 5 => 'warning',
                         default => 'danger',
                     })
-                    ->suffix(' devices'),
+                    ->suffix(' devices')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('department_id')

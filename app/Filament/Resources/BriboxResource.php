@@ -72,22 +72,26 @@ class BriboxResource extends Resource
                 Tables\Columns\TextColumn::make('bribox_id')
                     ->label('Bribox ID')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 
                 Tables\Columns\TextColumn::make('type')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('category.category_name')
                     ->label('Category')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('devices_count')
                     ->label('Devices')
                     ->counts('devices')
                     ->badge()
-                    ->color('info'),
+                    ->color('info')
+                    ->toggleable(),
             ])
             ->filters([
                 //

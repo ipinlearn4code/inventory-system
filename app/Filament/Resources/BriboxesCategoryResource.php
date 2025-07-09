@@ -59,18 +59,21 @@ class BriboxesCategoryResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('bribox_category_id')
                     ->label('ID')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 
                 Tables\Columns\TextColumn::make('category_name')
                     ->label('Category Name')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('briboxes_count')
                     ->label('Briboxes')
                     ->counts('briboxes')
                     ->badge()
-                    ->color('success'),
+                    ->color('success')
+                    ->toggleable(),
             ])
             ->filters([
                 //

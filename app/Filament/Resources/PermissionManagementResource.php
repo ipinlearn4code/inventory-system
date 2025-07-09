@@ -83,18 +83,21 @@ class PermissionManagementResource extends Resource
                     ->label('Permission Name')
                     ->searchable()
                     ->sortable()
-                    ->wrap(),
+                    ->wrap()
+                    ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('guard_name')
                     ->label('Guard')
                     ->badge()
-                    ->color('gray'),
+                    ->color('gray')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 
                 Tables\Columns\TextColumn::make('roles_count')
                     ->label('Roles')
                     ->counts('roles')
                     ->badge()
-                    ->color('info'),
+                    ->color('info')
+                    ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('roles.name')
                     ->label('Assigned To')
@@ -105,7 +108,8 @@ class PermissionManagementResource extends Resource
                         'admin' => 'warning',
                         'user' => 'success',
                         default => 'gray',
-                    }),
+                    })
+                    ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

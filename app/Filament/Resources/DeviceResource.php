@@ -89,8 +89,9 @@ class DeviceResource extends Resource
                         
                         Forms\Components\Select::make('bribox_id')
                             ->label('Bribox Category')
-                            ->options(Bribox::all()->mapWithKeys(function ($bribox) {
-                                return [$bribox->bribox_id => "{$bribox->bribox_id} - {$bribox->type} ({$bribox->category})"];
+                            ->options(Bribox::with('category')->get()->mapWithKeys(function ($bribox) {
+                                $categoryName = $bribox->category ? $bribox->category->category_name : 'No Category';
+                                return [$bribox->bribox_id => "{$bribox->bribox_id} - {$bribox->type} ({$categoryName})"];
                             }))
                             ->required()
                             ->searchable(),
@@ -159,27 +160,34 @@ class DeviceResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('device_id')
                     ->label('ID')
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 
                 Tables\Columns\TextColumn::make('brand_name')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('serial_number')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('asset_code')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('bribox.type')
                     ->label('Type')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 
-                Tables\Columns\TextColumn::make('bribox.category')
+                Tables\Columns\TextColumn::make('bribox.category.category_name')
                     ->label('Category')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('condition')
                     ->badge()
@@ -188,11 +196,13 @@ class DeviceResource extends Resource
                         'Rusak' => 'danger',
                         'Perlu Pengecekan' => 'warning',
                         default => 'gray',
-                    }),
+                    })
+                    ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('currentAssignment.user.name')
                     ->label('Assigned To')
-                    ->default('Unassigned'),
+                    ->default('Unassigned')
+                    ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -206,10 +216,21 @@ class DeviceResource extends Resource
                         'Rusak' => 'Rusak',
                         'Perlu Pengecekan' => 'Perlu Pengecekan',
                     ]),
-                
-                Tables\Filters\SelectFilter::make('bribox_id')
+                Tables\Filters\SelectFilter::make('bribox_category')
                     ->label('Category')
-                    ->options(Bribox::all()->pluck('category', 'bribox_id')),
+                    ->options(\App\Models\BriboxesCategory::all()->pluck('category_name', 'bribox_category_id'))
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['value'],
+                            fn (Builder $query, $value): Builder => $query->whereHas(
+                                'bribox',
+                                fn (Builder $query): Builder => $query->where('bribox_category_id', $value)
+                            )
+                        );
+                    }),
+                Tables\Filters\SelectFilter::make('bribox.type')
+                    ->label('Type')
+                    ->options(Bribox::all()->pluck('type', 'bribox_id')),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
