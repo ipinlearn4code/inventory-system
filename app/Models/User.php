@@ -9,9 +9,9 @@ class User extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'pn';
-    protected $keyType = 'string';
-    public $incrementing = false;
+    protected $primaryKey = 'user_id';
+    protected $keyType = 'integer';
+    public $incrementing = true;
     public $timestamps = false; // No timestamps in users table
 
     protected $fillable = [
@@ -33,6 +33,11 @@ class User extends Model
 
     public function deviceAssignments()
     {
-        return $this->hasMany(DeviceAssignment::class, 'pn', 'pn');
+        return $this->hasMany(DeviceAssignment::class, 'user_id', 'user_id');
+    }
+
+    public function assignmentLetters()
+    {
+        return $this->hasMany(AssignmentLetter::class, 'approver_id', 'user_id');
     }
 }

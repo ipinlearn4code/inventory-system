@@ -14,8 +14,13 @@ class Bribox extends Model
     protected $fillable = [
         'bribox_id',
         'type',
-        'category',
+        'bribox_category_id',
     ];
+
+    public function category()
+    {
+        return $this->belongsTo(BriboxesCategory::class, 'bribox_category_id', 'bribox_category_id');
+    }
 
     public function devices()
     {

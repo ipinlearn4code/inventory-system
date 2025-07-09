@@ -11,8 +11,8 @@ class DeviceAssignment extends Model
 
     protected $fillable = [
         'device_id',
-        'pn',
-        'branch_code',
+        'user_id',
+        'branch_id',
         'assigned_date',
         'returned_date',
         'status',
@@ -37,11 +37,16 @@ class DeviceAssignment extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'pn', 'pn');
+        return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
 
     public function branch()
     {
-        return $this->belongsTo(Branch::class, 'branch_code', 'branch_code');
+        return $this->belongsTo(Branch::class, 'branch_id', 'branch_id');
+    }
+
+    public function assignmentLetters()
+    {
+        return $this->hasMany(AssignmentLetter::class, 'assignment_id', 'assignment_id');
     }
 }

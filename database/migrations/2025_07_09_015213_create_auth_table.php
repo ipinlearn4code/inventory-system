@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('auth', function (Blueprint $table) {
             $table->string('pn', 8)->unique()->notNull();
-            $table->string('password', 50)->notNull();
+            $table->string('password', 255)->notNull();
             $table->enum('role', ['user', 'admin', 'superadmin'])->notNull();
             
             $table->foreign('pn')->references('pn')->on('users')
