@@ -54,15 +54,31 @@
                 <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
                     Password
                 </label>
-                <input 
-                    id="password" 
-                    name="password" 
-                    type="password" 
-                    required 
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 @error('password') border-red-500 @enderror"
-                    placeholder="Enter your password"
-                    autocomplete="current-password"
-                >
+                <div class="relative">
+                    <input 
+                        id="password" 
+                        name="password" 
+                        type="password" 
+                        required 
+                        class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 @error('password') border-red-500 @enderror"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                    >
+                    <!-- Show/Hide Password Toggle -->
+                    <button 
+                        type="button" 
+                        onclick="togglePassword()"
+                        class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none"
+                    >
+                        <svg id="eye-open" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                        <svg id="eye-closed" class="h-5 w-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"></path>
+                        </svg>
+                    </button>
+                </div>
                 @error('password')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
@@ -101,8 +117,9 @@
         <!-- Demo Credentials (Remove in production) -->
         <div class="mt-6 p-4 bg-gray-50 rounded-lg">
             <p class="text-xs text-gray-600 font-medium mb-2">Demo Credentials:</p>
-            <p class="text-xs text-gray-500">PN: ADM001</p>
-            <p class="text-xs text-gray-500">Password: password123</p>
+            <p class="text-xs text-gray-500">PN: SUPER01 | Password: super123</p>
+            <p class="text-xs text-gray-500">PN: ADMIN01 | Password: admin123</p>
+            <p class="text-xs text-gray-500">PN: USER01 | Password: password123</p>
         </div>
     </div>
 
@@ -110,5 +127,23 @@
     <div class="fixed inset-0 -z-10 opacity-20">
         <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width="20" height="20" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="%23ffffff" fill-opacity="0.1" fill-rule="evenodd"%3E%3Ccircle cx="3" cy="3" r="3"/%3E%3Ccircle cx="13" cy="13" r="3"/%3E%3C/g%3E%3C/svg%3E')"></div>
     </div>
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const eyeOpen = document.getElementById('eye-open');
+            const eyeClosed = document.getElementById('eye-closed');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeOpen.classList.add('hidden');
+                eyeClosed.classList.remove('hidden');
+            } else {
+                passwordInput.type = 'password';
+                eyeOpen.classList.remove('hidden');
+                eyeClosed.classList.add('hidden');
+            }
+        }
+    </script>
 </body>
 </html>
