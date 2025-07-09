@@ -80,23 +80,25 @@ class DeviceAssignmentResource extends Resource
                     ->preload()
                     ->helperText('Only available devices (not currently assigned) are shown'),
 
-                Select::make('pn')
+                Select::make('user_id')
                     ->label('Assign to User')
                     ->options(function () {
                         return User::with('department')
                             ->get()
                             ->mapWithKeys(function ($user) {
                                 $deptName = isset($user->department) ? $user->department->name : 'No Dept';
-                                return [$user->pn => $user->pn . ' - ' . $user->name . ' (' . $deptName . ')'];
+                                return [$user->user_id => $user->pn . ' - ' . $user->name . ' (' . $deptName . ')'];
                             });
                     })
                     ->required()
                     ->searchable()
                     ->preload(),
 
-                Select::make('branch_code')
+                Select::make('branch_id')
                     ->label('Branch')
-                    ->options(Branch::all()->pluck('unit_name', 'branch_code'))
+                    ->options(Branch::with('mainBranch')->get()->mapWithKeys(function ($branch) {
+                        return [$branch->branch_id => $branch->unit_name . ' (' . $branch->mainBranch->main_branch_name . ')'];
+                    }))
                     ->required()
                     ->searchable()
                     ->preload(),
@@ -158,6 +160,11 @@ class DeviceAssignmentResource extends Resource
 
                 Tables\Columns\TextColumn::make('branch.unit_name')
                     ->label('Branch')
+                    ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('branch.mainBranch.main_branch_name')
+                    ->label('Main Branch')
                     ->searchable()
                     ->sortable(),
 

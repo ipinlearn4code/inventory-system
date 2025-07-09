@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('assignment_letters', function (Blueprint $table) {
             $table->increments('letter_id');
             $table->integer('assignment_id')->unsigned()->notNull();
-            $table->enum('letter_type', ['Keluar', 'Masuk'])->notNull();
+            $table->enum('letter_type', ['assignment', 'return', 'transfer', 'maintenance'])->notNull();
             $table->string('letter_number', 50)->unique()->notNull();
             $table->date('letter_date')->notNull();
             $table->smallInteger('approver_id')->unsigned()->notNull();

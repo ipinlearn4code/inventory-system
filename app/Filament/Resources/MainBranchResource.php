@@ -2,24 +2,21 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\BranchResource\Pages;
-use App\Filament\Resources\BranchResource\RelationManagers;
-use App\Models\Branch;
+use App\Filament\Resources\MainBranchResource\Pages;
 use App\Models\MainBranch;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class BranchResource extends Resource
+class MainBranchResource extends Resource
 {
-    protected static ?string $model = Branch::class;
+    protected static ?string $model = MainBranch::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
+    protected static ?string $navigationIcon = 'heroicon-o-building-office';
     protected static ?string $navigationGroup = 'Master Data';
+    protected static ?int $navigationSort = 1;
 
     public static function canViewAny(): bool
     {
@@ -27,7 +24,7 @@ class BranchResource extends Resource
         if (!$auth) return false;
         
         $authModel = \App\Models\Auth::where('pn', $auth['pn'])->first();
-        return $authModel && $authModel->hasRole('superadmin'); // Only superadmin can manage master data
+        return $authModel && $authModel->hasRole('superadmin');
     }
 
     public static function canCreate(): bool
@@ -49,22 +46,16 @@ class BranchResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('branch_code')
-                    ->label('Branch Code')
+                Forms\Components\TextInput::make('main_branch_code')
+                    ->label('Main Branch Code')
                     ->required()
-                    ->maxLength(8)
+                    ->maxLength(4)
                     ->unique(ignoreRecord: true),
                 
-                Forms\Components\TextInput::make('unit_name')
-                    ->label('Unit Name')
+                Forms\Components\TextInput::make('main_branch_name')
+                    ->label('Main Branch Name')
                     ->required()
                     ->maxLength(50),
-                
-                Forms\Components\Select::make('main_branch_id')
-                    ->label('Main Branch')
-                    ->options(MainBranch::all()->pluck('main_branch_name', 'main_branch_id'))
-                    ->required()
-                    ->searchable(),
             ]);
     }
 
@@ -72,33 +63,30 @@ class BranchResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('branch_id')
+                Tables\Columns\TextColumn::make('main_branch_id')
                     ->label('ID')
                     ->sortable(),
                 
-                Tables\Columns\TextColumn::make('branch_code')
+                Tables\Columns\TextColumn::make('main_branch_code')
+                    ->label('Code')
                     ->searchable()
                     ->sortable(),
                 
-                Tables\Columns\TextColumn::make('unit_name')
+                Tables\Columns\TextColumn::make('main_branch_name')
+                    ->label('Name')
                     ->searchable()
                     ->sortable(),
                 
-                Tables\Columns\TextColumn::make('mainBranch.main_branch_name')
-                    ->label('Main Branch')
-                    ->searchable()
-                    ->sortable(),
-                
-                Tables\Columns\TextColumn::make('mainBranch.main_branch_code')
-                    ->label('Main Branch Code')
-                    ->searchable()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('branches_count')
+                    ->label('Branches')
+                    ->counts('branches')
+                    ->badge()
+                    ->color('success'),
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
@@ -119,9 +107,9 @@ class BranchResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListBranches::route('/'),
-            'create' => Pages\CreateBranch::route('/create'),
-            'edit' => Pages\EditBranch::route('/{record}/edit'),
+            'index' => Pages\ListMainBranches::route('/'),
+            'create' => Pages\CreateMainBranch::route('/create'),
+            'edit' => Pages\EditMainBranch::route('/{record}/edit'),
         ];
     }
 }

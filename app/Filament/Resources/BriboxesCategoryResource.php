@@ -2,8 +2,7 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\BriboxResource\Pages;
-use App\Models\Bribox;
+use App\Filament\Resources\BriboxesCategoryResource\Pages;
 use App\Models\BriboxesCategory;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -11,12 +10,13 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 
-class BriboxResource extends Resource
+class BriboxesCategoryResource extends Resource
 {
-    protected static ?string $model = Bribox::class;
+    protected static ?string $model = BriboxesCategory::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
+    protected static ?string $navigationIcon = 'heroicon-o-tag';
     protected static ?string $navigationGroup = 'Master Data';
+    protected static ?int $navigationSort = 4;
 
     public static function canViewAny(): bool
     {
@@ -24,7 +24,7 @@ class BriboxResource extends Resource
         if (!$auth) return false;
         
         $authModel = \App\Models\Auth::where('pn', $auth['pn'])->first();
-        return $authModel && $authModel->hasRole('superadmin'); // Only superadmin can manage master data
+        return $authModel && $authModel->hasRole('superadmin');
     }
 
     public static function canCreate(): bool
@@ -46,22 +46,10 @@ class BriboxResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('bribox_id')
-                    ->label('Bribox ID')
-                    ->required()
-                    ->maxLength(2)
-                    ->unique(ignoreRecord: true)
-                    ->placeholder('e.g., A1'),
-                
-                Forms\Components\TextInput::make('type')
+                Forms\Components\TextInput::make('category_name')
+                    ->label('Category Name')
                     ->required()
                     ->maxLength(25),
-                
-                Forms\Components\Select::make('bribox_category_id')
-                    ->label('Category')
-                    ->options(BriboxesCategory::all()->pluck('category_name', 'bribox_category_id'))
-                    ->required()
-                    ->searchable(),
             ]);
     }
 
@@ -69,25 +57,20 @@ class BriboxResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('bribox_id')
-                    ->label('Bribox ID')
+                Tables\Columns\TextColumn::make('bribox_category_id')
+                    ->label('ID')
+                    ->sortable(),
+                
+                Tables\Columns\TextColumn::make('category_name')
+                    ->label('Category Name')
                     ->searchable()
                     ->sortable(),
                 
-                Tables\Columns\TextColumn::make('type')
-                    ->searchable()
-                    ->sortable(),
-                
-                Tables\Columns\TextColumn::make('category.category_name')
-                    ->label('Category')
-                    ->searchable()
-                    ->sortable(),
-                
-                Tables\Columns\TextColumn::make('devices_count')
-                    ->label('Devices')
-                    ->counts('devices')
+                Tables\Columns\TextColumn::make('briboxes_count')
+                    ->label('Briboxes')
+                    ->counts('briboxes')
                     ->badge()
-                    ->color('info'),
+                    ->color('success'),
             ])
             ->filters([
                 //
@@ -113,9 +96,9 @@ class BriboxResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListBriboxes::route('/'),
-            'create' => Pages\CreateBribox::route('/create'),
-            'edit' => Pages\EditBribox::route('/{record}/edit'),
+            'index' => Pages\ListBriboxesCategories::route('/'),
+            'create' => Pages\CreateBriboxesCategory::route('/create'),
+            'edit' => Pages\EditBriboxesCategory::route('/{record}/edit'),
         ];
     }
 }

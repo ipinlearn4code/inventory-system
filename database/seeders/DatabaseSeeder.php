@@ -15,7 +15,24 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             PermissionSeeder::class,
-            InventorySeeder::class,
+            
+            // Basic data
+            DepartmentSeeder::class,
+            MainBranchSeeder::class,
+            BranchSeeder::class,
+            
+            // Users and Authentication
+            UserSeeder::class,
+            AuthSeeder::class,
+            
+            // Inventory structure
+            BriboxesCategorySeeder::class,
+            BriboxSeeder::class,
+            
+            // Devices and assignments
+            DeviceSeeder::class,
+            DeviceAssignmentSeeder::class,
+            AssignmentLetterSeeder::class,
         ]);
     }
 }
