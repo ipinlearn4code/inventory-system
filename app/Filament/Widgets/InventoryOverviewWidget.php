@@ -45,40 +45,48 @@ class InventoryOverviewWidget extends BaseWidget
         $needsCheckDevices = $deviceQuery->clone()->where('condition', 'Perlu Pengecekan')->count();
 
         return [
-            Stat::make('📊 Total Perangkat', number_format($totalDevices))
-                ->description('Semua perangkat dalam sistem')
+            Stat::make('Total Perangkat', number_format($totalDevices))
+                ->description('Semua perangkat dalam sistem BRI')
                 ->descriptionIcon('heroicon-m-computer-desktop')
                 ->color('primary')
                 ->chart([7, 12, 8, 15, 10, 18, 12])
+                ->url(\App\Filament\Resources\DeviceResource::getUrl('index'))
                 ->extraAttributes([
-                    'class' => 'bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 border-2 border-blue-200 dark:border-blue-700'
+                    'class' => 'cursor-pointer',
+                    'title' => 'Klik untuk melihat semua perangkat',
                 ]),
                 
-            Stat::make('✅ Perangkat Digunakan', number_format($usedDevices))
-                ->description('Sedang digunakan')
+            Stat::make('Perangkat Digunakan', number_format($usedDevices))
+                ->description('Sedang digunakan aktif')
                 ->descriptionIcon('heroicon-m-arrow-up-tray')
                 ->color('success')
                 ->chart([12, 15, 18, 20, 25, 22, 28])
+                ->url(\App\Filament\Resources\DeviceAssignmentResource::getUrl('index').'?tableFilters[active][value]=true')
                 ->extraAttributes([
-                    'class' => 'bg-gradient-to-br from-emerald-50 to-green-100 dark:from-emerald-900 dark:to-green-800 border-2 border-emerald-200 dark:border-emerald-700'
+                    'class' => 'cursor-pointer',
+                    'title' => 'Klik untuk melihat perangkat yang sedang digunakan',
                 ]),
                 
-            Stat::make('🔄 Perangkat Tersedia', number_format($availableDevices))
+            Stat::make('Perangkat Tersedia', number_format($availableDevices))
                 ->description('Siap untuk digunakan')
                 ->descriptionIcon('heroicon-m-check-circle')
                 ->color('info')
                 ->chart([8, 5, 12, 10, 15, 8, 12])
+                ->url(\App\Filament\Resources\DeviceResource::getUrl('create'))
                 ->extraAttributes([
-                    'class' => 'bg-gradient-to-br from-cyan-50 to-blue-100 dark:from-cyan-900 dark:to-blue-800 border-2 border-cyan-200 dark:border-cyan-700'
+                    'class' => 'cursor-pointer',
+                    'title' => 'Klik untuk membuat penugasan baru',
                 ]),
                 
-            Stat::make('⚠️ Perangkat Rusak', number_format($damagedDevices))
-                ->description('Memerlukan perbaikan')
+            Stat::make('Perangkat Rusak', number_format($damagedDevices))
+                ->description('Memerlukan perbaikan segera')
                 ->descriptionIcon('heroicon-m-exclamation-triangle')
                 ->color('danger')
                 ->chart([2, 4, 3, 5, 2, 6, 4])
+                ->url(\App\Filament\Resources\DeviceResource::getUrl('index').'?tableFilters[condition][value]=Rusak')
                 ->extraAttributes([
-                    'class' => 'bg-gradient-to-br from-red-50 to-orange-100 dark:from-red-900 dark:to-orange-800 border-2 border-red-200 dark:border-red-700'
+                    'class' => 'cursor-pointer',
+                    'title' => 'Klik untuk melihat perangkat rusak',
                 ]),
         ];
     }

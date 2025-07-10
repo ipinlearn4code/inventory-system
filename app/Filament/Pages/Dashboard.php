@@ -33,14 +33,13 @@ class Dashboard extends BaseDashboard
             \App\Filament\Widgets\InventoryOverviewWidget::class,
             
             // Action & Charts Section (2 columns layout)
-            \App\Filament\Widgets\QuickActionsWidget::class,
             \App\Filament\Widgets\DeviceConditionChartWidget::class,
+            \App\Filament\Widgets\DeviceDistributionChartWidget::class,
             
             // Attention Alerts - Full Width for visibility
             \App\Filament\Widgets\DevicesNeedAttentionWidget::class,
             
             // Secondary Charts & Analytics (2 columns)
-            \App\Filament\Widgets\DeviceDistributionChartWidget::class,
             \App\Filament\Widgets\ActivityLogWidget::class,
         ];
     }

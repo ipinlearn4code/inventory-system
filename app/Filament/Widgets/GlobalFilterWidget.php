@@ -53,6 +53,7 @@ class GlobalFilterWidget extends Widget
         if ($this->mainBranchId) {
             $branches = Branch::where('main_branch_id', $this->mainBranchId)
                 ->pluck('unit_name', 'branch_id')
+                
                 ->toArray();
             return $options + $branches;
         }

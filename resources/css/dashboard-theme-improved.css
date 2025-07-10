@@ -1,0 +1,672 @@
+/* BRI Blue Professional Theme Dashboard Styles */
+
+/* BRI Color Variables - Enhanced Contrast */
+:root {
+    /* Main Colors */
+    --bri-primary: #00407b;      /* Darker blue for better contrast */
+    --bri-secondary: #0d5ca0;    /* Medium blue for secondary elements */
+    --bri-accent: #0078d4;       /* Bright blue for interactive elements */
+    --sidebar-text: #ffffff;     /* Sidebar text color */
+    --sidebar-heading: #a3daff;  /* Sidebar heading color */
+    --sidebar-hover: #ffff00;    /* Sidebar hover text color */
+    
+    /* Background Colors */
+    --bri-background: #f8fafd;   /* Very light blue background */
+    --bri-card-bg: #ffffff;      /* Pure white card backgrounds */
+    
+    /* Border Colors */
+    --bri-border: #cedaeb;       /* Soft blue borders with better contrast */
+    --bri-divider: #e3e9f3;      /* Subtle dividers */
+    
+    /* Text Colors */
+    --bri-text-primary: #0e1c35; /* Near black but with blue undertones for titles */
+    --bri-text-secondary: #3e5680; /* Medium blue-gray for better contrast in body text */
+    --bri-text-muted: #5d7299;   /* Muted text but still readable */
+    
+    /* Status Colors */
+    --bri-success: #0a6b3d;      /* Darker green for better contrast */
+    --bri-warning: #c98000;      /* Darker amber for better contrast */
+    --bri-error: #c2293a;        /* Darker red for better contrast */
+    --bri-info: #0367a6;         /* Darker info blue */
+    
+    /* UI Enhancement */
+    --bri-hover-overlay: rgba(13, 92, 160, 0.08);
+    --bri-shadow-sm: 0 2px 6px rgba(14, 28, 53, 0.08);
+    --bri-shadow-md: 0 4px 12px rgba(14, 28, 53, 0.12);
+    --bri-shadow-lg: 0 8px 24px rgba(14, 28, 53, 0.16);
+}
+
+/* Dark mode variables with improved contrast */
+.dark {
+    --bri-primary: #1066b4;
+    --bri-secondary: #2184d2;
+    --bri-accent: #47a3ff;
+    
+    --bri-background: #0a1625;
+    --bri-card-bg: #111e32;
+    
+    --bri-border: #1d3355;
+    --bri-divider: #233c5f;
+    
+    --bri-text-primary: #f0f5fa;
+    --bri-text-secondary: #a6c1e0;
+    --bri-text-muted: #8ba3c3;
+    
+    /* Status colors for dark mode - brighter for contrast */
+    --bri-success: #1aac64;
+    --bri-warning: #ffb020;
+    --bri-error: #f55c6c;
+    --bri-info: #3ba5ff;
+    
+    --bri-hover-overlay: rgba(71, 163, 255, 0.15);
+}
+
+/* Global Theme Application */
+.fi-main {
+    background: var(--bri-background);
+    color: var(--bri-text-primary);
+}
+
+/* Clear, professional sidebar */
+.fi-sidebar {
+    background: var(--bri-primary);
+    border-right: 1px solid var(--bri-border);
+    box-shadow: var(--bri-shadow-md);
+}
+
+.fi-sidebar-header {
+    padding: 1.5rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.fi-sidebar-nav-item {
+    color: #ffffff; /* Bright white text for better readability */
+    border-radius: 6px;
+    margin: 2px 8px;
+    transition: all 0.2s ease;
+    padding: 0.75rem 1rem;
+}
+
+.fi-sidebar-nav-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffff00; /* Bright yellow on hover for high contrast */
+}
+
+.fi-sidebar-nav-item.active {
+    background: var(--bri-accent);
+    color: #ffffff; /* Keep white for active items */
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 60, 120, 0.3);
+}
+
+.fi-sidebar-group-label {
+    color: #ffffff; /* Light blue for category headers - more visible */
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 1.25rem 1rem 0.5rem;
+}
+
+.fi-sidebar-item-label {
+    color: #ffffff !important; /* Override Filament's text color for better visibility */
+    font-size: 0.875rem; /* Match text-sm in Tailwind */
+    font-weight: 500; /* Match font-medium in Tailwind */
+    letter-spacing: 0.01em;
+    flex: 1; /* Match flex-1 utility */
+    text-overflow: ellipsis; /* Match truncate utility */
+    overflow: hidden; /* Match truncate utility */
+    white-space: nowrap; /* Match truncate utility */
+}
+
+/* Target the specific class combination from Filament */
+.fi-sidebar-item-label.flex-1.truncate.text-sm.font-medium.text-primary-600 {
+    color: #ffffff !important; /* Override Tailwind's text-primary-600 */
+}
+
+/* Dark mode: match Tailwind's dark:text-primary-400 but with our custom color */
+.dark .fi-sidebar-item-label {
+    color: #a3daff !important; /* Light blue for better visibility in dark mode */
+}
+
+/* Sidebar item label hover styles */
+.fi-sidebar-nav-item:hover .fi-sidebar-item-label {
+    color: var(--sidebar-hover) !important;
+    transform: translateX(2px);
+    transition: all 0.2s ease;
+}
+
+.fi-sidebar-nav-item.active .fi-sidebar-item-label {
+    color: #ffffff !important; /* Keep white for active items */
+    font-weight: 600;
+}
+
+/* Sidebar enhancement */
+.fi-sidebar-nav-item .fi-icon {
+    color: var(--sidebar-text); /* Match text color */
+    opacity: 0.95;
+    transition: all 0.2s ease;
+}
+
+.fi-sidebar-nav-item:hover .fi-icon {
+    color: var(--sidebar-hover);
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.fi-sidebar-nav-item.active .fi-icon {
+    color: var(--sidebar-text);
+    opacity: 1;
+}
+
+/* Improve sidebar group collapse/expand button */
+.fi-sidebar-group button {
+    color: var(--sidebar-heading) !important;
+    opacity: 0.9;
+    transition: all 0.2s ease;
+}
+
+.fi-sidebar-group button:hover {
+    color: var(--sidebar-text) !important;
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+/* Add subtle divider between sidebar groups for better visual separation */
+.fi-sidebar-group {
+    position: relative;
+}
+.fi-sidebar-group:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 16px;
+    right: 16px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Professional topbar */
+.fi-topbar {
+    background: var(--bri-primary);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: var(--bri-shadow-sm);
+}
+
+.fi-topbar-brand {
+    font-weight: 700;
+    color: white;
+    letter-spacing: 0.01em;
+}
+
+.fi-breadcrumbs {
+    background: transparent;
+}
+
+.fi-breadcrumbs-item {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+/* Clean widget design */
+.fi-wi {
+    background: var(--bri-card-bg);
+    border: 1px solid var(--bri-border);
+    border-radius: 8px;
+    box-shadow: var(--bri-shadow-sm);
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+.fi-wi:hover {
+    box-shadow: var(--bri-shadow-md);
+    border-color: var(--bri-accent);
+}
+
+.fi-wi-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--bri-divider);
+    background: var(--bri-background);
+}
+
+.fi-wi-header-heading {
+    color: var(--bri-primary);
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+/* Dashboard specific widget styling */
+.filament-widgets-container {
+    gap: 1rem !important;
+}
+
+/* Stats Overview Widgets */
+.fi-wi-stats-overview .fi-wi-stats-overview-stat {
+    background: var(--bri-card-bg);
+    border: 1px solid var(--bri-border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    transition: all 0.2s ease;
+    box-shadow: var(--bri-shadow-sm);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Clickable stats styling */
+.fi-wi-stats-overview .fi-wi-stats-overview-stat.cursor-pointer {
+    cursor: pointer;
+    position: relative;
+}
+
+.fi-wi-stats-overview .fi-wi-stats-overview-stat.cursor-pointer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    z-index: 0;
+}
+
+.fi-wi-stats-overview .fi-wi-stats-overview-stat.cursor-pointer:hover::after {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.fi-wi-stats-overview .fi-wi-stats-overview-stat.cursor-pointer:hover {
+    box-shadow: var(--bri-shadow-md);
+    transform: translateY(-2px);
+}
+
+.fi-wi-stats-overview .fi-wi-stats-overview-stat::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 6px;
+    height: 100%;
+    background: transparent;
+}
+
+.fi-wi-stats-overview .fi-wi-stats-overview-stat .fi-wi-stats-overview-stat-chart {
+    opacity: 0.5;
+    height: 40px;
+    margin-top: 0.75rem;
+}
+
+/* Primary stats with BRI blue */
+.fi-wi-stats-overview .fi-wi-stats-overview-stat[data-color="primary"] {
+    border-top: 3px solid var(--bri-primary);
+    background-color: rgba(13, 92, 160, 0.04);
+}
+
+.fi-wi-stats-overview .fi-wi-stats-overview-stat[data-color="primary"] .fi-wi-stats-overview-stat-value {
+    color: var(--bri-primary);
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.fi-wi-stats-overview .fi-wi-stats-overview-stat[data-color="primary"] .fi-wi-stats-overview-stat-description {
+    color: var(--bri-text-secondary);
+}
+
+/* Info stats */
+.fi-wi-stats-overview .fi-wi-stats-overview-stat[data-color="info"] {
+    border-top: 3px solid var(--bri-info);
+    background-color: rgba(3, 103, 166, 0.04);
+}
+
+.fi-wi-stats-overview .fi-wi-stats-overview-stat[data-color="info"] .fi-wi-stats-overview-stat-value {
+    color: var(--bri-info);
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.fi-wi-stats-overview .fi-wi-stats-overview-stat[data-color="info"] .fi-wi-stats-overview-stat-description {
+    color: var(--bri-text-secondary);
+}
+
+/* Success stats */
+.fi-wi-stats-overview .fi-wi-stats-overview-stat[data-color="success"] {
+    border-top: 3px solid var(--bri-success);
+    background-color: rgba(10, 107, 61, 0.04);
+}
+
+.fi-wi-stats-overview .fi-wi-stats-overview-stat[data-color="success"] .fi-wi-stats-overview-stat-value {
+    color: var(--bri-success);
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.fi-wi-stats-overview .fi-wi-stats-overview-stat[data-color="success"] .fi-wi-stats-overview-stat-description {
+    color: var(--bri-text-secondary);
+}
+
+/* Warning stats */
+.fi-wi-stats-overview .fi-wi-stats-overview-stat[data-color="warning"] {
+    border-top: 3px solid var(--bri-warning);
+    background-color: rgba(201, 128, 0, 0.04);
+}
+
+.fi-wi-stats-overview .fi-wi-stats-overview-stat[data-color="warning"] .fi-wi-stats-overview-stat-value {
+    color: var(--bri-warning);
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.fi-wi-stats-overview .fi-wi-stats-overview-stat[data-color="warning"] .fi-wi-stats-overview-stat-description {
+    color: var(--bri-text-secondary);
+}
+
+/* Danger stats */
+.fi-wi-stats-overview .fi-wi-stats-overview-stat[data-color="danger"] {
+    border-top: 3px solid var(--bri-error);
+    background-color: rgba(194, 41, 58, 0.04);
+}
+
+.fi-wi-stats-overview .fi-wi-stats-overview-stat[data-color="danger"] .fi-wi-stats-overview-stat-value {
+    color: var(--bri-error);
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.fi-wi-stats-overview .fi-wi-stats-overview-stat[data-color="danger"] .fi-wi-stats-overview-stat-description {
+    color: var(--bri-text-secondary);
+}
+
+/* Clean Form Design */
+.fi-fo-component-ctn {
+    margin-bottom: 1.25rem;
+}
+
+.fi-input {
+    border: 1px solid var(--bri-border);
+    border-radius: 6px;
+    background: var(--bri-card-bg);
+    color: var(--bri-text-primary);
+    transition: all 0.2s ease;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.95rem;
+}
+
+.fi-input:focus {
+    border-color: var(--bri-primary);
+    box-shadow: 0 0 0 3px rgba(0, 64, 123, 0.15);
+    outline: none;
+}
+
+.fi-fo-field-wrp-label {
+    color: var(--bri-text-primary);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.fi-fo-field-wrp-hint {
+    color: var(--bri-text-muted);
+    font-size: 0.8125rem;
+    margin-top: 0.35rem;
+}
+
+/* Buttons */
+.fi-btn {
+    font-weight: 600;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    box-shadow: none;
+    text-shadow: none;
+    letter-spacing: 0.01em;
+}
+
+.fi-btn-primary {
+    background: var(--bri-primary);
+    color: white;
+    border: none;
+}
+
+.fi-btn-primary:hover, .fi-btn-primary:focus {
+    background: var(--bri-secondary);
+    box-shadow: 0 2px 6px rgba(0, 64, 123, 0.3);
+}
+
+.fi-btn-secondary {
+    background: white;
+    color: var(--bri-primary);
+    border: 1px solid var(--bri-border);
+}
+
+.fi-btn-secondary:hover, .fi-btn-secondary:focus {
+    background: var(--bri-background);
+    border-color: var(--bri-primary);
+}
+
+/* Section and Card styling */
+.fi-section {
+    background: var(--bri-card-bg);
+    border: 1px solid var(--bri-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--bri-shadow-sm);
+}
+
+.fi-section-header {
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--bri-divider);
+}
+
+.fi-section-header-heading {
+    color: var(--bri-primary);
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+/* Table Improvements */
+.fi-ta-table {
+    border: 1px solid var(--bri-border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--bri-card-bg);
+    box-shadow: var(--bri-shadow-sm);
+}
+
+.fi-ta-header {
+    background: var(--bri-primary);
+    padding: 0.75rem 1rem;
+}
+
+.fi-ta-header-cell {
+    background: transparent;
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+}
+
+.fi-ta-row {
+    transition: all 0.15s ease;
+    border-bottom: 1px solid var(--bri-divider);
+}
+
+.fi-ta-row:hover {
+    background: var(--bri-background);
+}
+
+.fi-ta-cell {
+    padding: 0.875rem 1rem;
+    color: var(--bri-text-primary);
+}
+
+/* Dashboard layout improvements */
+.fi-page-header {
+    margin-bottom: 1rem;
+    background: var(--bri-card-bg);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: var(--bri-shadow-sm);
+    border: 1px solid var(--bri-border);
+}
+
+.fi-page-header-heading {
+    color: var(--bri-primary);
+    font-weight: 700;
+}
+
+.fi-page {
+    padding: 1rem;
+}
+
+.fi-section {
+    background: var(--bri-card-bg);
+    border: 1px solid var(--bri-border);
+    border-radius: 8px;
+    box-shadow: var(--bri-shadow-sm);
+}
+
+/* Custom Widget Styling - Activity Log */
+.activity-item {
+    border-left: 3px solid var(--bri-divider);
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 0.75rem;
+    transition: all 0.2s ease;
+    background-color: var(--bri-card-bg);
+    border-radius: 0 4px 4px 0;
+}
+
+.activity-item:hover {
+    border-left-color: var(--bri-accent);
+    background: var(--bri-hover-overlay);
+}
+
+/* Custom Widget Styling - Quick Actions */
+.quick-action-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 8px;
+    background: var(--bri-card-bg);
+    border: 1px solid var(--bri-border);
+    transition: all 0.2s ease;
+    box-shadow: var(--bri-shadow-sm);
+    margin-bottom: 0.75rem;
+}
+
+.quick-action-item:hover {
+    box-shadow: var(--bri-shadow-md);
+    border-color: var(--bri-accent);
+    background: var(--bri-background);
+}
+
+.quick-action-item[data-color="primary"]:hover {
+    border-color: var(--bri-primary);
+}
+
+.quick-action-item[data-color="success"]:hover {
+    border-color: var(--bri-success);
+}
+
+.quick-action-item[data-color="warning"]:hover {
+    border-color: var(--bri-warning);
+}
+
+.quick-action-item[data-color="info"]:hover {
+    border-color: var(--bri-info);
+}
+
+.quick-action-item[data-color="danger"]:hover {
+    border-color: var(--bri-error);
+}
+
+.quick-action-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    color: white;
+}
+
+/* Charts */
+.fi-wi-chart {
+    background: var(--bri-card-bg);
+    border-radius: 8px;
+    padding: 1.25rem;
+    box-shadow: var(--bri-shadow-sm);
+    border: 1px solid var(--bri-border);
+}
+
+/* User info widget */
+.user-info-widget {
+    padding: 0 !important;
+    overflow: hidden;
+}
+
+.user-info-header {
+    padding: 1.5rem;
+    background: var(--bri-primary);
+    color: white;
+    position: relative;
+}
+
+.user-info-header h2 {
+    font-weight: 700;
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.user-info-content {
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.user-info-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--bri-background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--bri-primary);
+    border: 3px solid var(--bri-border);
+}
+
+.user-info-details {
+    flex: 1;
+}
+
+.user-info-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--bri-text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.user-info-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 0.75rem;
+}
+
+.user-info-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--bri-text-secondary);
+    font-size: 0.875rem;
+}
+
+/* Filter widget */
+.fi-in-select {
+    border-radius: 6px;
+    border-color: var(--bri-border);
+}

@@ -1,53 +1,48 @@
 <x-filament-widgets::widget>
     <x-filament::section>
         <x-slot name="heading">
-            <div class="flex items-center space-x-2">
-                <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                    <x-filament::icon icon="heroicon-m-clock" class="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-primary-700 rounded-lg flex items-center justify-center shadow-sm">
+                    <x-filament::icon icon="heroicon-m-clock" class="w-5 h-5 text-white" />
                 </div>
-                <span class="text-lg font-semibold text-blue-900 dark:text-blue-100">Log Aktivitas Sistem</span>
+                <span class="text-lg font-bold text-primary-800 dark:text-primary-200">BRI System Activity Log</span>
             </div>
         </x-slot>
         
-        <div class="space-y-3 max-h-96 overflow-y-auto">
+        <div class="space-y-3 max-h-96 overflow-y-auto p-4 bg-white rounded-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
             @foreach($this->getRecentActivities() as $activity)
-                <div class="flex items-start space-x-3 p-4 rounded-xl border-2 {{ 
-                    $activity['color'] === 'success' ? 'border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 dark:border-green-700 dark:from-green-900 dark:to-emerald-900' : 
-                    ($activity['color'] === 'info' ? 'border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50 dark:border-blue-700 dark:from-blue-900 dark:to-cyan-900' : 
-                    ($activity['color'] === 'warning' ? 'border-yellow-200 bg-gradient-to-r from-yellow-50 to-amber-50 dark:border-yellow-700 dark:from-yellow-900 dark:to-amber-900' : 
-                    'border-gray-200 bg-gradient-to-r from-gray-50 to-slate-50 dark:border-gray-700 dark:from-gray-900 dark:to-slate-900'))
-                }} transition-all duration-200 hover:shadow-md">
+                <div class="activity-item flex items-start p-3 rounded-lg {{ 
+                    $activity['color'] === 'success' ? 'border-l-success-600' : 
+                    ($activity['color'] === 'info' ? 'border-l-primary-600' : 
+                    ($activity['color'] === 'warning' ? 'border-l-warning-600' : 'border-l-gray-500'))
+                }}">
                     <div class="flex-shrink-0">
-                        <div class="w-10 h-10 rounded-xl flex items-center justify-center {{ 
-                            $activity['color'] === 'success' ? 'bg-green-200 dark:bg-green-800' : 
-                            ($activity['color'] === 'info' ? 'bg-blue-200 dark:bg-blue-800' : 
-                            ($activity['color'] === 'warning' ? 'bg-yellow-200 dark:bg-yellow-800' : 'bg-gray-200 dark:bg-gray-800'))
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center {{ 
+                            $activity['color'] === 'success' ? 'bg-success-600 text-white' : 
+                            ($activity['color'] === 'info' ? 'bg-primary-600 text-white' : 
+                            ($activity['color'] === 'warning' ? 'bg-warning-600 text-white' : 'bg-gray-600 text-white'))
                         }}">
                             <x-filament::icon 
                                 :icon="$activity['icon']" 
-                                class="w-5 h-5 {{ 
-                                    $activity['color'] === 'success' ? 'text-green-700 dark:text-green-300' : 
-                                    ($activity['color'] === 'info' ? 'text-blue-700 dark:text-blue-300' : 
-                                    ($activity['color'] === 'warning' ? 'text-yellow-700 dark:text-yellow-300' : 'text-gray-700 dark:text-gray-300'))
-                                }}"
+                                class="w-5 h-5"
                             />
                         </div>
                     </div>
                     
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-semibold {{ 
-                            $activity['color'] === 'success' ? 'text-green-900 dark:text-green-100' : 
-                            ($activity['color'] === 'info' ? 'text-blue-900 dark:text-blue-100' : 
-                            ($activity['color'] === 'warning' ? 'text-yellow-900 dark:text-yellow-100' : 'text-gray-900 dark:text-gray-100'))
+                    <div class="flex-1 min-w-0 ml-3">
+                        <p class="text-sm font-bold {{ 
+                            $activity['color'] === 'success' ? 'text-success-900 dark:text-success-100' : 
+                            ($activity['color'] === 'info' ? 'text-primary-900 dark:text-primary-100' : 
+                            ($activity['color'] === 'warning' ? 'text-warning-900 dark:text-warning-100' : 'text-gray-900 dark:text-gray-100'))
                         }}">
                             {{ $activity['title'] }}
                         </p>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        <p class="text-xs text-gray-700 dark:text-gray-300 mt-1">
                             {{ $activity['description'] }}
                         </p>
-                        <div class="flex items-center mt-2 text-xs text-gray-500">
-                            <span class="font-medium">{{ $activity['user'] }}</span>
-                            <span class="mx-2">•</span>
+                        <div class="flex items-center mt-2 text-xs text-gray-600 dark:text-gray-400">
+                            <span class="font-medium bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">{{ $activity['user'] }}</span>
+                            <span class="mx-2 text-gray-400">•</span>
                             <span>{{ \Carbon\Carbon::parse($activity['time'])->diffForHumans() }}</span>
                         </div>
                     </div>
@@ -56,11 +51,11 @@
             
             @if(empty($this->getRecentActivities()))
                 <div class="text-center py-12 text-gray-500">
-                    <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <x-filament::icon icon="heroicon-m-clock" class="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                    <div class="w-16 h-16 bg-primary-100 dark:bg-primary-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <x-filament::icon icon="heroicon-m-clock" class="w-8 h-8 text-primary-600 dark:text-primary-300" />
                     </div>
-                    <p class="text-lg font-medium text-gray-600 dark:text-gray-400">Belum ada aktivitas terbaru</p>
-                    <p class="text-sm text-gray-500 dark:text-gray-500 mt-1">Aktivitas sistem akan ditampilkan di sini</p>
+                    <p class="text-lg font-bold text-gray-700 dark:text-gray-300">No recent activity</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">BRI system activities will be displayed here</p>
                 </div>
             @endif
         </div>

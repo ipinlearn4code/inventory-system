@@ -22,13 +22,12 @@ class UserInfoWidget extends BaseWidget
         $currentTime = now()->locale('id')->translatedFormat('H:i');
         
         return [
-            Stat::make('🌟 Selamat datang, ' . $user['name'] . '!', $currentDate . ' • ' . $currentTime)
-                ->description('📋 PN: ' . $user['pn'] . ' • 👤 Role: ' . ucfirst($user['role']) . ' • 🏢 Sistem Inventory Management')
-                ->descriptionIcon('heroicon-m-user-circle')
-                ->color('primary')
+            Stat::make('� Selamat datang, ' . $user['name'] . '!', $currentDate . ' • ' . $currentTime)
+                ->description('📋 PN: ' . $user['pn'] . ' • 👤 Role: ' . ucfirst($user['role']) . ' • 🔵 BRI Inventory Management System')
+                ->color('secondary')
                 ->extraAttributes([
                     'class' => 'text-center bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950',
-                    'style' => 'border: 2px solid #3b82f6; border-radius: 12px;'
+                    'style' => 'border: 3px solid #00529B; border-radius: 16px; background: linear-gradient(135deg, #F5F9FF 0%, #E0E6F0 100%);'
                 ]),
         ];
     }
