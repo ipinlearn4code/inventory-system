@@ -8,10 +8,10 @@ use Filament\Widgets\ChartWidget;
 
 class DeviceDistributionChartWidget extends ChartWidget
 {
-    protected static ?string $heading = 'Distribusi Perangkat per Cabang';
-    protected static ?int $sort = 4;
+    protected static ?string $heading = '🏢 Distribusi Perangkat per Cabang';
+    protected static ?int $sort = 7;
     
-    protected int | string | array $columnSpan = 1;
+    protected int | string | array $columnSpan = 2;
 
     protected function getData(): array
     {

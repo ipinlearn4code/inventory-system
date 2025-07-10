@@ -1,0 +1,158 @@
+/* Dashboard Blue Theme Styles */
+
+/* Custom widget styling */
+.fi-wi-stats-overview .fi-wi-stats-overview-stat {
+    transition: all 0.3s ease;
+}
+
+.fi-wi-stats-overview .fi-wi-stats-overview-stat:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.15);
+}
+
+/* Blue gradient backgrounds for primary widgets */
+.fi-wi-stats-overview .fi-wi-stats-overview-stat[data-color="primary"] {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border: 2px solid #3b82f6;
+    border-radius: 12px;
+}
+
+.dark .fi-wi-stats-overview .fi-wi-stats-overview-stat[data-color="primary"] {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+    border: 2px solid #60a5fa;
+}
+
+/* Info widgets with cyan-blue theme */
+.fi-wi-stats-overview .fi-wi-stats-overview-stat[data-color="info"] {
+    background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%);
+    border: 2px solid #06b6d4;
+    border-radius: 12px;
+}
+
+.dark .fi-wi-stats-overview .fi-wi-stats-overview-stat[data-color="info"] {
+    background: linear-gradient(135deg, #164e63 0%, #0891b2 100%);
+    border: 2px solid #22d3ee;
+}
+
+/* Success widgets with emerald theme */
+.fi-wi-stats-overview .fi-wi-stats-overview-stat[data-color="success"] {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    border: 2px solid #10b981;
+    border-radius: 12px;
+}
+
+.dark .fi-wi-stats-overview .fi-wi-stats-overview-stat[data-color="success"] {
+    background: linear-gradient(135deg, #064e3b 0%, #047857 100%);
+    border: 2px solid #34d399;
+}
+
+/* Danger widgets with red theme */
+.fi-wi-stats-overview .fi-wi-stats-overview-stat[data-color="danger"] {
+    background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+    border: 2px solid #ef4444;
+    border-radius: 12px;
+}
+
+.dark .fi-wi-stats-overview .fi-wi-stats-overview-stat[data-color="danger"] {
+    background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
+    border: 2px solid #f87171;
+}
+
+/* Section headers with blue theme */
+.fi-section-header-heading {
+    color: #1e40af;
+    font-weight: 600;
+}
+
+.dark .fi-section-header-heading {
+    color: #93c5fd;
+}
+
+/* Widget sections with subtle blue borders */
+.fi-section {
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.dark .fi-section {
+    border: 2px solid #374151;
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+}
+
+/* Chart widgets enhancement */
+.fi-wi-chart {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 2px solid #cbd5e1;
+    border-radius: 12px;
+}
+
+.dark .fi-wi-chart {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 2px solid #475569;
+}
+
+/* Table widgets enhancement */
+.fi-ta-table {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(59, 130, 246, 0.1);
+}
+
+/* Quick actions custom styling */
+.quick-action-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.quick-action-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(59, 130, 246, 0.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .fi-wi-stats-overview .fi-wi-stats-overview-stats {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .quick-action-card {
+        padding: 0.75rem;
+    }
+}
+
+/* Animation for widgets loading */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fi-wi {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Custom scrollbar for better UX */
+.fi-ta-table-container::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.fi-ta-table-container::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+.fi-ta-table-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #3b82f6, #1e40af);
+    border-radius: 4px;
+}
+
+.fi-ta-table-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #1e40af, #1e3a8a);
+}

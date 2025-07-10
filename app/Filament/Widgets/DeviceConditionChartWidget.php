@@ -7,10 +7,10 @@ use Filament\Widgets\ChartWidget;
 
 class DeviceConditionChartWidget extends ChartWidget
 {
-    protected static ?string $heading = 'Komposisi Kondisi Perangkat';
-    protected static ?int $sort = 3;
+    protected static ?string $heading = '📊 Komposisi Kondisi Perangkat';
+    protected static ?int $sort = 5;
     
-    protected int | string | array $columnSpan = 1;
+    protected int | string | array $columnSpan = 2;
 
     protected function getData(): array
     {

@@ -11,9 +11,9 @@ use Illuminate\Support\Carbon;
 class ActivityLogWidget extends Widget
 {
     protected static string $view = 'filament.widgets.activity-log-widget';
-    protected static ?int $sort = 6;
+    protected static ?int $sort = 8;
     
-    protected int | string | array $columnSpan = 1;
+    protected int | string | array $columnSpan = 2;
 
     public function getRecentActivities(): array
     {

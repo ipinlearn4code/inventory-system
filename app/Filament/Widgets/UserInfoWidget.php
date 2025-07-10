@@ -19,14 +19,16 @@ class UserInfoWidget extends BaseWidget
         }
 
         $currentDate = now()->locale('id')->translatedFormat('l, j F Y');
+        $currentTime = now()->locale('id')->translatedFormat('H:i');
         
         return [
-            Stat::make('Selamat datang, ' . $user['name'] . '!', $currentDate)
-                ->description('PN: ' . $user['pn'] . ' | Role: ' . ucfirst($user['role']))
+            Stat::make('🌟 Selamat datang, ' . $user['name'] . '!', $currentDate . ' • ' . $currentTime)
+                ->description('📋 PN: ' . $user['pn'] . ' • 👤 Role: ' . ucfirst($user['role']) . ' • 🏢 Sistem Inventory Management')
                 ->descriptionIcon('heroicon-m-user-circle')
                 ->color('primary')
                 ->extraAttributes([
-                    'class' => 'text-center',
+                    'class' => 'text-center bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950',
+                    'style' => 'border: 2px solid #3b82f6; border-radius: 12px;'
                 ]),
         ];
     }
