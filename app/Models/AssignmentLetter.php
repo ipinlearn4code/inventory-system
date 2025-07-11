@@ -67,7 +67,7 @@ class AssignmentLetter extends Model
             $file,
             $this->letter_type,
             $this->assignment_id,
-            $this->letter_date,
+            $this->letter_date instanceof \DateTimeInterface ? $this->letter_date->format('Y-m-d') : (string) $this->letter_date,
             $this->letter_number
         );
         
