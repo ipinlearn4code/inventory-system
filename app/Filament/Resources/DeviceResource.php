@@ -22,8 +22,9 @@ class DeviceResource extends Resource
     public static function canViewAny(): bool
     {
         $auth = session('authenticated_user');
-        if (!$auth) return false;
-        
+        if (!$auth)
+            return false;
+
         $authModel = \App\Models\Auth::where('pn', $auth['pn'])->first();
         return $authModel && ($authModel->hasRole('superadmin') || $authModel->hasRole('admin'));
     }
@@ -31,8 +32,9 @@ class DeviceResource extends Resource
     public static function canCreate(): bool
     {
         $auth = session('authenticated_user');
-        if (!$auth) return false;
-        
+        if (!$auth)
+            return false;
+
         $authModel = \App\Models\Auth::where('pn', $auth['pn'])->first();
         return $authModel && ($authModel->hasRole('superadmin') || $authModel->hasRole('admin'));
     }
@@ -40,8 +42,9 @@ class DeviceResource extends Resource
     public static function canEdit($record): bool
     {
         $auth = session('authenticated_user');
-        if (!$auth) return false;
-        
+        if (!$auth)
+            return false;
+
         $authModel = \App\Models\Auth::where('pn', $auth['pn'])->first();
         return $authModel && ($authModel->hasRole('superadmin') || $authModel->hasRole('admin'));
     }
@@ -49,8 +52,9 @@ class DeviceResource extends Resource
     public static function canDelete($record): bool
     {
         $auth = session('authenticated_user');
-        if (!$auth) return false;
-        
+        if (!$auth)
+            return false;
+
         $authModel = \App\Models\Auth::where('pn', $auth['pn'])->first();
         return $authModel && ($authModel->hasRole('superadmin') || $authModel->hasRole('admin'));
     }
@@ -65,14 +69,45 @@ class DeviceResource extends Resource
                             ->label('Brand Name')
                             ->required()
                             ->maxLength(50),
-                        
+
                         Forms\Components\TextInput::make('serial_number')
                             ->label('Serial Number')
                             ->required()
                             ->maxLength(50)
                             ->unique(ignoreRecord: true),
-                        
+
                         Forms\Components\TextInput::make('asset_code')
+                            ->disabled(function ($livewire) {
+                                // Only apply in edit mode
+                                $isAssigned = !$livewire->record?->currentAssignment->returned_date;
+                                if (!($livewire instanceof \Filament\Resources\Pages\EditRecord)) {
+                                    return false;
+                                }
+                                
+                                // Get authenticated user and check role
+                                if (session('authenticated_user.role') === 'superadmin') {
+                                    return false;
+                                }
+                                if ($isAssigned) {
+                                    return true; // Disable if there is an active assignment
+                                }
+                                return false; 
+                            })
+                            ->hint(function ($livewire) {
+                                // Show hint if disabled due to active assignment
+                                if (!($livewire instanceof \Filament\Resources\Pages\EditRecord)) {
+                                    return null;
+                                }
+                                $isAssigned = !$livewire->record?->currentAssignment->returned_date;
+                                if (session('authenticated_user.role') === 'superadmin' && $isAssigned) {
+                                    return 'Be careful on this field, you are editing an active assigned device';
+                                }
+                                // dd($livewire->record?->currentAssignment->returned_date);
+                                if (!session('authenticated_user.role') === 'superadmin' && $isAssigned) {
+                                    return 'You cannot edit asset code because of active assignment';
+                                }
+                                return null;
+                            })
                             ->label('Asset Code')
                             ->required()
                             ->maxLength(20)
@@ -87,13 +122,15 @@ class DeviceResource extends Resource
                                     })
                                     ->visible(function ($livewire) {
                                         // Show on create
-                                        if ($livewire instanceof \Filament\Resources\Pages\CreateRecord) return true;
+                                        if ($livewire instanceof \Filament\Resources\Pages\CreateRecord)
+                                            return true;
                                         // Show on edit if not assigned
-                                        if ($livewire instanceof \Filament\Resources\Pages\EditRecord && ($livewire->record?->currentAssignment === null)) return true;
+                                        if ($livewire instanceof \Filament\Resources\Pages\EditRecord && ($livewire->record?->currentAssignment === null))
+                                            return true;
                                         return false;
                                     })
                             ),
-                        
+
                         Forms\Components\Select::make('bribox_id')
                             ->label('Bribox Category')
                             ->options(Bribox::with('category')->get()->mapWithKeys(function ($bribox) {
@@ -102,7 +139,7 @@ class DeviceResource extends Resource
                             }))
                             ->required()
                             ->searchable(),
-                        
+
                         Forms\Components\Select::make('condition')
                             ->options([
                                 'Baik' => 'Baik',
@@ -110,36 +147,36 @@ class DeviceResource extends Resource
                                 'Perlu Pengecekan' => 'Perlu Pengecekan',
                             ])
                             ->required(),
-                        
+
                         Forms\Components\DatePicker::make('dev_date')
                             ->label('Development Date'),
                     ])
                     ->columns(2),
-                
+
                 Forms\Components\Section::make('Specifications')
                     ->schema([
                         Forms\Components\TextInput::make('spec1')
                             ->label('Specification 1')
                             ->maxLength(100),
-                        
+
                         Forms\Components\TextInput::make('spec2')
                             ->label('Specification 2 (Numeric)')
                             ->numeric(),
-                        
+
                         Forms\Components\TextInput::make('spec3')
                             ->label('Specification 3')
                             ->maxLength(100),
-                        
+
                         Forms\Components\TextInput::make('spec4')
                             ->label('Specification 4')
                             ->maxLength(100),
-                        
+
                         Forms\Components\TextInput::make('spec5')
                             ->label('Specification 5')
                             ->maxLength(100),
                     ])
                     ->columns(2),
-                
+
                 Forms\Components\Section::make('Audit Information')
                     ->schema([
                         Forms\Components\TextInput::make('created_by')
@@ -149,7 +186,7 @@ class DeviceResource extends Resource
                             ->disabled()
                             // ->dehydrated(fn ($state, $context) => $context === 'create'),
                             ->dehydrated(),
-                        
+
                         Forms\Components\TextInput::make('updated_by')
                             ->label('Updated By')
                             ->default(auth()->user()?->pn ?? session('authenticated_user.pn'))
@@ -171,47 +208,47 @@ class DeviceResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                
+
                 Tables\Columns\TextColumn::make('brand_name')
                     ->searchable()
                     ->sortable()
                     ->toggleable(),
-                
+
                 Tables\Columns\TextColumn::make('serial_number')
                     ->searchable()
                     ->sortable()
                     ->toggleable(),
-                
+
                 Tables\Columns\TextColumn::make('asset_code')
                     ->searchable()
                     ->sortable()
                     ->toggleable(),
-                
+
                 Tables\Columns\TextColumn::make('bribox.type')
                     ->label('Type')
                     ->sortable()
                     ->toggleable(),
-                
+
                 Tables\Columns\TextColumn::make('bribox.category.category_name')
                     ->label('Category')
                     ->sortable()
                     ->toggleable(),
-                
+
                 Tables\Columns\TextColumn::make('condition')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'Baik' => 'success',
                         'Rusak' => 'danger',
                         'Perlu Pengecekan' => 'warning',
                         default => 'gray',
                     })
                     ->toggleable(),
-                
+
                 Tables\Columns\TextColumn::make('currentAssignment.user.name')
                     ->label('Assigned To')
                     ->default('Unassigned')
                     ->toggleable(),
-                
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -230,9 +267,9 @@ class DeviceResource extends Resource
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
                             $data['value'],
-                            fn (Builder $query, $value): Builder => $query->whereHas(
+                            fn(Builder $query, $value): Builder => $query->whereHas(
                                 'bribox',
-                                fn (Builder $query): Builder => $query->where('bribox_category_id', $value)
+                                fn(Builder $query): Builder => $query->where('bribox_category_id', $value)
                             )
                         );
                     }),
@@ -241,7 +278,7 @@ class DeviceResource extends Resource
                     ->options(Bribox::all()->pluck('type', 'bribox_id')),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                // Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
@@ -277,15 +314,15 @@ class DeviceResource extends Resource
             // Generate a 15-character alphanumeric code
             $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             $assetCode = '';
-            
+
             for ($i = 0; $i < 15; $i++) {
                 $assetCode .= $characters[rand(0, strlen($characters) - 1)];
             }
-            
+
             // Check if this code already exists
             $exists = Device::where('asset_code', $assetCode)->exists();
         } while ($exists);
-        
+
         return $assetCode;
     }
 }
