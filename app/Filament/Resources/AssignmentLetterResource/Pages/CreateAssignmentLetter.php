@@ -19,8 +19,21 @@ class CreateAssignmentLetter extends CreateRecord
             $user = User::where('pn', $auth['pn'])->first();
             if ($user) {
                 $data['created_by'] = $user->user_id;
+                
+                // Handle approver logic: if is_approver toggle is true, set current user as approver
+                if (isset($data['is_approver']) && $data['is_approver']) {
+                    $data['approver_id'] = $user->user_id;
+                }
             }
         }
+        
+        // Ensure approver_id is always set - if not set by toggle or form, use created_by user
+        if (empty($data['approver_id']) && !empty($data['created_by'])) {
+            $data['approver_id'] = $data['created_by'];
+        }
+        
+        // Remove the is_approver field as it's not part of the model
+        unset($data['is_approver']);
         
         // Make sure created_at is set
         if (empty($data['created_at'])) {

@@ -43,8 +43,22 @@ class EditAssignmentLetter extends EditRecord
             if ($user) {
                 $data['updated_by'] = $user->user_id;
                 $data['updated_at'] = now();
+                
+                // Handle approver logic: if is_approver toggle is true, set current user as approver
+                if (isset($data['is_approver']) && $data['is_approver']) {
+                    $data['approver_id'] = $user->user_id;
+                }
             }
         }
+        
+        // Ensure approver_id is always set - if not set by toggle or form, keep the existing value
+        $currentRecord = $this->getRecord();
+        if (empty($data['approver_id']) && $currentRecord && $currentRecord->approver_id) {
+            $data['approver_id'] = $currentRecord->approver_id;
+        }
+        
+        // Remove the is_approver field as it's not part of the model
+        unset($data['is_approver']);
         
         return $data;
     }

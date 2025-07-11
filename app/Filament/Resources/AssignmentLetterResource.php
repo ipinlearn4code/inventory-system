@@ -87,10 +87,9 @@ class AssignmentLetterResource extends Resource
                                     $set('approver_id', $user->user_id);
                                 }
                             }
-                        } else {
-                            // When toggled off, clear the selection
-                            $set('approver_id', null);
                         }
+                        // Note: Don't set approver_id to null when toggled off, 
+                        // let the user select someone else from the dropdown
                     }),
 
                 Forms\Components\Select::make('approver_id')
@@ -104,7 +103,19 @@ class AssignmentLetterResource extends Resource
                     ->required()
                     ->selectablePlaceholder(false)
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->reactive() // Make this field reactive to state changes
+                    ->default(function () {
+                        // Set default to current user if they are the approver
+                        $auth = session('authenticated_user');
+                        if ($auth) {
+                            $user = \App\Models\User::where('pn', $auth['pn'])->first();
+                            if ($user) {
+                                return $user->user_id;
+                            }
+                        }
+                        return null;
+                    }),
 
                 Forms\Components\FileUpload::make('file_path')
                     ->label('Assignment Letter File')
