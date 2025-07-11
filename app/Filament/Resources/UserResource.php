@@ -64,6 +64,11 @@ class UserResource extends Resource
                     ->required()
                     ->maxLength(8)
                     ->unique(ignoreRecord: true),
+                Forms\Components\Select::make('branch_id')
+                    ->label('Branch')
+                    ->options(\App\Models\Branch::all()->pluck('unit_name', 'branch_id'))
+                    ->required()
+                    ->searchable(),
                 
                 Forms\Components\TextInput::make('name')
                     ->required()
@@ -76,7 +81,18 @@ class UserResource extends Resource
                     ->searchable(),
                 
                 Forms\Components\TextInput::make('position')
-                    ->maxLength(100),
+                    ->label('Position')
+                    ->datalist(
+                        \App\Models\User::query()
+                            ->whereNotNull('position')
+                            ->distinct()
+                            ->orderBy('position')
+                            ->pluck('position')
+                            ->toArray()
+                    )
+                    ->autocomplete(false)
+                    ->required(),
+                
             ]);
     }
 
