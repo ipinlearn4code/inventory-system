@@ -77,6 +77,8 @@ class AssignmentLetterResource extends Resource
                     ->default(true)
                     ->live()
                     ->dehydrated(false) // This ensures the field won't be sent to the model
+                    ->disabled(fn ($record) => filled($record)) // Disable in edit mode
+                    ->hint(fn ($record) => filled($record) ? 'Cannot change approver in edit mode.' : null)
                     ->afterStateUpdated(function ($set, $state) {
                         if ($state) {
                             // When toggled on, set the current user as approver

@@ -76,6 +76,14 @@ class AdminPanelProvider extends PanelProvider
                 \App\Filament\Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+            // Custom navigation items (optional - uncomment to add)
+            // ->navigation([
+            //     NavigationItem::make('Reports')
+            //         ->url('/admin/reports')
+            //         ->icon('heroicon-o-chart-bar')
+            //         ->group('Analytics')
+            //         ->sort(7),
+            // ])
             // ->discoverWidgets(false)
             ->widgets([
                 \App\Filament\Widgets\UserInfoWidget::class,
