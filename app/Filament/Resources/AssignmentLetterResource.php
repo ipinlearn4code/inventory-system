@@ -52,8 +52,14 @@ class AssignmentLetterResource extends Resource
                         'maintenance' => 'Maintenance Letter',
                     ])
                     ->required()
-                    ->disablePlaceholderSelection()
-                    ->default(fn ($record) => $record?->letter_type),
+                    ->native(false) // Use custom dropdown instead of native HTML select
+                    ->placeholder('Select a letter type')
+                    ->selectablePlaceholder(false) // This prevents placeholder selection
+                    ->validationAttribute('letter type')
+                    ->default(function ($livewire, $record) {
+                        // Only set default for existing records, not on creation
+                        return $record ? $record->letter_type : null;
+                    }),
 
                 Forms\Components\TextInput::make('letter_number')
                     ->label('Letter Number')
