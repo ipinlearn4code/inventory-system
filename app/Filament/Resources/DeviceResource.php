@@ -140,14 +140,14 @@ class DeviceResource extends Resource
                             ->default(auth()->user()?->pn ?? session('authenticated_user.pn'))
                             ->maxLength(7)
                             ->disabled()
-                            ->dehydrated(),
+                            ->dehydrated(fn ($state, $context) => $context === 'create'),
                         
                         Forms\Components\TextInput::make('updated_by')
                             ->label('Updated By')
                             ->default(auth()->user()?->pn ?? session('authenticated_user.pn'))
                             ->maxLength(7)
                             ->disabled()
-                            ->dehydrated(),
+                            ->dehydrated(fn ($state, $context) => $context === 'edit'),
                     ])
                     ->columns(2)
                     ->visibleOn('edit'),
