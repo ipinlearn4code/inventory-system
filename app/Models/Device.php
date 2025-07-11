@@ -48,4 +48,26 @@ class Device extends Model
         return $this->hasOne(DeviceAssignment::class, 'device_id', 'device_id')
                     ->whereNull('returned_date');
     }
+    
+    /**
+     * Get the asset code with device type - used for display in dropdowns
+     *
+     * @return string
+     */
+    public function getAssetCodeWithTypeAttribute(): string
+    {
+        $type = $this->bribox ? $this->bribox->type_name : 'Unknown';
+        return "{$this->asset_code} - {$type} ({$this->brand_name})";
+    }
+    
+    /**
+     * Scope a query to only include available devices (not currently assigned)
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeAvailable($query)
+    {
+        return $query->whereDoesntHave('currentAssignment');
+    }
 }

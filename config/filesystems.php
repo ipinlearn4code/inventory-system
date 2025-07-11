@@ -59,6 +59,20 @@ return [
             'throw' => false,
             'report' => false,
         ],
+        
+        'minio' => [
+            'driver' => 's3',
+            'key' => env('MINIO_ACCESS_KEY', 'minioadmin'),
+            'secret' => env('MINIO_SECRET_KEY', 'minioadmin123'),
+            'region' => 'us-east-1', // MinIO doesn't require a specific region
+            'bucket' => env('MINIO_BUCKET', 'assignment-letter'),
+            'url' => env('MINIO_URL', 'http://localhost:9000'),
+            'endpoint' => env('MINIO_ENDPOINT', 'http://localhost:9000'),
+            'use_path_style_endpoint' => true, // Important for MinIO
+            'visibility' => 'public', // Set based on your requirements
+            'throw' => true, // Enable exceptions for better error handling
+            'report' => true, // Enable reporting for monitoring
+        ],
 
     ],
 

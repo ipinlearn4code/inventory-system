@@ -17,15 +17,23 @@ class CreateAssignmentLetter extends CreateRecord
         $isApprover = $data['is_approver'] ?? false;
         unset($data['is_approver']);
         
-        // If the user is the approver but no approver_id was set, get the current user
-        if ($isApprover && empty($data['approver_id'])) {
-            $auth = session('authenticated_user');
-            if ($auth) {
-                $user = User::where('pn', $auth['pn'])->first();
-                if ($user) {
+        // Set created_by from authenticated user
+        $auth = session('authenticated_user');
+        if ($auth) {
+            $user = User::where('pn', $auth['pn'])->first();
+            if ($user) {
+                $data['created_by'] = $user->user_id;
+                
+                // If the user is the approver but no approver_id was set, use current user
+                if ($isApprover && empty($data['approver_id'])) {
                     $data['approver_id'] = $user->user_id;
                 }
             }
+        }
+        
+        // Make sure created_at is set
+        if (empty($data['created_at'])) {
+            $data['created_at'] = now();
         }
         
         return $data;

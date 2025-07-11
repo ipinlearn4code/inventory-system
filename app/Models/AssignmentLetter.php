@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
-use App\Services\AssignmentLetterStorageService;
+use App\Services\MinioStorageService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class AssignmentLetter extends Model
 {
@@ -51,20 +53,35 @@ class AssignmentLetter extends Model
     }
 
     /**
-     * Store an assignment letter file
+     * Store an assignment letter file to MinIO
+     *
+     * @param UploadedFile $file The uploaded file
+     * @return string|null The stored file path
      */
-    public function storeFile(UploadedFile $file): string
+    public function storeFile(UploadedFile $file): ?string
     {
-        $storageService = app(AssignmentLetterStorageService::class);
-        $path = $storageService->store($file, $this->letter_number);
+        $storageService = app(MinioStorageService::class);
         
-        $this->update(['file_path' => $path]);
+        // Store file with the structured directory path
+        $path = $storageService->storeAssignmentLetterFile(
+            $file,
+            $this->letter_type,
+            $this->assignment_id,
+            $this->letter_date,
+            $this->letter_number
+        );
+        
+        if ($path) {
+            $this->update(['file_path' => $path]);
+        }
         
         return $path;
     }
 
     /**
-     * Delete the assignment letter file
+     * Delete the assignment letter file from MinIO
+     *
+     * @return bool Success status
      */
     public function deleteFile(): bool
     {
@@ -72,8 +89,8 @@ class AssignmentLetter extends Model
             return true;
         }
 
-        $storageService = app(AssignmentLetterStorageService::class);
-        $deleted = $storageService->delete($this->file_path);
+        $storageService = app(MinioStorageService::class);
+        $deleted = $storageService->deleteFile($this->file_path);
         
         if ($deleted) {
             $this->update(['file_path' => null]);
@@ -84,6 +101,8 @@ class AssignmentLetter extends Model
 
     /**
      * Get the URL for the assignment letter file
+     *
+     * @return string|null URL to access the file
      */
     public function getFileUrl(): ?string
     {
@@ -91,8 +110,8 @@ class AssignmentLetter extends Model
             return null;
         }
 
-        $storageService = app(AssignmentLetterStorageService::class);
-        return $storageService->url($this->file_path);
+        $storageService = app(MinioStorageService::class);
+        return $storageService->getTemporaryUrl($this->file_path);
     }
 
     /**

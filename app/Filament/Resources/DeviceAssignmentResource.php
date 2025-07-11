@@ -69,7 +69,7 @@ class DeviceAssignmentResource extends Resource
                 Select::make('device_id')
                     ->label('Device')
                     ->options(function () {
-                        return Device::whereDoesntHave('currentAssignment')
+                        return Device::available()
                             ->get()
                             ->mapWithKeys(function ($device) {
                                 return [$device->device_id => "{$device->asset_code} - {$device->brand_name} ({$device->serial_number})"];
