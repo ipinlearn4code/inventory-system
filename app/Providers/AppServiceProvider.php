@@ -26,30 +26,25 @@ class AppServiceProvider extends ServiceProvider
                 Filament::registerNavigationGroups(
                     [
                         NavigationGroup::make()
-                            ->label('Dashboard')
-                            ->icon('heroicon-s-squares-2x2'),
+                            ->label('Dashboard'),
                         NavigationGroup::make()
                             ->label('Inventory Management')
-                            ->collapsed()
-                            ->icon('heroicon-s-archive-box'),
+                            ->collapsed(),
                         NavigationGroup::make()
                             ->label('Device Management')
-                            ->collapsed()
-                            ->icon('heroicon-s-device-phone-mobile'),
+                            ->collapsed(),
                         NavigationGroup::make()
                             ->label('Master Data')
-                            ->collapsed()
-                            ->icon('heroicon-s-table-cells'),
+                            ->collapsed(),
                         NavigationGroup::make()
                             ->label('User Management')
-                            ->collapsed()
-                            ->icon('heroicon-s-users'),
+                            ->collapsed(),
                         NavigationGroup::make()
                             ->label('Permission Management')
-                            ->collapsed()
-                            ->icon('heroicon-s-lock-closed'),
+                            ->collapsed(),
                     ]
                 );
+                
             }
         );
     }
