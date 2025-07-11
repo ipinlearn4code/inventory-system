@@ -85,6 +85,15 @@ class DeviceResource extends Resource
                                         $assetCode = self::generateAssetCode();
                                         $set('asset_code', $assetCode);
                                     })
+                                    ->visible(function ($livewire) {
+                                        $context = $livewire->getFormContext();
+                                        $record = $livewire->getRecord();
+                                        // Show on create
+                                        if ($context === 'create') return true;
+                                        // Show on edit if not assigned
+                                        if ($context === 'edit' && ($record?->currentAssignment === null)) return true;
+                                        return false;
+                                    })
                             ),
                         
                         Forms\Components\Select::make('bribox_id')
