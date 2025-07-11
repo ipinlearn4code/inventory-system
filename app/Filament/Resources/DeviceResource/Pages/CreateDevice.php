@@ -25,4 +25,5 @@ class CreateDevice extends CreateRecord
         
         return $data;
     }
+    
 }

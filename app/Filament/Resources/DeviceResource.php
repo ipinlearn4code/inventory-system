@@ -86,12 +86,10 @@ class DeviceResource extends Resource
                                         $set('asset_code', $assetCode);
                                     })
                                     ->visible(function ($livewire) {
-                                        $context = $livewire->getFormContext();
-                                        $record = $livewire->getRecord();
                                         // Show on create
-                                        if ($context === 'create') return true;
+                                        if ($livewire instanceof \Filament\Resources\Pages\CreateRecord) return true;
                                         // Show on edit if not assigned
-                                        if ($context === 'edit' && ($record?->currentAssignment === null)) return true;
+                                        if ($livewire instanceof \Filament\Resources\Pages\EditRecord && ($livewire->record?->currentAssignment === null)) return true;
                                         return false;
                                     })
                             ),
@@ -149,14 +147,15 @@ class DeviceResource extends Resource
                             ->default(auth()->user()?->pn ?? session('authenticated_user.pn'))
                             ->maxLength(7)
                             ->disabled()
-                            ->dehydrated(fn ($state, $context) => $context === 'create'),
+                            // ->dehydrated(fn ($state, $context) => $context === 'create'),
+                            ->dehydrated(),
                         
                         Forms\Components\TextInput::make('updated_by')
                             ->label('Updated By')
                             ->default(auth()->user()?->pn ?? session('authenticated_user.pn'))
                             ->maxLength(7)
                             ->disabled()
-                            ->dehydrated(fn ($state, $context) => $context === 'edit'),
+                            ->dehydrated(),
                     ])
                     ->columns(2)
                     ->visibleOn('edit'),
