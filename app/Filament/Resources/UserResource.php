@@ -93,6 +93,44 @@ class UserResource extends Resource
                     ->autocomplete(false)
                     ->required(),
                 
+                Forms\Components\Toggle::make('create_auth')
+                    ->label('Add Authentication')
+                    ->helperText('Create authentication credentials for this user')
+                    ->default(false)
+                    ->live()
+                    ->visible(fn ($livewire) => $livewire instanceof \App\Filament\Resources\UserResource\Pages\CreateUser),
+                
+                Forms\Components\Section::make('Authentication Details')
+                    ->schema([
+                        Forms\Components\TextInput::make('auth.password')
+                            ->label('Password')
+                            ->password()
+                            ->dehydrated(fn ($state) => filled($state))
+                            ->required(fn ($livewire) => $livewire instanceof Pages\CreateUser && $livewire->data['create_auth'])
+                            ->confirmed()
+                            ->minLength(8)
+                            ->helperText('Leave blank to keep the same password when editing'),
+                        
+                        Forms\Components\TextInput::make('auth.password_confirmation')
+                            ->label('Confirm Password')
+                            ->password()
+                            ->required(fn ($livewire) => $livewire instanceof Pages\CreateUser && $livewire->data['create_auth'])
+                            ->dehydrated(false)
+                            ->minLength(8),
+                        
+                        Forms\Components\Select::make('auth.role')
+                            ->label('Role')
+                            ->options([
+                                'user' => 'Regular User',
+                                'admin' => 'Administrator',
+                                'superadmin' => 'Super Administrator'
+                            ])
+                            ->required(fn (Forms\Get $get): bool => $get('create_auth'))
+                            ->default('user')
+                            ->helperText('Determines what actions the user can perform'),
+                    ])
+                    ->visible(fn (Forms\Get $get): bool => $get('create_auth'))
+                    ->columns(2),
             ]);
     }
 

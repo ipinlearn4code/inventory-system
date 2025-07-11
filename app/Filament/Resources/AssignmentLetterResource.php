@@ -25,6 +25,7 @@ class AssignmentLetterResource extends Resource
 
     public static function form(Form $form): Form
     {
+        // dd(session('authenticated_user'));
         return $form
             ->schema([
                 Forms\Components\Select::make('assignment_id')
@@ -33,8 +34,9 @@ class AssignmentLetterResource extends Resource
                         return \App\Models\DeviceAssignment::with(['user', 'device'])
                             ->get()
                             ->mapWithKeys(function ($assignment) {
-                                return [$assignment->assignment_id => 
-                                    $assignment->user->name . ' - ' . $assignment->device->asset_code
+                                return [
+                                    $assignment->assignment_id =>
+                                        $assignment->user->name . ' - ' . $assignment->device->asset_code
                                 ];
                             });
                     })
@@ -49,7 +51,9 @@ class AssignmentLetterResource extends Resource
                         'transfer' => 'Transfer Letter',
                         'maintenance' => 'Maintenance Letter',
                     ])
-                    ->required(),
+                    ->required()
+                    ->disablePlaceholderSelection()
+                    ->default(fn ($record) => $record?->letter_type),
 
                 Forms\Components\TextInput::make('letter_number')
                     ->label('Letter Number')
@@ -63,7 +67,16 @@ class AssignmentLetterResource extends Resource
 
                 Forms\Components\Select::make('approver_id')
                     ->label('Approver')
-                    ->options(\App\Models\User::pluck('name', 'user_id'))
+                    ->disabled(fn() => session('authenticated_user.pn'))
+                    ->hint(session('authenticated_user.name') ? 'You are the approver' : 'Select an approver')
+                    ->options(function () {
+                        $pn = session('authenticated_user.pn');
+                        if (!$pn) {
+                            return [];
+                        }
+                        $user = \App\Models\User::where('pn', $pn)->first();
+                        return $user ? [$user->user_id => $user->name] : [];
+                    })
                     ->searchable()
                     ->required(),
 
@@ -95,7 +108,7 @@ class AssignmentLetterResource extends Resource
                 Tables\Columns\TextColumn::make('letter_type')
                     ->label('Type')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'assignment' => 'success',
                         'return' => 'warning',
                         'transfer' => 'info',
@@ -148,7 +161,7 @@ class AssignmentLetterResource extends Resource
                     ]),
 
                 Tables\Filters\Filter::make('has_file')
-                    ->query(fn (Builder $query): Builder => $query->whereNotNull('file_path'))
+                    ->query(fn(Builder $query): Builder => $query->whereNotNull('file_path'))
                     ->label('Has File'),
             ])
             ->actions([
@@ -156,9 +169,9 @@ class AssignmentLetterResource extends Resource
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('download')
                     ->icon('heroicon-o-arrow-down-tray')
-                    ->url(fn (AssignmentLetter $record): string => $record->getFileUrl() ?? '#')
+                    ->url(fn(AssignmentLetter $record): string => $record->getFileUrl() ?? '#')
                     ->openUrlInNewTab()
-                    ->visible(fn (AssignmentLetter $record): bool => $record->hasFile()),
+                    ->visible(fn(AssignmentLetter $record): bool => $record->hasFile()),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
