@@ -63,6 +63,7 @@ class AssignmentLetterResource extends Resource
 
                 Forms\Components\TextInput::make('letter_number')
                     ->label('Letter Number')
+                    ->placeholder('Input Letter Number')
                     ->required()
                     ->maxLength(50),
 
@@ -71,20 +72,38 @@ class AssignmentLetterResource extends Resource
                     ->required()
                     ->default(now()),
 
+                Forms\Components\Toggle::make('is_approver')
+                    ->label('Are you the approver?')
+                    ->default(true)
+                    ->live()
+                    ->afterStateUpdated(function ($set, $state) {
+                        if ($state) {
+                            // When toggled on, set the current user as approver
+                            $auth = session('authenticated_user');
+                            if ($auth) {
+                                $user = \App\Models\User::where('pn', $auth['pn'])->first();
+                                if ($user) {
+                                    $set('approver_id', $user->user_id);
+                                }
+                            }
+                        } else {
+                            // When toggled off, clear the selection
+                            $set('approver_id', null);
+                        }
+                    }),
+
                 Forms\Components\Select::make('approver_id')
                     ->label('Approver')
-                    ->disabled(fn() => session('authenticated_user.pn'))
-                    ->hint(session('authenticated_user.name') ? 'You are the approver' : 'Select an approver')
                     ->options(function () {
-                        $pn = session('authenticated_user.pn');
-                        if (!$pn) {
-                            return [];
-                        }
-                        $user = \App\Models\User::where('pn', $pn)->first();
-                        return $user ? [$user->user_id => $user->name] : [];
+                        return \App\Models\User::pluck('name', 'user_id')->toArray();
                     })
+                    ->disabled(fn ($get) => $get('is_approver'))
+                    ->native(false)
+                    ->placeholder('Select an approver')
+                    ->required()
+                    ->selectablePlaceholder(false)
                     ->searchable()
-                    ->required(),
+                    ->preload(),
 
                 Forms\Components\FileUpload::make('file_path')
                     ->label('Assignment Letter File')
