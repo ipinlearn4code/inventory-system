@@ -76,6 +76,7 @@ class AssignmentLetterResource extends Resource
                     ->label('Are you the approver?')
                     ->default(true)
                     ->live()
+                    ->dehydrated(false) // This ensures the field won't be sent to the model
                     ->afterStateUpdated(function ($set, $state) {
                         if ($state) {
                             // When toggled on, set the current user as approver
@@ -107,13 +108,22 @@ class AssignmentLetterResource extends Resource
 
                 Forms\Components\FileUpload::make('file_path')
                     ->label('Assignment Letter File')
+                    ->disk('public')
                     ->directory('assignment-letters')
-                    ->acceptedFileTypes(['application/pdf', 'image/*', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
-                    ->maxSize(5120) // 5MB max
-                    ->helperText('Upload PDF, Word document, or image file. Max size: 5MB'),
+                    ->acceptedFileTypes(['application/pdf'])
+                    ->maxSize(5120),
 
                 Forms\Components\Hidden::make('created_by')
-                    ->default(auth()->id()),
+                    ->default(function () {
+                        $auth = session('authenticated_user');
+                        if ($auth) {
+                            $user = \App\Models\User::where('pn', $auth['pn'])->first();
+                            if ($user) {
+                                return $user->user_id;
+                            }
+                        }
+                        return null;
+                    }),
 
                 Forms\Components\Hidden::make('created_at')
                     ->default(now()),

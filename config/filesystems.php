@@ -34,8 +34,8 @@ return [
             'driver' => 'local',
             'root' => storage_path('app/private'),
             'serve' => true,
-            'throw' => false,
-            'report' => false,
+            'throw' => true, // Enable exceptions for better error handling
+            'report' => true, // Enable reporting for monitoring
         ],
 
         'public' => [
@@ -43,8 +43,8 @@ return [
             'root' => storage_path('app/public'),
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
-            'throw' => false,
-            'report' => false,
+            'throw' => true, // Enable exceptions for better error handling
+            'report' => true, // Enable reporting for monitoring
         ],
 
         's3' => [

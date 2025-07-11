@@ -82,3 +82,13 @@ Route::prefix('v1')->group(function () {
         ]);
     });
 });
+
+// Test upload route in API (no web middleware)
+Route::post('/test-upload-api', function (Request $request) {
+    return response()->json([
+        'success' => true,
+        'message' => 'API upload test working',
+        'has_file' => $request->hasFile('test_file'),
+        'method' => $request->method()
+    ]);
+});

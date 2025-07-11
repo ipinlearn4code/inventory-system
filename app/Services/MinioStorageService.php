@@ -28,6 +28,20 @@ class MinioStorageService
         string $letterNumber
     ): ?string {
         try {
+            // Log file details for debugging
+            \Log::info('Storing file in MinIO', [
+                'file_name' => $file->getClientOriginalName(),
+                'file_size' => $file->getSize(),
+                'mime_type' => $file->getMimeType(),
+                'extension' => $file->getClientOriginalExtension()
+            ]);
+            
+            // Validate file type
+            $validMimeTypes = ['application/pdf', 'image/jpeg', 'image/jpg'];
+            if (!in_array($file->getMimeType(), $validMimeTypes)) {
+                throw new \Exception("Invalid file type: {$file->getMimeType()}. Only PDF and JPG files are accepted.");
+            }
+            
             // Format the letter date if it's a Carbon instance or a date string
             if ($letterDate instanceof Carbon) {
                 $formattedDate = $letterDate->format('Y-m-d');
@@ -46,31 +60,37 @@ class MinioStorageService
             $filename = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . 
                 '.' . $file->getClientOriginalExtension();
                 
+            \Log::info('Attempting to store file', [
+                'directory' => $directory,
+                'filename' => $filename,
+                'disk' => 'minio'
+            ]);
+            
             // Store the file in MinIO
             $path = $file->storeAs($directory, $filename, 'minio');
             
             if (!$path) {
-                \Log::error('Failed to store file in MinIO', [
-                    'file' => $file->getClientOriginalName(),
-                    'directory' => $directory,
-                    'disk' => 'minio'
-                ]);
-                return null;
+                throw new \Exception('Failed to store file in MinIO storage');
             }
             
+            \Log::info('File stored successfully', ['path' => $path]);
             return $path;
+            
         } catch (UnableToWriteFile $e) {
-            \Log::error('MinIO write failure', [
-                'exception' => $e->getMessage(),
-                'file' => $file->getClientOriginalName()
+            $errorMsg = 'MinIO write failure: ' . $e->getMessage();
+            \Log::error($errorMsg, [
+                'file' => $file->getClientOriginalName(),
+                'trace' => $e->getTraceAsString()
             ]);
-            return null;
+            throw new \Exception($errorMsg, 0, $e);
+            
         } catch (\Exception $e) {
-            \Log::error('MinIO storage error', [
-                'exception' => $e->getMessage(),
-                'file' => $file->getClientOriginalName()
+            $errorMsg = 'MinIO storage error: ' . $e->getMessage();
+            \Log::error($errorMsg, [
+                'file' => $file->getClientOriginalName(),
+                'trace' => $e->getTraceAsString()
             ]);
-            return null;
+            throw new \Exception($errorMsg, 0, $e);
         }
     }
     

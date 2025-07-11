@@ -13,21 +13,12 @@ class CreateAssignmentLetter extends CreateRecord
     
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        // Remove the is_approver field as it's not part of the model
-        $isApprover = $data['is_approver'] ?? false;
-        unset($data['is_approver']);
-        
         // Set created_by from authenticated user
         $auth = session('authenticated_user');
         if ($auth) {
             $user = User::where('pn', $auth['pn'])->first();
             if ($user) {
                 $data['created_by'] = $user->user_id;
-                
-                // If the user is the approver but no approver_id was set, use current user
-                if ($isApprover && empty($data['approver_id'])) {
-                    $data['approver_id'] = $user->user_id;
-                }
             }
         }
         
@@ -37,5 +28,43 @@ class CreateAssignmentLetter extends CreateRecord
         }
         
         return $data;
+    }
+    
+    protected function afterCreate(): void
+    {
+        try {
+            // For now, just test basic file upload without MinIO
+            $record = $this->getRecord();
+            $filePath = $this->data['file_path'] ?? null;
+            
+            if ($filePath && $record) {
+                \Log::info("File uploaded successfully to local storage", [
+                    'file_path' => $filePath,
+                    'record_id' => $record->letter_id
+                ]);
+                
+                // For now, just save the local path to database
+                $record->update(['file_path' => $filePath]);
+                
+                // Show success notification
+                \Filament\Notifications\Notification::make()
+                    ->title('File Uploaded')
+                    ->body('File has been uploaded successfully to local storage.')
+                    ->success()
+                    ->send();
+            }
+        } catch (\Exception $e) {
+            \Log::error("File upload failed", [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            // Show notification with specific error
+            \Filament\Notifications\Notification::make()
+                ->title('File Upload Error')
+                ->body($e->getMessage())
+                ->danger()
+                ->send();
+        }
     }
 }

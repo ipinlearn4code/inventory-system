@@ -12,6 +12,7 @@ use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class QuickAssignment extends Page
 {
@@ -85,6 +86,7 @@ class QuickAssignment extends Page
                                 ->label('Are you the approver?')
                                 ->default(true)
                                 ->live()
+                                ->dehydrated(false) // This ensures the field won't be validated
                                 ->afterStateUpdated(function ($set, $state) {
                                     if ($state) {
                                         // When toggled on, set the current user as approver
@@ -116,15 +118,18 @@ class QuickAssignment extends Page
                                 
                             Forms\Components\FileUpload::make('file_path')
                                 ->label('Assignment Letter File')
-                                ->acceptedFileTypes(['application/pdf', 'image/*', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
-                                ->maxSize(5120) // 5MB max
+                                ->disk('public')
+                                ->directory('assignment-letters')
+                                ->acceptedFileTypes(['application/pdf'])
+                                ->maxSize(5120)
                                 ->required()
-                                ->helperText('Upload PDF, Word document, or image file. Max size: 5MB'),
+                                ->helperText('Upload PDF files only. Max size: 5MB'),
                         ]),
                 ])
                 ->persistStepInQueryString()
                 ->skippable()
-            ]);
+            ])
+            ->statePath('data');
     }
     
     public function submit(): void
@@ -163,15 +168,65 @@ class QuickAssignment extends Page
             
             // 3. Upload letter file to MinIO
             if (isset($data['file_path']) && $data['file_path']) {
-                // Get the temporary uploaded file
-                $uploadedFile = $data['file_path'];
-                
-                // Store file through our model method that uses MinIO
-                $path = $assignmentLetter->storeFile($uploadedFile);
-                
-                if (!$path) {
-                    // If file upload fails, roll back the transaction
-                    throw new \Exception('Failed to upload assignment letter file');
+                try {
+                    // For Filament FileUpload, the file is stored as a string path
+                    $filePath = $data['file_path'];
+                    
+                    // Build the full path to the uploaded file
+                    $tempFilePath = storage_path('app/public/' . $filePath);
+                    
+                    if (file_exists($tempFilePath)) {
+                        // Log file details for debugging
+                        $fileSize = filesize($tempFilePath);
+                        $mimeType = mime_content_type($tempFilePath);
+                        
+                        \Log::info("Processing uploaded file in QuickAssignment", [
+                            'file_path' => $filePath,
+                            'full_path' => $tempFilePath,
+                            'size' => $fileSize,
+                            'mime_type' => $mimeType
+                        ]);
+                        
+                        // Check if file is actually a PDF
+                        if ($mimeType !== 'application/pdf') {
+                            throw new \Exception("Invalid file type: {$mimeType}. Only PDF files are accepted.");
+                        }
+                        
+                        // Create an UploadedFile from the temporary file
+                        $uploadedFile = new \Illuminate\Http\UploadedFile(
+                            $tempFilePath,
+                            basename($filePath),
+                            $mimeType,
+                            null,
+                            true
+                        );
+                        
+                        // Store file through our model method that uses MinIO
+                        $path = $assignmentLetter->storeFile($uploadedFile);
+                        
+                        if (!$path) {
+                            throw new \Exception('Failed to upload assignment letter file to MinIO');
+                        }
+                        
+                        // Delete the temporary file
+                        Storage::disk('public')->delete($filePath);
+                        
+                        \Log::info("File successfully uploaded to MinIO", [
+                            'minio_path' => $path
+                        ]);
+                        
+                    } else {
+                        throw new \Exception("Temporary file not found at {$tempFilePath}");
+                    }
+                } catch (\Exception $e) {
+                    // Log error with detailed information
+                    \Log::error('File upload failed in QuickAssignment', [
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                    
+                    // Re-throw exception to trigger transaction rollback
+                    throw new \Exception("File upload error: " . $e->getMessage());
                 }
             }
             
@@ -181,13 +236,17 @@ class QuickAssignment extends Page
             // Show success notification
             Notification::make()
                 ->title('Device Assignment Complete')
-                ->body('Device successfully assigned and ready for pickup.')
+                ->body('Device successfully assigned and assignment letter uploaded.')
                 ->icon('heroicon-o-check-circle')
                 ->iconColor('success')
                 ->duration(8000)
                 ->success()
                 ->send();
                 
+            // Reset the form
+            $this->form->fill();
+            $this->data = [];
+            
             // Redirect to the list of assignments
             $this->redirect(route('filament.admin.resources.device-assignments.index'));
             
