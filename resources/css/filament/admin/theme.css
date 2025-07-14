@@ -350,3 +350,43 @@ a:not(.fi-btn):hover {
 .fi-loading-indicator {
     @apply !text-[#0073E6];
 }
+
+/* ================================================
+   SPECIFIC CSS ADJUSTMENTS - Browser Element Fixes
+   ================================================ */
+
+/* Fix topbar positioning and styling */
+.fi-topbar.sticky.top-0.z-20.overflow-x-clip {
+    @apply !bg-white !border-b !border-[#F2F4F7] !shadow-sm;
+}
+
+/* Fix sidebar item icons - make them white */
+.fi-sidebar-item-icon.h-6.w-6.text-gray-400,
+.fi-sidebar-item-icon.h-6.w-6.text-gray-500 {
+    @apply !text-white;
+}
+
+/* Fix logo text - make it white */
+.fi-logo.flex.text-xl.font-bold.leading-5.tracking-tight.text-gray-950,
+.fi-logo.flex.text-xl.font-bold.leading-5.tracking-tight.text-white {
+    @apply !text-white;
+}
+
+/* Fix sidebar item labels - make them white */
+.fi-sidebar-item-label.flex-1.truncate.text-sm.font-medium.text-gray-700,
+.fi-sidebar-item-label.flex-1.truncate.text-sm.font-medium.text-gray-200 {
+    @apply !text-white;
+}
+
+/* Additional specific class targeting for better coverage */
+.fi-sidebar .fi-sidebar-item-icon {
+    @apply !text-white;
+}
+
+.fi-sidebar .fi-logo {
+    @apply !text-white;
+}
+
+.fi-sidebar .fi-sidebar-item-label {
+    @apply !text-white;
+}
