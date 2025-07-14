@@ -78,12 +78,11 @@ class DeviceResource extends Resource
 
                         Forms\Components\TextInput::make('asset_code')
                             ->disabled(function ($livewire) {
-                                // Only apply in edit mode
-                                $isAssigned = !$livewire->record?->currentAssignment->returned_date;
-                                if (!($livewire instanceof \Filament\Resources\Pages\EditRecord)) {
+                                // Only apply in edit mode and if record exists
+                                if (!($livewire instanceof \Filament\Resources\Pages\EditRecord) || empty($livewire->record)) {
                                     return false;
                                 }
-                                
+                                $isAssigned = !$livewire->record?->currentAssignment?->returned_date;
                                 // Get authenticated user and check role
                                 if (session('authenticated_user.role') === 'superadmin') {
                                     return false;
@@ -91,19 +90,18 @@ class DeviceResource extends Resource
                                 if ($isAssigned) {
                                     return true; // Disable if there is an active assignment
                                 }
-                                return false; 
+                                return false;
                             })
                             ->hint(function ($livewire) {
-                                // Show hint if disabled due to active assignment
-                                if (!($livewire instanceof \Filament\Resources\Pages\EditRecord)) {
+                                // Show hint if disabled due to active assignment and if record exists
+                                if (!($livewire instanceof \Filament\Resources\Pages\EditRecord) || empty($livewire->record)) {
                                     return null;
                                 }
-                                $isAssigned = !$livewire->record?->currentAssignment->returned_date;
+                                $isAssigned = !$livewire->record?->currentAssignment?->returned_date;
                                 if (session('authenticated_user.role') === 'superadmin' && $isAssigned) {
                                     return 'Be careful on this field, you are editing an active assigned device';
                                 }
-                                // dd($livewire->record?->currentAssignment->returned_date);
-                                if (!session('authenticated_user.role') === 'superadmin' && $isAssigned) {
+                                if (session('authenticated_user.role') !== 'superadmin' && $isAssigned) {
                                     return 'You cannot edit asset code because of active assignment';
                                 }
                                 return null;
@@ -278,6 +276,7 @@ class DeviceResource extends Resource
                     ->options(Bribox::all()->pluck('type', 'bribox_id')),
             ])
             ->actions([
+                Tables\Actions\ViewAction::make()->modal(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
