@@ -52,7 +52,7 @@ class InventoryOverviewWidget extends BaseWidget
                 ->chart([7, 12, 8, 15, 10, 18, 12])
                 ->url(\App\Filament\Resources\DeviceResource::getUrl('index'))
                 ->extraAttributes([
-                    'class' => 'cursor-pointer',
+                    'style' => 'cursor: pointer;',
                     'title' => 'Klik untuk melihat semua perangkat',
                 ]),
                 
@@ -63,7 +63,7 @@ class InventoryOverviewWidget extends BaseWidget
                 ->chart([12, 15, 18, 20, 25, 22, 28])
                 ->url(\App\Filament\Resources\DeviceAssignmentResource::getUrl('index').'?tableFilters[active][value]=true')
                 ->extraAttributes([
-                    'class' => 'cursor-pointer',
+                    'style' => 'cursor: pointer;',
                     'title' => 'Klik untuk melihat perangkat yang sedang digunakan',
                 ]),
                 
@@ -74,7 +74,7 @@ class InventoryOverviewWidget extends BaseWidget
                 ->chart([8, 5, 12, 10, 15, 8, 12])
                 ->url(\App\Filament\Resources\DeviceResource::getUrl('create'))
                 ->extraAttributes([
-                    'class' => 'cursor-pointer',
+                    'style' => 'cursor: pointer;',
                     'title' => 'Klik untuk membuat penugasan baru',
                 ]),
                 
@@ -85,7 +85,7 @@ class InventoryOverviewWidget extends BaseWidget
                 ->chart([2, 4, 3, 5, 2, 6, 4])
                 ->url(\App\Filament\Resources\DeviceResource::getUrl('index').'?tableFilters[condition][value]=Rusak')
                 ->extraAttributes([
-                    'class' => 'cursor-pointer',
+                    'style' => 'cursor: pointer;',
                     'title' => 'Klik untuk melihat perangkat rusak',
                 ]),
         ];
