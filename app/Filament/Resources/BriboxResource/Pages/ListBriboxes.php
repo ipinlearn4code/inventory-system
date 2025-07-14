@@ -16,4 +16,8 @@ class ListBriboxes extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
+    protected function isTableLazy(): bool
+    {
+        return true;
+    }
 }
