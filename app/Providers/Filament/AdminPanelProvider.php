@@ -33,14 +33,15 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login(false) // Still disable Filament's login page
             ->font('Poppins')
-            ->darkMode(true) // Enable dark mode
+            ->darkMode(false) // Disable dark mode for BRI corporate theme
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->colors([
                 'danger' => Color::Rose,
-                'gray' => Color::Gray,
-                'info' => Color::Blue,
-                'primary' => Color::Indigo,
+                'gray' => Color::Slate,
+                'info' => Color::hex('#0073E6'), // Bright Blue
+                'primary' => Color::hex('#00529B'), // Corporate Blue
                 'success' => Color::Emerald,
-                'warning' => Color::Orange,
+                'warning' => Color::hex('#F37021'), // Action Orange
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')

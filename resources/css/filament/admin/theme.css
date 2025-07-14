@@ -1,0 +1,352 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@config 'tailwind.config.js';
+
+/* ================================================
+   BRI Professional Corporate Theme
+   Based on Corporate Blue (#00529B) palette
+   ================================================ */
+
+/* CSS Custom Properties for consistent color usage */
+:root {
+    --corporate-blue: #00529B;
+    --action-orange: #F37021;
+    --clean-white: #FFFFFF;
+    --neutral-background: #F2F4F7;
+    --deep-gray-text: #344054;
+    --bright-blue: #0073E6;
+}
+
+/* ================================================
+   SIDEBAR NAVIGATION
+   ================================================ */
+
+/* Main sidebar background */
+.fi-sidebar {
+    @apply !bg-[#00529B];
+}
+
+/* Sidebar navigation container */
+.fi-sidebar-nav {
+    @apply !bg-[#00529B];
+}
+
+/* Navigation items - non-active state */
+.fi-sidebar-nav-item {
+    @apply !text-white/80;
+}
+
+.fi-sidebar-nav-item:hover {
+    @apply !bg-[#0073E6] !text-white;
+}
+
+/* Active navigation item */
+.fi-sidebar-nav-item-active,
+.fi-sidebar-nav-item[aria-current="page"] {
+    @apply !bg-[#0073E6] !text-white;
+}
+
+/* Navigation item icons */
+.fi-sidebar-nav-item .fi-sidebar-nav-item-icon {
+    @apply !text-white/80;
+}
+
+.fi-sidebar-nav-item:hover .fi-sidebar-nav-item-icon,
+.fi-sidebar-nav-item-active .fi-sidebar-nav-item-icon {
+    @apply !text-white;
+}
+
+/* Navigation item labels */
+.fi-sidebar-nav-item .fi-sidebar-nav-item-label {
+    @apply !text-white/80;
+}
+
+.fi-sidebar-nav-item:hover .fi-sidebar-nav-item-label,
+.fi-sidebar-nav-item-active .fi-sidebar-nav-item-label {
+    @apply !text-white;
+}
+
+/* Sidebar brand/logo area */
+.fi-sidebar-header {
+    @apply !bg-[#00529B] !text-white;
+}
+
+/* Navigation groups */
+.fi-sidebar-nav-group {
+    @apply !border-white/20;
+}
+
+.fi-sidebar-nav-group-label {
+    @apply !text-white/60 !text-xs !font-semibold !uppercase !tracking-wider;
+}
+
+/* ================================================
+   TOP HEADER/NAVBAR
+   ================================================ */
+
+/* Main topbar */
+.fi-topbar {
+    @apply !bg-white !border-b !border-[#F2F4F7];
+}
+
+/* Topbar navigation */
+.fi-topbar-nav {
+    @apply !bg-white;
+}
+
+/* Profile and notification icons */
+.fi-topbar .fi-icon,
+.fi-topbar .fi-btn {
+    @apply !text-[#344054];
+}
+
+/* User menu dropdown */
+.fi-dropdown-panel {
+    @apply !bg-white !border !border-gray-200 !shadow-lg;
+}
+
+/* Notification badges */
+.fi-badge {
+    @apply !bg-[#F37021] !text-white;
+}
+
+/* ================================================
+   MAIN CONTENT AREA
+   ================================================ */
+
+/* Page background */
+.fi-main {
+    @apply !bg-[#F2F4F7];
+}
+
+/* Page content wrapper */
+.fi-main-content {
+    @apply !bg-[#F2F4F7];
+}
+
+/* Cards and widgets */
+.fi-section,
+.fi-widget,
+.fi-card {
+    @apply !bg-white !shadow-sm !border !border-gray-200;
+}
+
+/* Widget titles and section headers */
+.fi-section-header,
+.fi-widget-header,
+.fi-card-header {
+    @apply !text-[#344054];
+}
+
+.fi-section-header-heading,
+.fi-widget-header-heading,
+.fi-card-header-heading {
+    @apply !text-[#344054] !text-lg !font-semibold;
+}
+
+/* ================================================
+   BUTTONS & INTERACTIVE ELEMENTS
+   ================================================ */
+
+/* Primary buttons (Save, Add Data, etc.) */
+.fi-btn-primary,
+.fi-ac-btn-action[data-size="md"].fi-color-primary {
+    @apply !bg-[#F37021] !text-white !border-[#F37021];
+}
+
+.fi-btn-primary:hover,
+.fi-ac-btn-action[data-size="md"].fi-color-primary:hover {
+    @apply !bg-[#d85e1a] !border-[#d85e1a];
+}
+
+/* Secondary buttons (Cancel, Export, etc.) */
+.fi-btn-secondary,
+.fi-btn-outlined {
+    @apply !bg-white !text-[#00529B] !border-[#00529B];
+}
+
+.fi-btn-secondary:hover,
+.fi-btn-outlined:hover {
+    @apply !bg-[#00529B] !text-white;
+}
+
+/* Links */
+.fi-link,
+a:not(.fi-btn) {
+    @apply !text-[#0073E6];
+}
+
+.fi-link:hover,
+a:not(.fi-btn):hover {
+    @apply !text-[#005bb5];
+}
+
+/* ================================================
+   FORMS
+   ================================================ */
+
+/* Form input fields */
+.fi-input,
+.fi-select-input,
+.fi-textarea {
+    @apply !border-gray-300 focus:!border-[#0073E6] focus:!ring-[#0073E6];
+}
+
+/* Form labels */
+.fi-fo-field-wrp-label {
+    @apply !text-[#344054] !font-medium;
+}
+
+/* ================================================
+   TABLES
+   ================================================ */
+
+/* Table headers */
+.fi-ta-header,
+.fi-ta-header-cell {
+    @apply !bg-[#F2F4F7] !text-[#344054] !font-semibold;
+}
+
+/* Table rows */
+.fi-ta-row {
+    @apply !bg-white;
+}
+
+.fi-ta-row:nth-child(even) {
+    @apply !bg-[#F2F4F7]/30;
+}
+
+/* Table row hover */
+.fi-ta-row:hover {
+    @apply !bg-blue-50/50;
+}
+
+/* Table cells */
+.fi-ta-cell {
+    @apply !text-[#344054];
+}
+
+/* ================================================
+   CHARTS & DATA VISUALIZATIONS
+   ================================================ */
+
+/* Chart containers */
+.fi-wi-chart {
+    @apply !bg-white;
+}
+
+/* Stats widgets */
+.fi-wi-stats-overview-card {
+    @apply !bg-white !border !border-gray-200;
+}
+
+.fi-wi-stats-overview-card-value {
+    @apply !text-[#344054];
+}
+
+/* ================================================
+   NOTIFICATIONS & ALERTS
+   ================================================ */
+
+/* Notification toasts */
+.fi-no-notification {
+    @apply !bg-white !border !border-gray-200 !shadow-lg;
+}
+
+/* Success notifications */
+.fi-no-notification.fi-color-success {
+    @apply !border-l-4 !border-l-green-500;
+}
+
+/* Error notifications */
+.fi-no-notification.fi-color-danger {
+    @apply !border-l-4 !border-l-red-500;
+}
+
+/* Warning notifications */
+.fi-no-notification.fi-color-warning {
+    @apply !border-l-4 !border-l-[#F37021];
+}
+
+/* Info notifications */
+.fi-no-notification.fi-color-info {
+    @apply !border-l-4 !border-l-[#0073E6];
+}
+
+/* ================================================
+   MODALS & DROPDOWNS
+   ================================================ */
+
+/* Modal backgrounds */
+.fi-modal {
+    @apply !bg-white;
+}
+
+.fi-modal-header {
+    @apply !bg-white !text-[#344054] !border-b !border-gray-200;
+}
+
+.fi-modal-content {
+    @apply !bg-white;
+}
+
+/* Dropdown menus */
+.fi-dropdown-panel {
+    @apply !bg-white !border !border-gray-200 !shadow-lg;
+}
+
+/* ================================================
+   BREADCRUMBS
+   ================================================ */
+
+.fi-breadcrumbs {
+    @apply !text-[#344054];
+}
+
+.fi-breadcrumbs-item {
+    @apply !text-[#0073E6];
+}
+
+.fi-breadcrumbs-item:last-child {
+    @apply !text-[#344054];
+}
+
+/* ================================================
+   TABS
+   ================================================ */
+
+.fi-tabs-tab {
+    @apply !text-[#344054];
+}
+
+.fi-tabs-tab[aria-selected="true"] {
+    @apply !text-[#0073E6] !border-b-2 !border-[#0073E6];
+}
+
+/* ================================================
+   PAGINATION
+   ================================================ */
+
+.fi-pagination-nav {
+    @apply !bg-white;
+}
+
+.fi-pagination-nav-btn {
+    @apply !text-[#344054];
+}
+
+.fi-pagination-nav-btn:hover {
+    @apply !bg-[#0073E6] !text-white;
+}
+
+.fi-pagination-nav-btn[aria-current="page"] {
+    @apply !bg-[#0073E6] !text-white;
+}
+
+/* ================================================
+   LOADING STATES
+   ================================================ */
+
+.fi-loading-indicator {
+    @apply !text-[#0073E6];
+}
