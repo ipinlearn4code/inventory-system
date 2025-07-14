@@ -18,42 +18,37 @@
 }
 
 /* ================================================
-   SIDEBAR NAVIGATION
+   SIDEBAR NAVIGATION - Optimized
    ================================================ */
 
-/* Main sidebar background */
-.fi-sidebar {
-    @apply !bg-[#00529B];
-}
-
-/* Sidebar navigation container */
+/* Sidebar container and background */
+.fi-sidebar,
 .fi-sidebar-nav {
     @apply !bg-[#00529B];
 }
 
-/* Navigation items - non-active state */
-.fi-sidebar-nav-item {
+/* Sidebar header/logo area */
+.fi-sidebar-header,
+.fi-sidebar .fi-logo,
+.fi-logo.flex.text-xl.font-bold.leading-5.tracking-tight.text-gray-950,
+.fi-logo.flex.text-xl.font-bold.leading-5.tracking-tight.text-white {
+    @apply !bg-[#00529B] !text-white;
+}
+
+/* Navigation items - consolidated */
+.fi-sidebar-nav-item,
+.fi-sidebar .fi-sidebar-item-label,
+.fi-sidebar-item-label.flex-1.truncate.text-sm.font-medium.text-gray-700,
+.fi-sidebar-item-label.flex-1.truncate.text-sm.font-medium.text-gray-200 {
     @apply !text-white/80;
 }
 
-.fi-sidebar-nav-item:hover {
-    @apply !bg-[#0073E6] !text-white;
-}
-
-/* Active navigation item */
-.fi-sidebar-nav-item-active,
-.fi-sidebar-nav-item[aria-current="page"] {
-    @apply !bg-[#0073E6] !text-white;
-}
-
-/* Navigation item icons */
-.fi-sidebar-nav-item .fi-sidebar-nav-item-icon {
+/* Navigation item icons - consolidated */
+.fi-sidebar-nav-item .fi-sidebar-nav-item-icon,
+.fi-sidebar .fi-sidebar-item-icon,
+.fi-sidebar-item-icon.h-6.w-6.text-gray-400,
+.fi-sidebar-item-icon.h-6.w-6.text-gray-500 {
     @apply !text-white/80;
-}
-
-.fi-sidebar-nav-item:hover .fi-sidebar-nav-item-icon,
-.fi-sidebar-nav-item-active .fi-sidebar-nav-item-icon {
-    @apply !text-white;
 }
 
 /* Navigation item labels */
@@ -61,65 +56,52 @@
     @apply !text-white/80;
 }
 
+/* Hover and active states - consolidated */
+.fi-sidebar-nav-item:hover,
+.fi-sidebar-nav-item-active,
+.fi-sidebar-nav-item[aria-current="page"] {
+    @apply !bg-[#0073E6] !text-white;
+}
+
+.fi-sidebar-nav-item:hover .fi-sidebar-nav-item-icon,
+.fi-sidebar-nav-item-active .fi-sidebar-nav-item-icon,
 .fi-sidebar-nav-item:hover .fi-sidebar-nav-item-label,
 .fi-sidebar-nav-item-active .fi-sidebar-nav-item-label {
     @apply !text-white;
 }
 
-/* Sidebar brand/logo area */
-.fi-sidebar-header {
-    @apply !bg-[#00529B] !text-white;
-}
-
-/* Navigation groups */
+/* Navigation groups - consolidated */
 .fi-sidebar-nav-group {
     @apply !border-white/20;
 }
 
-.fi-sidebar-nav-group-label {
+.fi-sidebar-nav-group-label,
+.fi-sidebar-group-label.flex-1.text-sm.font-medium.leading-6.text-gray-500,
+.fi-sidebar-group-label.flex-1.text-sm.font-medium.leading-6.text-gray-400 {
     @apply !text-white/60 !text-xs !font-semibold !uppercase !tracking-wider;
 }
 
-/* ================================================
-   TOP HEADER/NAVBAR
-   ================================================ */
-
-/* Main topbar */
-.fi-topbar {
-    @apply !bg-white !border-b !border-[#F2F4F7];
-}
-
-/* Topbar navigation */
-.fi-topbar-nav {
-    @apply !bg-white;
-}
-
-/* Profile and notification icons */
-.fi-topbar .fi-icon,
-.fi-topbar .fi-btn {
-    @apply !text-[#344054];
-}
-
-/* User menu dropdown */
-.fi-dropdown-panel {
-    @apply !bg-white !border !border-gray-200 !shadow-lg;
-}
-
-/* Notification badges */
-.fi-badge {
-    @apply !bg-[#F37021] !text-white;
+/* Specific selector for primary colored sidebar labels */
+.fi-sidebar-item-label.flex-1.truncate.text-sm.font-medium.text-primary-600,
+.fi-sidebar-item-label.flex-1.truncate.text-sm.font-medium.text-primary-400,
+.fi-sidebar-item-icon.h-6.w-6.text-primary-600,
+.fi-sidebar-item-icon.h-6.w-6.dark\:text-primary-400 {
+    @apply !text-[#00529B];
 }
 
 /* ================================================
-   MAIN CONTENT AREA
+   LAYOUT & STRUCTURE - Optimized
    ================================================ */
 
-/* Page background */
-.fi-main {
-    @apply !bg-[#F2F4F7];
+/* Top header/navbar */
+.fi-topbar,
+.fi-topbar-nav,
+.fi-topbar.sticky.top-0.z-20.overflow-x-clip {
+    @apply !bg-white !border-b !border-[#F2F4F7] !shadow-sm;
 }
 
-/* Page content wrapper */
+/* Main content areas */
+.fi-main,
 .fi-main-content {
     @apply !bg-[#F2F4F7];
 }
@@ -127,28 +109,83 @@
 /* Cards and widgets */
 .fi-section,
 .fi-widget,
-.fi-card {
+.fi-card,
+.fi-wi-stats-overview-card {
     @apply !bg-white !shadow-sm !border !border-gray-200;
 }
 
-/* Widget titles and section headers */
-.fi-section-header,
-.fi-widget-header,
-.fi-card-header {
-    @apply !text-[#344054];
-}
-
-.fi-section-header-heading,
-.fi-widget-header-heading,
-.fi-card-header-heading {
-    @apply !text-[#344054] !text-lg !font-semibold;
+/* Content backgrounds for charts and modals */
+.fi-wi-chart,
+.fi-modal,
+.fi-modal-content {
+    @apply !bg-white;
 }
 
 /* ================================================
-   BUTTONS & INTERACTIVE ELEMENTS
+   TYPOGRAPHY & TEXT COLORS - Optimized
    ================================================ */
 
-/* Primary buttons (Save, Add Data, etc.) */
+/* Primary text content */
+.fi-section-header,
+.fi-widget-header,
+.fi-card-header,
+.fi-section-header-heading,
+.fi-widget-header-heading,
+.fi-card-header-heading,
+.fi-wi-stats-overview-card-value,
+.fi-ta-cell,
+.fi-fo-field-wrp-label,
+.fi-breadcrumbs,
+.fi-breadcrumbs-item:last-child,
+.fi-tabs-tab,
+.fi-pagination-nav-btn {
+    @apply !text-[#344054];
+}
+
+/* Header styling */
+.fi-section-header-heading,
+.fi-widget-header-heading,
+.fi-card-header-heading {
+    @apply !text-lg !font-semibold;
+}
+
+.fi-fo-field-wrp-label {
+    @apply !font-medium;
+}
+
+/* Links and interactive text */
+.fi-link,
+a:not(.fi-btn),
+.fi-breadcrumbs-item,
+.fi-tabs-tab[aria-selected="true"] {
+    @apply !text-[#0073E6];
+}
+
+.fi-link:hover,
+a:not(.fi-btn):hover {
+    @apply !text-[#005bb5];
+}
+
+.fi-tabs-tab[aria-selected="true"] {
+    @apply !border-b-2 !border-[#0073E6];
+}
+
+/* Top header elements */
+.fi-topbar .fi-icon,
+.fi-topbar .fi-btn {
+    @apply !text-[#344054];
+}
+
+/* Modal headers */
+.fi-modal-header {
+    @apply !text-[#344054] !border-b !border-gray-200;
+}
+
+/* ================================================
+   BUTTONS & INTERACTIVE ELEMENTS - Optimized
+   ================================================ */
+
+/* Primary buttons */
 .fi-btn-primary,
 .fi-ac-btn-action[data-size="md"].fi-color-primary {
     @apply !bg-[#F37021] !text-white !border-[#F37021];
@@ -159,7 +196,7 @@
     @apply !bg-[#d85e1a] !border-[#d85e1a];
 }
 
-/* Secondary buttons (Cancel, Export, etc.) */
+/* Secondary buttons */
 .fi-btn-secondary,
 .fi-btn-outlined {
     @apply !bg-white !text-[#00529B] !border-[#00529B];
@@ -170,44 +207,35 @@
     @apply !bg-[#00529B] !text-white;
 }
 
-/* Links */
-.fi-link,
-a:not(.fi-btn) {
-    @apply !text-[#0073E6];
+/* Pagination buttons */
+.fi-pagination-nav {
+    @apply !bg-white;
 }
 
-.fi-link:hover,
-a:not(.fi-btn):hover {
-    @apply !text-[#005bb5];
+.fi-pagination-nav-btn:hover,
+.fi-pagination-nav-btn[aria-current="page"] {
+    @apply !bg-[#0073E6] !text-white;
 }
 
 /* ================================================
-   FORMS
+   FORMS & INPUTS - Optimized
    ================================================ */
 
-/* Form input fields */
 .fi-input,
 .fi-select-input,
 .fi-textarea {
     @apply !border-gray-300 focus:!border-[#0073E6] focus:!ring-[#0073E6];
 }
 
-/* Form labels */
-.fi-fo-field-wrp-label {
-    @apply !text-[#344054] !font-medium;
-}
-
 /* ================================================
-   TABLES
+   TABLES - Optimized
    ================================================ */
 
-/* Table headers */
 .fi-ta-header,
 .fi-ta-header-cell {
     @apply !bg-[#F2F4F7] !text-[#344054] !font-semibold;
 }
 
-/* Table rows */
 .fi-ta-row {
     @apply !bg-white;
 }
@@ -216,131 +244,39 @@ a:not(.fi-btn):hover {
     @apply !bg-[#F2F4F7]/30;
 }
 
-/* Table row hover */
 .fi-ta-row:hover {
     @apply !bg-blue-50/50;
 }
 
-/* Table cells */
-.fi-ta-cell {
-    @apply !text-[#344054];
-}
-
 /* ================================================
-   CHARTS & DATA VISUALIZATIONS
+   NOTIFICATIONS & DROPDOWNS - Optimized
    ================================================ */
 
-/* Chart containers */
-.fi-wi-chart {
-    @apply !bg-white;
+/* Badges and notifications */
+.fi-badge {
+    @apply !bg-[#F37021] !text-white;
 }
 
-/* Stats widgets */
-.fi-wi-stats-overview-card {
-    @apply !bg-white !border !border-gray-200;
-}
-
-.fi-wi-stats-overview-card-value {
-    @apply !text-[#344054];
-}
-
-/* ================================================
-   NOTIFICATIONS & ALERTS
-   ================================================ */
-
-/* Notification toasts */
-.fi-no-notification {
-    @apply !bg-white !border !border-gray-200 !shadow-lg;
-}
-
-/* Success notifications */
-.fi-no-notification.fi-color-success {
-    @apply !border-l-4 !border-l-green-500;
-}
-
-/* Error notifications */
-.fi-no-notification.fi-color-danger {
-    @apply !border-l-4 !border-l-red-500;
-}
-
-/* Warning notifications */
-.fi-no-notification.fi-color-warning {
-    @apply !border-l-4 !border-l-[#F37021];
-}
-
-/* Info notifications */
-.fi-no-notification.fi-color-info {
-    @apply !border-l-4 !border-l-[#0073E6];
-}
-
-/* ================================================
-   MODALS & DROPDOWNS
-   ================================================ */
-
-/* Modal backgrounds */
-.fi-modal {
-    @apply !bg-white;
-}
-
-.fi-modal-header {
-    @apply !bg-white !text-[#344054] !border-b !border-gray-200;
-}
-
-.fi-modal-content {
-    @apply !bg-white;
-}
-
-/* Dropdown menus */
+.fi-no-notification,
 .fi-dropdown-panel {
     @apply !bg-white !border !border-gray-200 !shadow-lg;
 }
 
-/* ================================================
-   BREADCRUMBS
-   ================================================ */
-
-.fi-breadcrumbs {
-    @apply !text-[#344054];
+/* Notification borders by type */
+.fi-no-notification.fi-color-success {
+    @apply !border-l-4 !border-l-green-500;
 }
 
-.fi-breadcrumbs-item {
-    @apply !text-[#0073E6];
+.fi-no-notification.fi-color-danger {
+    @apply !border-l-4 !border-l-red-500;
 }
 
-.fi-breadcrumbs-item:last-child {
-    @apply !text-[#344054];
+.fi-no-notification.fi-color-warning {
+    @apply !border-l-4 !border-l-[#F37021];
 }
 
-/* ================================================
-   TABS
-   ================================================ */
-
-.fi-tabs-tab {
-    @apply !text-[#344054];
-}
-
-.fi-tabs-tab[aria-selected="true"] {
-    @apply !text-[#0073E6] !border-b-2 !border-[#0073E6];
-}
-
-/* ================================================
-   PAGINATION
-   ================================================ */
-
-.fi-pagination-nav {
-    @apply !bg-white;
-}
-
-.fi-pagination-nav-btn {
-    @apply !text-[#344054];
-}
-
-.fi-pagination-nav-btn:hover {
-    @apply !bg-[#0073E6] !text-white;
-}
-
-.fi-pagination-nav-btn[aria-current="page"] {
-    @apply !bg-[#0073E6] !text-white;
+.fi-no-notification.fi-color-info {
+    @apply !border-l-4 !border-l-[#0073E6];
 }
 
 /* ================================================
@@ -349,48 +285,4 @@ a:not(.fi-btn):hover {
 
 .fi-loading-indicator {
     @apply !text-[#0073E6];
-}
-
-/* ================================================
-   SPECIFIC CSS ADJUSTMENTS - Browser Element Fixes
-   ================================================ */
-
-/* Fix topbar positioning and styling */
-.fi-topbar.sticky.top-0.z-20.overflow-x-clip {
-    @apply !bg-white !border-b !border-[#F2F4F7] !shadow-sm;
-}
-
-/* Fix sidebar item icons - make them white */
-.fi-sidebar-item-icon.h-6.w-6.text-gray-400,
-.fi-sidebar-item-icon.h-6.w-6.text-gray-500 {
-    @apply !text-white;
-}
-
-/* Fix logo text - make it white */
-.fi-logo.flex.text-xl.font-bold.leading-5.tracking-tight.text-gray-950,
-.fi-logo.flex.text-xl.font-bold.leading-5.tracking-tight.text-white {
-    @apply !text-white;
-}
-
-/* Fix sidebar item labels - make them white */
-.fi-sidebar-item-label.flex-1.truncate.text-sm.font-medium.text-gray-700,
-.fi-sidebar-item-label.flex-1.truncate.text-sm.font-medium.text-gray-200 {
-    @apply !text-white;
-}
-
-/* Additional specific class targeting for better coverage */
-.fi-sidebar .fi-sidebar-item-icon {
-    @apply !text-white;
-}
-
-.fi-sidebar .fi-logo {
-    @apply !text-white;
-}
-
-.fi-sidebar .fi-sidebar-item-label {
-    @apply !text-white;
-}
-.fi-sidebar-group-label.flex-1.text-sm.font-medium.leading-6.text-gray-500,
-.fi-sidebar-group-label.flex-1.text-sm.font-medium.leading-6.text-gray-400 {
-    @apply !text-white;
 }
