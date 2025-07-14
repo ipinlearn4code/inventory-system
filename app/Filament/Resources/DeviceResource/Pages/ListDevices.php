@@ -19,6 +19,7 @@ class ListDevices extends ListRecords
 
     protected function getTableRecordAction(): ?string
     {
+        dd('This is a custom action for viewing device details.');
         return 'view';
     }
 }

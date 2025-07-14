@@ -276,15 +276,17 @@ class DeviceResource extends Resource
                     ->options(Bribox::all()->pluck('type', 'bribox_id')),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()->modal(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+
+                ])->iconButton(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            
+
             ]);
     }
 
