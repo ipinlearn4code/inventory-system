@@ -43,6 +43,16 @@
     @apply !text-white/80;
 }
 
+.fi-sidebar-item-button.relative.flex.items-center.justify-center.gap-x-3.rounded-lg.px-2.py-2.outline-none.transition.duration-75:hover {
+    @apply !text-white/90;
+}
+/* Hover state for sidebar item labels - triggered by parent button hover */
+.fi-sidebar-item-button:hover .fi-sidebar-item-icon.h-6.w-6.text-gray-400.dark\:text-gray-500,
+.fi-sidebar-item-button:hover .fi-sidebar-item-label.flex-1.truncate.text-sm.font-medium.text-gray-700,
+.fi-sidebar-item-button:hover .fi-sidebar-item-label.flex-1.truncate.text-sm.font-medium.text-gray-200 {
+    @apply !text-[#00529B];
+}
+
 /* Navigation item icons - consolidated */
 .fi-sidebar-nav-item .fi-sidebar-nav-item-icon,
 .fi-sidebar .fi-sidebar-item-icon,
