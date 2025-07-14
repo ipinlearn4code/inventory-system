@@ -16,4 +16,9 @@ class ListDepartments extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
+
+    protected function getTableRecordAction(): ?string
+    {
+        return 'view';
+    }
 }

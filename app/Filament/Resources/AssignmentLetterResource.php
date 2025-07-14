@@ -213,7 +213,6 @@ class AssignmentLetterResource extends Resource
                     ->label('Has File'),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('download')
                     ->icon('heroicon-o-arrow-down-tray')
