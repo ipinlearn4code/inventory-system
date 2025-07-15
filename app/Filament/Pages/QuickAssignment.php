@@ -274,7 +274,8 @@ class QuickAssignment extends Page
                 ->send();
         }
     }
-    
+    // Note: This method is used to get the current authenticated user's ID, but i think i want to get userid from form 'approver_id' field
+    // so i can use it in the form state
     /**
      * Get the current authenticated user's ID
      *
@@ -283,6 +284,7 @@ class QuickAssignment extends Page
     private function getCurrentUserId(): ?int
     {
         $auth = session('authenticated_user');
+        dd($auth);
         if ($auth) {
             $user = User::where('pn', $auth['pn'])->first();
             if ($user) {
@@ -292,3 +294,4 @@ class QuickAssignment extends Page
         return null;
     }
 }
+
