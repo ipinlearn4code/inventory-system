@@ -279,7 +279,6 @@ class DeviceResource extends Resource
             ])
 
             ->actions([
-                // Tables\Actions\Action::make('customView')->action(fn($record, $livewire) => $livewire->mountTableAction('view', $record->id)),
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make()
                         ->slideOver()
@@ -296,10 +295,6 @@ class DeviceResource extends Resource
 
             ->recordUrl(null)
 
-            // ->recordUrl(
-            //     fn(Device $record): string => DeviceResource::getUrl('gkgkgk    ', ['record' => $record]) ?? Tables\Actions\ViewAction::make()->getUrl(['record' => $record])
-            // )
-            // ->recordAction('view')
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
