@@ -129,39 +129,50 @@ class PermissionManagementResource extends Resource
                     ]),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
-                    ->requiresConfirmation()
-                    ->action(function ($record) {
-                        // Prevent deletion of core permissions
-                        $corePermissions = [
-                            'view own assignments',
-                            'make requests',
-                            'manage devices',
-                            'manage assignments',
-                            'manage regular users',
-                            'manage regular auth',
-                            'setup master data',
-                            'manage all users',
-                            'manage all auth',
-                            'view audit logs',
-                            'export data',
-                            'manage departments',
-                            'manage branches',
-                            'manage briboxes',
-                        ];
-                        
-                        if (in_array($record->name, $corePermissions)) {
-                            \Filament\Notifications\Notification::make()
-                                ->title('Cannot delete core permission')
-                                ->body('Core system permissions cannot be deleted.')
-                                ->danger()
-                                ->send();
-                            return;
-                        }
-                        $record->delete();
-                    }),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make()
+                        ->slideOver()
+                        ->tooltip('View permission details'),
+                    Tables\Actions\EditAction::make()
+                        ->tooltip('Edit permission information'),
+                    Tables\Actions\DeleteAction::make()
+                        ->tooltip('Delete this permission')
+                        ->requiresConfirmation()
+                        ->action(function ($record) {
+                            // Prevent deletion of core permissions
+                            $corePermissions = [
+                                'view own assignments',
+                                'make requests',
+                                'manage devices',
+                                'manage assignments',
+                                'manage regular users',
+                                'manage regular auth',
+                                'setup master data',
+                                'manage all users',
+                                'manage all auth',
+                                'view audit logs',
+                                'export data',
+                                'manage departments',
+                                'manage branches',
+                                'manage briboxes',
+                            ];
+                            
+                            if (in_array($record->name, $corePermissions)) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Cannot delete core permission')
+                                    ->body('Core system permissions cannot be deleted.')
+                                    ->danger()
+                                    ->send();
+                                return;
+                            }
+                            $record->delete();
+                        }),
+                ])
+                ->iconButton()
+                ->icon('heroicon-o-ellipsis-horizontal')
+                ->tooltip('Permission Actions'),
             ])
+            ->recordUrl(null)
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()

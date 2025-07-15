@@ -79,9 +79,20 @@ class BriboxesCategoryResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make()
+                        ->slideOver()
+                        ->tooltip('View category details'),
+                    Tables\Actions\EditAction::make()
+                        ->tooltip('Edit category information'),
+                    Tables\Actions\DeleteAction::make()
+                        ->tooltip('Delete this category'),
+                ])
+                ->iconButton()
+                ->icon('heroicon-o-ellipsis-horizontal')
+                ->tooltip('Category Actions'),
             ])
+            ->recordUrl(null)
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),

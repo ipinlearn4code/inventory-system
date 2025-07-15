@@ -125,22 +125,33 @@ class RoleManagementResource extends Resource
                     ]),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
-                    ->requiresConfirmation()
-                    ->action(function ($record) {
-                        // Prevent deletion of core roles
-                        if (in_array($record->name, ['superadmin', 'admin', 'user'])) {
-                            \Filament\Notifications\Notification::make()
-                                ->title('Cannot delete core role')
-                                ->body('Core system roles cannot be deleted.')
-                                ->danger()
-                                ->send();
-                            return;
-                        }
-                        $record->delete();
-                    }),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make()
+                        ->slideOver()
+                        ->tooltip('View role details'),
+                    Tables\Actions\EditAction::make()
+                        ->tooltip('Edit role information'),
+                    Tables\Actions\DeleteAction::make()
+                        ->tooltip('Delete this role')
+                        ->requiresConfirmation()
+                        ->action(function ($record) {
+                            // Prevent deletion of core roles
+                            if (in_array($record->name, ['superadmin', 'admin', 'user'])) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Cannot delete core role')
+                                    ->body('Core system roles cannot be deleted.')
+                                    ->danger()
+                                    ->send();
+                                return;
+                            }
+                            $record->delete();
+                        }),
+                ])
+                ->iconButton()
+                ->icon('heroicon-o-ellipsis-horizontal')
+                ->tooltip('Role Actions'),
             ])
+            ->recordUrl(null)
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()

@@ -231,13 +231,24 @@ class DeviceAssignmentResource extends Resource
                     ->options(Branch::all()->pluck('unit_name', 'branch_code')),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make()
+                        ->slideOver()
+                        ->tooltip('View assignment details'),
+                    Tables\Actions\EditAction::make()
+                        ->tooltip('Edit assignment information'),
+                    Tables\Actions\DeleteAction::make()
+                        ->tooltip('Delete this assignment'),
+                ])
+                ->iconButton()
+                ->icon('heroicon-o-ellipsis-horizontal')
+                ->tooltip('Assignment Actions'),
                 
                 Tables\Actions\Action::make('return_device')
                     ->label('Return Device')
                     ->icon('heroicon-o-arrow-left-on-rectangle')
                     ->color('warning')
+                    ->tooltip('Mark device as returned')
                     ->visible(fn ($record) => is_null($record->returned_date))
                     ->requiresConfirmation()
                     ->modalHeading('Return Device')
@@ -251,6 +262,7 @@ class DeviceAssignmentResource extends Resource
                     })
                     ->successNotificationTitle('Device returned successfully'),
             ])
+            ->recordUrl(null)
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),

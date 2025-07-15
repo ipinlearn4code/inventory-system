@@ -103,9 +103,20 @@ class BranchResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make()
+                        ->slideOver()
+                        ->tooltip('View branch details'),
+                    Tables\Actions\EditAction::make()
+                        ->tooltip('Edit branch information'),
+                    Tables\Actions\DeleteAction::make()
+                        ->tooltip('Delete this branch'),
+                ])
+                ->iconButton()
+                ->icon('heroicon-o-ellipsis-horizontal')
+                ->tooltip('Branch Actions'),
             ])
+            ->recordUrl(null)
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),

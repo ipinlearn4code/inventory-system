@@ -97,9 +97,20 @@ class BriboxResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make()
+                        ->slideOver()
+                        ->tooltip('View bribox details'),
+                    Tables\Actions\EditAction::make()
+                        ->tooltip('Edit bribox information'),
+                    Tables\Actions\DeleteAction::make()
+                        ->tooltip('Delete this bribox'),
+                ])
+                ->iconButton()
+                ->icon('heroicon-o-ellipsis-horizontal')
+                ->tooltip('Bribox Actions'),
             ])
+            ->recordUrl(null)
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),

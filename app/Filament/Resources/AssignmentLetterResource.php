@@ -213,13 +213,26 @@ class AssignmentLetterResource extends Resource
                     ->label('Has File'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\Action::make('download')
-                    ->icon('heroicon-o-arrow-down-tray')
-                    ->url(fn(AssignmentLetter $record): string => $record->getFileUrl() ?? '#')
-                    ->openUrlInNewTab()
-                    ->visible(fn(AssignmentLetter $record): bool => $record->hasFile()),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make()
+                        ->slideOver()
+                        ->tooltip('View assignment letter details'),
+                    Tables\Actions\EditAction::make()
+                        ->tooltip('Edit assignment letter'),
+                    Tables\Actions\Action::make('download')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->tooltip('Download assignment letter file')
+                        ->url(fn(AssignmentLetter $record): string => $record->getFileUrl() ?? '#')
+                        ->openUrlInNewTab()
+                        ->visible(fn(AssignmentLetter $record): bool => $record->hasFile()),
+                    Tables\Actions\DeleteAction::make()
+                        ->tooltip('Delete this assignment letter'),
+                ])
+                ->iconButton()
+                ->icon('heroicon-o-ellipsis-horizontal')
+                ->tooltip('Assignment Letter Actions'),
             ])
+            ->recordUrl(null)
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),

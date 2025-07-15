@@ -186,9 +186,20 @@ class UserResource extends Resource
                     ->options(Department::all()->pluck('name', 'department_id')),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make()
+                        ->slideOver()
+                        ->tooltip('View user details'),
+                    Tables\Actions\EditAction::make()
+                        ->tooltip('Edit user information'),
+                    Tables\Actions\DeleteAction::make()
+                        ->tooltip('Delete this user'),
+                ])
+                ->iconButton()
+                ->icon('heroicon-o-ellipsis-horizontal')
+                ->tooltip('User Actions'),
             ])
+            ->recordUrl(null)
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),

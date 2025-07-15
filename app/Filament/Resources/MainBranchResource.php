@@ -91,9 +91,20 @@ class MainBranchResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make()
+                        ->slideOver()
+                        ->tooltip('View main branch details'),
+                    Tables\Actions\EditAction::make()
+                        ->tooltip('Edit main branch information'),
+                    Tables\Actions\DeleteAction::make()
+                        ->tooltip('Delete this main branch'),
+                ])
+                ->iconButton()
+                ->icon('heroicon-o-ellipsis-horizontal')
+                ->tooltip('Main Branch Actions'),
             ])
+            ->recordUrl(null)
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
