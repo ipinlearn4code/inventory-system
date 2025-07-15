@@ -17,6 +17,7 @@
     --bright-blue-dark: #005bb5;
     --blue-light: rgba(0, 115, 230, 0.1);
     --bright-blue-hover: #398de0;
+    --white-semi-blue: #e4f2ffbd;
 
     /* ================================================
        NEUTRAL COLORS
@@ -37,6 +38,9 @@
     --action-orange-hover: #d85e1a;
     --action-green: #2BAE66;
     --action-green-hover: #23975A;
+    --action-yellow: #FFD700;
+    --action-yellow-hover: #E6C200;
+    --yellow-light: rgba(255, 215, 0, 0.1);
     --green-light: rgba(43, 174, 102, 0.1);
 }
 
@@ -375,13 +379,23 @@ a:not(.fi-btn):hover {
 
 .fi-ta-header,
 .fi-ta-header-cell {
-    background-color: var(--neutral-background) !important;
+    background-color: transparent !important;
     color: var(--deep-gray-text) !important;
     font-weight: 600 !important;
 }
 
+.fi-ta-header-toolbar.flex.items-center.justify-between.gap-x-4.px-4.py-3.sm\:px-6 {
+    background-color: var(--white-semi-blue) !important;
+    color: var(--clean-white) !important;
+}
+
+.divide-y.divide-gray-200.dark\:divide-white\/5,
+.bg-gray-50.dark\:bg-white\/5 {
+    border-color: var(--bright-blue) !important;
+}
+
 .fi-ta-row {
-    background-color: var(--clean-white) !important;
+    background-color: var(--white-semi-blue) !important;
 }
 
 .fi-ta-row:nth-child(even) {
@@ -400,6 +414,33 @@ a:not(.fi-btn):hover {
 .fi-badge {
     background-color: var(--action-orange) !important;
     color: var(--clean-white) !important;
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 9999px !important;
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+}
+
+/* Badge color variants */
+.fi-badge.fi-color-success {
+    background-color: var(--action-green) !important;
+}
+
+.fi-badge.fi-color-danger {
+    background-color: var(--action-orange) !important;
+}
+
+.fi-badge.fi-color-warning {
+    background-color: var(--action-yellow) !important;
+    color: var(--deep-gray-text) !important; /* Dark text for better contrast on yellow */
+}
+
+.fi-badge.fi-color-info {
+    background-color: var(--bright-blue) !important;
+}
+
+/* Default badge color if no variant specified */
+.fi-badge:not([class*="fi-color-"]) {
+    background-color: var(--action-green) !important;
 }
 
 .fi-no-notification,
@@ -411,15 +452,15 @@ a:not(.fi-btn):hover {
 
 /* Notification borders by type */
 .fi-no-notification.fi-color-success {
-    border-left: 4px solid rgb(34 197 94) !important;
+    border-left: 4px solid var(--action-green) !important;
 }
 
 .fi-no-notification.fi-color-danger {
-    border-left: 4px solid rgb(239 68 68) !important;
+    border-left: 4px solid var(--action-orange) !important;
 }
 
 .fi-no-notification.fi-color-warning {
-    border-left: 4px solid var(--action-orange) !important;
+    border-left: 4px solid var(--action-yellow) !important;
 }
 
 .fi-no-notification.fi-color-info {

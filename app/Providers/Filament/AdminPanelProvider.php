@@ -28,7 +28,7 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
-            ->brandName('BRI Inventory-System')
+            ->brandName('Inventory-System')
             ->id('admin')
             ->path('admin')
             ->login(false) // Still disable Filament's login page
