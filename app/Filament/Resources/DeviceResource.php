@@ -279,11 +279,19 @@ class DeviceResource extends Resource
             ])
 
             ->actions([
+                // Tables\Actions\Action::make('customView')->action(fn($record, $livewire) => $livewire->mountTableAction('view', $record->id)),
                 Tables\Actions\ActionGroup::make([
-                    Tables\Actions\ViewAction::make()->slideOver(),
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
-                ])->iconButton()->icon('heroicon-o-ellipsis-horizontal'),
+                    Tables\Actions\ViewAction::make()
+                        ->slideOver()
+                        ->tooltip('View device details'),
+                    Tables\Actions\EditAction::make()
+                        ->tooltip('Edit device information'),
+                    Tables\Actions\DeleteAction::make()
+                        ->tooltip('Delete this device'),
+                ])
+                ->iconButton()
+                ->icon('heroicon-o-ellipsis-horizontal')
+                ->tooltip('Device Actions'),
             ])
 
             ->recordUrl(null)
