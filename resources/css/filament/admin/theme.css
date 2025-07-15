@@ -474,3 +474,154 @@ a:not(.fi-btn):hover {
 .fi-loading-indicator {
     color: var(--bright-blue) !important;
 }
+
+/* ================================================
+   CUSTOM SCROLLBAR - Corporate Theme
+   ================================================ */
+
+/* Modern scrollbar for Webkit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+    width: 12px; /* Width of vertical scrollbar */
+    height: 12px; /* Height of horizontal scrollbar */
+}
+
+::-webkit-scrollbar-track {
+    background: var(--neutral-background);
+    border-radius: 6px;
+    margin: 2px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--bright-blue), var(--corporate-blue));
+    border-radius: 6px;
+    border: 2px solid var(--neutral-background);
+    transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--corporate-blue), var(--bright-blue-dark));
+    transform: scale(1.1);
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: var(--corporate-blue);
+}
+
+::-webkit-scrollbar-corner {
+    background: var(--neutral-background);
+}
+
+/* Thin scrollbar for sidebar and smaller areas */
+.fi-sidebar::-webkit-scrollbar,
+.fi-modal-content::-webkit-scrollbar,
+.fi-dropdown-panel::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.fi-sidebar::-webkit-scrollbar-thumb,
+.fi-modal-content::-webkit-scrollbar-thumb,
+.fi-dropdown-panel::-webkit-scrollbar-thumb {
+    background: var(--white-semi);
+    border-radius: 4px;
+    border: 1px solid var(--white-minimal);
+}
+
+.fi-sidebar::-webkit-scrollbar-thumb:hover,
+.fi-modal-content::-webkit-scrollbar-thumb:hover,
+.fi-dropdown-panel::-webkit-scrollbar-thumb:hover {
+    background: var(--white-overlay);
+}
+
+/* Tables scrollbar */
+.fi-ta-content::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+.fi-ta-content::-webkit-scrollbar-thumb {
+    background: var(--action-orange);
+    border-radius: 5px;
+    border: 1px solid var(--clean-white);
+}
+
+.fi-ta-content::-webkit-scrollbar-thumb:hover {
+    background: var(--action-orange-hover);
+}
+
+/* Firefox scrollbar (limited customization) */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--corporate-blue) var(--neutral-background);
+}
+
+.fi-sidebar,
+.fi-modal-content,
+.fi-dropdown-panel {
+    scrollbar-width: thin;
+    scrollbar-color: var(--white-semi) transparent;
+}
+
+/* Custom scrollbar for specific components with more space */
+.scrollbar-corporate {
+    scrollbar-width: auto;
+    scrollbar-color: var(--corporate-blue) var(--neutral-background);
+}
+
+.scrollbar-corporate::-webkit-scrollbar {
+    width: 14px;
+    height: 14px;
+}
+
+.scrollbar-corporate::-webkit-scrollbar-track {
+    background: var(--neutral-background);
+    border-radius: 7px;
+    box-shadow: inset 0 0 3px rgba(0, 82, 155, 0.1);
+}
+
+.scrollbar-corporate::-webkit-scrollbar-thumb {
+    background: linear-gradient(45deg, var(--corporate-blue), var(--bright-blue));
+    border-radius: 7px;
+    border: 2px solid var(--clean-white);
+    box-shadow: 0 2px 4px rgba(0, 82, 155, 0.2);
+}
+
+.scrollbar-corporate::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(45deg, var(--bright-blue), var(--corporate-blue));
+    box-shadow: 0 4px 8px rgba(0, 82, 155, 0.3);
+}
+
+/* Thin scrollbar utility class */
+.scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--bright-blue) var(--neutral-light);
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+    background: var(--neutral-light);
+    border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background: var(--bright-blue);
+    border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: var(--corporate-blue);
+}
+
+/* Hide scrollbar utility class (but keep functionality) */
+.scrollbar-hide {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none; /* WebKit */
+}

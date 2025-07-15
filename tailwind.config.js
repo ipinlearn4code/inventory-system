@@ -23,5 +23,26 @@ export default {
   plugins: [
     require('@tailwindcss/forms'),
     require('@tailwindcss/typography'),
+    // Custom scrollbar plugin
+    function({ addUtilities }) {
+      const scrollbarUtilities = {
+        '.scrollbar-corporate': {
+          'scrollbar-width': 'auto',
+          'scrollbar-color': '#00529B #F2F4F7',
+        },
+        '.scrollbar-thin': {
+          'scrollbar-width': 'thin',
+          'scrollbar-color': '#0073E6 rgba(242, 244, 247, 0.3)',
+        },
+        '.scrollbar-hide': {
+          'scrollbar-width': 'none',
+          '-ms-overflow-style': 'none',
+          '&::-webkit-scrollbar': {
+            'display': 'none',
+          },
+        },
+      }
+      addUtilities(scrollbarUtilities)
+    },
   ],
 }
