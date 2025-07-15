@@ -22,9 +22,9 @@ class DeviceAssignmentResource extends Resource
     protected static ?string $model = DeviceAssignment::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
-    protected static ?string $navigationGroup = 'Inventory Management';
+    protected static ?string $navigationGroup = 'Device Management';
     protected static ?string $navigationLabel = 'Device Assignments';
-    protected static ?int $navigationSort = 2;
+        protected static ?int $navigationSort = 5;
 
     public static function canViewAny(): bool
     {

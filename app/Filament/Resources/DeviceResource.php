@@ -17,7 +17,9 @@ class DeviceResource extends Resource
     protected static ?string $model = Device::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-computer-desktop';
-    protected static ?string $navigationGroup = 'Inventory Management';
+    protected static ?string $navigationGroup = 'Device Management';
+    protected static ?string $navigationLabel = 'Devices';
+    protected static ?int $navigationSort = 4;
 
     public static function canViewAny(): bool
     {

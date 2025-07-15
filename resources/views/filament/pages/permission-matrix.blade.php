@@ -7,7 +7,7 @@
                     <x-heroicon-o-shield-check class="h-8 w-8 text-primary-600 mr-3" />
                     <div>
                         <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100">
-                            System Permission Matrix
+                            System access control Matrix
                         </h3>
                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                             Manage role-based permissions for the inventory control system. System-defined permissions cannot be deleted or added.

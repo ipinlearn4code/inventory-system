@@ -11,8 +11,8 @@ use Livewire\Attributes\On;
 class PermissionMatrix extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-shield-check';
-    protected static ?string $navigationGroup = 'Permission Management';
-    protected static ?string $title = 'Permission Matrix';
+    protected static ?string $navigationGroup = 'Settings';
+    protected static ?string $title = 'Access Control';
     protected static ?int $navigationSort = 3;
 
     protected static string $view = 'filament.pages.permission-matrix';

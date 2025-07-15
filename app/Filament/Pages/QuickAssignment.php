@@ -19,7 +19,7 @@ class QuickAssignment extends Page
     protected static ?string $navigationIcon = 'heroicon-o-bolt';
     protected static ?string $navigationLabel = 'Quick Assignment';
     protected static string $view = 'filament.pages.quick-assignment';
-    protected static ?string $navigationGroup = 'Device Management';
+    // protected static ?string $navigationGroup = 'Device Management';
     protected static ?int $navigationSort = 3;
     
     public ?array $data = [];
