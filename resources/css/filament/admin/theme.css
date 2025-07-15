@@ -16,6 +16,7 @@
     --bright-blue: #0073E6;
     --bright-blue-dark: #005bb5;
     --blue-light: rgba(0, 115, 230, 0.1);
+    --bright-blue-hover: #398de0;
 
     /* ================================================
        NEUTRAL COLORS
@@ -27,7 +28,7 @@
     --white-overlay: rgba(255, 255, 255, 0.9);
     --white-minimal: rgba(255, 255, 255, 0.05);
     --neutral-light: rgba(242, 244, 247, 0.3);
-    --deep-gray-text: #344054;
+    --deep-gray-text: #273a5a;
 
     /* ================================================
        ACCENT COLORS
@@ -39,31 +40,77 @@
     --green-light: rgba(43, 174, 102, 0.1);
 }
 
-/* ================================================
-   SIDEBAR NAVIGATION - Optimized with CSS Variables
-   ================================================ */
-
-/* Sidebar container and background */
-.fi-sidebar,
-.fi-sidebar-nav {
-    background-color: var(--corporate-blue) !important;
-}
-
 /* Sidebar header/logo area */
 .fi-sidebar-header,
 .fi-sidebar .fi-logo,
 .fi-logo.flex.text-xl.font-bold.leading-5.tracking-tight.text-gray-950,
 .fi-logo.flex.text-xl.font-bold.leading-5.tracking-tight.text-white {
     background-color: var(--corporate-blue) !important;
+    color: var(--white-overlay) !important;
+}
+
+.fi-sidebar-header {
+    border-bottom: 1px solid var(--neutral-background) !important;
+}
+
+/* ================================================
+    SIDEBAR NAVIGATION - Optimized with CSS Variables
+    ================================================ */
+
+/* Sidebar container and background */
+.fi-sidebar,
+.fi-sidebar-nav {
+    background: linear-gradient(180deg, var(--bright-blue), var(--corporate-blue)) !important;
+    width: 100%;
+    max-width: 260px; /* Default max width for larger screens */
+}
+
+@media (max-width: 768px) {
+    .fi-sidebar,
+    .fi-sidebar-nav {
+        max-width: 250px; /* Adjusted max width for tablets */
+    }
+}
+
+@media (max-width: 480px) {
+    .fi-sidebar,
+    .fi-sidebar-nav {
+        max-width: 200px; /* Adjusted max width for mobile devices */
+    }
+}
+
+.flex.items-center.h-16.gap-x-4.bg-white.px-4.shadow-sm.ring-1.ring-gray-950\/5.dark\:bg-gray-900.dark\:ring-white\/10.md\:px-6.lg\:px-8 {
+    background-color: var(--neutral-background) !important;
     color: var(--clean-white) !important;
 }
+
+.fi-main.mx-auto.h-full.w-full.px-4.md\:px-6.lg\:px-8.max-w-7xl {
+    background-color: var(--white-overlay) !important;
+    color: var(--deep-gray-text) !important;
+    max-width: 90rem !important; /* Increased from 7xl (80rem) to 90rem for more space */
+}
+
+.fi-main-ctn.w-screen.flex-1.flex-col.opacity-0 {
+    background-color: var(--corporate-blue) !important;
+    color: var(--clean-white) !important;
+}
+/* Alternative: Use full width with controlled padding for even more space */
+@media (min-width: 1536px) {
+    .fi-main.mx-auto.h-full.w-full.px-4.md\:px-6.lg\:px-8.max-w-7xl {
+        max-width: 100% !important; /* Use 100% of viewport width on very large screens */
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+    }
+}
+
+
 
 /* Navigation items - consolidated */
 .fi-sidebar-nav-item,
 .fi-sidebar .fi-sidebar-item-label,
 .fi-sidebar-item-label.flex-1.truncate.text-sm.font-medium.text-gray-700,
 .fi-sidebar-item-label.flex-1.truncate.text-sm.font-medium.text-gray-200 {
-    color: var(--white-semi) !important;
+    color: var(--white-overlay) !important;
 }
 
 .fi-sidebar-item-button.relative.flex.items-center.justify-center.gap-x-3.rounded-lg.px-2.py-2.outline-none.transition.duration-75:hover {
@@ -135,11 +182,14 @@
 /* Top header/navbar */
 .fi-topbar,
 .fi-topbar-nav,
+.flex.items-center.h-16.gap-x-4.bg-white.px-4.shadow-sm.ring-1.ring-gray-950\/5.dark\:bg-gray-900.dark\:ring-white\/10.md\:px-6.lg\:px-8,
 .fi-topbar.sticky.top-0.z-20.overflow-x-clip {
-    background-color: var(--clean-white) !important;
+    background-color: var(--corporate-blue) !important;
     border-bottom: 1px solid var(--neutral-background) !important;
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
+    /* box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important; */
 }
+
+
 
 /* Main content areas */
 .fi-main,
@@ -183,6 +233,39 @@
 .fi-tabs-tab,
 .fi-pagination-nav-btn {
     color: var(--deep-gray-text) !important;
+}
+
+/* Breadcrumbs styling */
+.fi-breadcrumbs-item-label.text-sm.font-medium.text-gray-500,
+.fi-breadcrumbs-item-label.text-sm.font-medium.text-gray-500.dark\:text-gray-400 {
+    color: var(--bright-blue) !important;
+    /* opacity: 0.8 !important; */
+}
+
+/* Breadcrumbs styling */
+.fi-breadcrumbs-item-label.text-sm.font-medium.text-gray-500:hover,
+.fi-breadcrumbs-item-label.text-sm.font-medium.text-gray-500.dark\:text-gray-400:hover {
+    color: var(--action-orange) !important;
+    /* opacity: 0.8 !important; */
+}
+
+
+.fi-breadcrumbs-item-label.text-sm.font-medium.text-gray-500.dark\:text-gray-400.transition.duration-75,
+.fi-breadcrumbs-item-label.text-sm.font-medium.text-gray-500.dark\:text-gray-400.transition.duration-75.hover\:text-gray-700 {
+    color: var(--corporate-blue) !important;
+}
+
+.fi-breadcrumbs-item-label.text-sm.font-medium.text-gray-500.dark\:text-gray-400.transition.duration-75:hover,
+.fi-breadcrumbs-item-label.text-sm.font-medium.text-gray-500.dark\:text-gray-400.transition.duration-75.hover\:text-gray-700:hover {
+    color: var(--action-orange) !important;
+}
+
+/* Header styling */
+.fi-header-heading.text-2xl.font-bold.tracking-tight.text-gray-950,
+.fi-header-heading.text-2xl.font-bold.tracking-tight.text-gray-950.dark\:text-white,
+.fi-header-heading.text-2xl.font-bold.tracking-tight.text-gray-950.dark\:text-white.sm\:text-3xl {
+    color: var(--deep-gray-text) !important;
+    font-weight: 700 !important;
 }
 
 /* Header styling */
