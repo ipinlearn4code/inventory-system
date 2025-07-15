@@ -86,7 +86,7 @@ class QuickAssignment extends Page
                                 ->label('Are you the approver?')
                                 ->default(true)
                                 ->live()
-                                ->dehydrated(false) // This ensures the field won't be validated
+                                ->dehydrated(true)
                                 ->afterStateUpdated(function ($set, $state) {
                                     if ($state) {
                                         // When toggled on, set the current user as approver
@@ -135,6 +135,9 @@ class QuickAssignment extends Page
     public function submit(): void
     {
         $data = $this->form->getState();
+        
+        // Remove UI helper fields that shouldn't be persisted
+        unset($data['is_approver']);
         
         // Begin a transaction to ensure all operations succeed or fail together
         DB::beginTransaction();
