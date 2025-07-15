@@ -62,6 +62,7 @@ class DeviceResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
+
             ->schema([
                 Forms\Components\Section::make('Device Information')
                     ->schema([
@@ -158,8 +159,8 @@ class DeviceResource extends Resource
                             ->maxLength(100),
 
                         Forms\Components\TextInput::make('spec2')
-                            ->label('Specification 2 (Numeric)')
-                            ->numeric(),
+                            ->label('Specification 2')
+                            ->maxLength(100),
 
                         Forms\Components\TextInput::make('spec3')
                             ->label('Specification 3')
@@ -251,6 +252,7 @@ class DeviceResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('condition')
@@ -275,19 +277,28 @@ class DeviceResource extends Resource
                     ->label('Type')
                     ->options(Bribox::all()->pluck('type', 'bribox_id')),
             ])
+
             ->actions([
                 Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make()->slideOver(),
                     Tables\Actions\EditAction::make(),
                     Tables\Actions\DeleteAction::make(),
-
-                ])->iconButton(),
+                ])->iconButton()->icon('heroicon-o-ellipsis-horizontal'),
             ])
+
+            ->recordUrl(null)
+
+            // ->recordUrl(
+            //     fn(Device $record): string => DeviceResource::getUrl('gkgkgk    ', ['record' => $record]) ?? Tables\Actions\ViewAction::make()->getUrl(['record' => $record])
+            // )
+            // ->recordAction('view')
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
 
-            ]);
+            ])
+        ;
     }
 
     public static function getRelations(): array
