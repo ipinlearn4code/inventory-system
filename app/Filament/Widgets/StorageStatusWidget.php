@@ -11,7 +11,7 @@ class StorageStatusWidget extends Widget
     protected static string $view = 'filament.widgets.storage-status-widget';
 
     protected int | string | array $columnSpan = [
-        'md' => 2,
+        'md' => 4,
         'xl' => 3,
     ];
 
