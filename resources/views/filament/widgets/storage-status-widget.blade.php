@@ -1,5 +1,9 @@
 <x-filament-widgets::widget>
-    <x-filament::section>
+    <x-filament::section 
+        class="storage-widget-clickable storage-status-compact cursor-pointer transition-all duration-200"
+        wire:click="openStorageModal"
+        title="Click for detailed storage information"
+    >
         <x-slot name="heading">
             <div class="flex items-center space-x-3">
                 @php
@@ -49,12 +53,8 @@
             </div>
         </x-slot>
 
-        <!-- Simplified Content - Clickable to open modal -->
-        <div 
-            class="storage-widget-clickable storage-status-compact cursor-pointer rounded-lg transition-all duration-200"
-            wire:click="openStorageModal"
-            title="Click for detailed storage information"
-        >
+        <!-- Simplified Content -->
+        <div>
             <!-- Main Status Display -->
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
