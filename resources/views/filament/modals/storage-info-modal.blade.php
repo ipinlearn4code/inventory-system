@@ -94,26 +94,26 @@
                 @endphp
                 <x-filament::icon 
                     :icon="$publicIcon" 
-                    class="w-5 h-5 {{ $publicColor === 'success' ? 'text-green-500' : ($publicColor === 'warning' ? 'text-yellow-500' : 'text-red-500') }}"
+                    class="w-5 h-5 {{ $publicColor === 'success' ? 'text-green-500' : ($publicColor === 'warning' ? 'text-yellow-500' : ($publicColor === 'danger' ? 'text-red-500' : 'text-gray-400')) }}"
                 />
             </div>
             
             <div class="space-y-2 text-sm">
                 <div class="flex justify-between">
                     <span class="text-gray-600 dark:text-gray-400">Status:</span>
-                    <span class="font-medium {{ $publicColor === 'success' ? 'text-green-600 dark:text-green-400' : ($publicColor === 'warning' ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400') }}">
-                        {{ ucfirst($storageStatus['public']['status']) }}
+                    <span class="font-medium {{ $publicColor === 'success' ? 'text-green-600 dark:text-green-400' : ($publicColor === 'warning' ? 'text-yellow-600 dark:text-yellow-400' : ($publicColor === 'danger' ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400')) }}">
+                        {{ ucfirst(str_replace('_', ' ', $storageStatus['public']['status'])) }}
                     </span>
                 </div>
                 
                 <div class="flex justify-between">
                     <span class="text-gray-600 dark:text-gray-400">Type:</span>
-                    <span class="font-medium">Local File System</span>
+                    <span class="font-medium">{{ $storageStatus['public']['status'] === 'not_configured' ? 'Not Used' : 'Local File System' }}</span>
                 </div>
                 
                 <div class="flex justify-between">
                     <span class="text-gray-600 dark:text-gray-400">Purpose:</span>
-                    <span class="text-xs">Backup & Local Storage</span>
+                    <span class="text-xs">{{ $storageStatus['public']['status'] === 'not_configured' ? 'MinIO is Primary' : 'Backup & Local Storage' }}</span>
                 </div>
             </div>
             

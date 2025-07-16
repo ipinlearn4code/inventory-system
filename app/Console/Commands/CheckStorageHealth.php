@@ -73,11 +73,12 @@ class CheckStorageHealth extends Command
             'healthy' => '✅',
             'warning' => '⚠️',
             'error' => '❌',
+            'not_configured' => '⚪',
             default => '❓',
         };
         
         $this->line("<options=bold>{$icon} {$title}:</>");
-        $this->line("   Status: <fg=" . $this->getStatusColor($status['status']) . ">" . ucfirst($status['status']) . "</>");
+        $this->line("   Status: <fg=" . $this->getStatusColor($status['status']) . ">" . ucfirst(str_replace('_', ' ', $status['status'])) . "</>");
         $this->line("   Message: {$status['message']}");
         
         if (isset($status['details']) && is_string($status['details'])) {
@@ -111,6 +112,7 @@ class CheckStorageHealth extends Command
             'healthy' => 'green',
             'warning' => 'yellow',
             'error' => 'red',
+            'not_configured' => 'gray',
             default => 'gray',
         };
     }
@@ -119,19 +121,31 @@ class CheckStorageHealth extends Command
     {
         $this->info('💡 Recommendations:');
         
+        $primaryDisk = $storageStatus['overall']['primary_disk'] ?? 'unknown';
+        $this->line("   Primary Storage: {$primaryDisk}");
+        $this->newLine();
+        
         if ($storageStatus['minio']['status'] === 'error') {
             $this->warn('- Check if MinIO server is running on the configured endpoint');
             $this->warn('- Verify MinIO credentials in .env file');
             $this->warn('- Ensure the bucket exists and is accessible');
         }
         
-        if ($storageStatus['public']['status'] === 'error') {
+        if (isset($storageStatus['public']) && $storageStatus['public']['status'] === 'error') {
             $this->warn('- Check file system permissions for public storage');
             $this->warn('- Verify storage directory exists and is writable');
         }
         
+        if (isset($storageStatus['public']) && $storageStatus['public']['status'] === 'not_configured') {
+            $this->line('- Public storage is not actively used in current configuration');
+        }
+        
         if ($storageStatus['overall']['status'] === 'healthy') {
-            $this->info('- All storage systems are working properly! 🎉');
+            $this->info('- Your primary storage system is working properly! 🎉');
+        }
+        
+        if ($primaryDisk === 'minio') {
+            $this->line('- Focus: MinIO is your primary storage - other storage systems are secondary');
         }
     }
 }

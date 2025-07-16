@@ -87,13 +87,19 @@
                     @endphp
                     <x-filament::icon 
                         :icon="$publicIcon" 
-                        class="w-5 h-5 {{ $publicColor === 'success' ? 'text-green-500' : ($publicColor === 'warning' ? 'text-yellow-500' : 'text-red-500') }}"
+                        class="w-5 h-5 {{ $publicColor === 'success' ? 'text-green-500' : ($publicColor === 'warning' ? 'text-yellow-500' : ($publicColor === 'danger' ? 'text-red-500' : 'text-gray-400')) }}"
                     />
                 </div>
                 
                 <p class="text-xs text-gray-600 dark:text-gray-400">
                     {{ $details['public']['message'] }}
                 </p>
+                
+                @if($details['public']['status'] === 'not_configured')
+                    <p class="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                        <em>Your primary storage is MinIO</em>
+                    </p>
+                @endif
             </div>
         </div>
 

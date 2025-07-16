@@ -33,11 +33,23 @@ class StorageHealthService
      */
     public function checkAllStorageHealth(): array
     {
-        return [
-            'minio' => $this->checkMinioHealth(),
-            'public' => $this->checkPublicStorageHealth(),
-            'overall' => $this->getOverallStorageStatus(),
-        ];
+        $primaryDisk = config('filesystems.default');
+        $result = ['minio' => $this->checkMinioHealth()];
+        
+        // Only check public storage if it's actually configured and used
+        if ($this->isPublicStorageRelevant()) {
+            $result['public'] = $this->checkPublicStorageHealth();
+        } else {
+            $result['public'] = [
+                'status' => 'not_configured',
+                'message' => 'Public storage not actively used (using MinIO as primary)',
+                'checked_at' => now(),
+            ];
+        }
+        
+        $result['overall'] = $this->getOverallStorageStatus();
+        
+        return $result;
     }
 
     /**
@@ -214,25 +226,54 @@ class StorageHealthService
     private function getOverallStorageStatus(): array
     {
         $minioHealth = $this->checkMinioHealth();
-        $publicHealth = $this->checkPublicStorageHealth();
-
-        // Determine overall status
-        if ($minioHealth['status'] === 'healthy' && $publicHealth['status'] === 'healthy') {
-            $status = 'healthy';
-            $message = 'All storage systems are healthy';
-        } elseif ($minioHealth['status'] === 'error' || $publicHealth['status'] === 'error') {
-            $status = 'error';
-            $message = 'One or more storage systems have errors';
+        $primaryDisk = config('filesystems.default');
+        
+        // Since MinIO is the primary storage, focus on MinIO health
+        if ($primaryDisk === 'minio') {
+            $status = $minioHealth['status'];
+            $message = match ($minioHealth['status']) {
+                'healthy' => 'MinIO storage (primary) is healthy',
+                'warning' => 'MinIO storage (primary) has warnings',
+                'error' => 'MinIO storage (primary) has errors',
+                default => 'MinIO storage status unknown',
+            };
         } else {
-            $status = 'warning';
-            $message = 'Some storage systems have warnings';
+            // If public storage is primary, check both
+            $publicHealth = $this->checkPublicStorageHealth();
+            
+            if ($minioHealth['status'] === 'healthy' && $publicHealth['status'] === 'healthy') {
+                $status = 'healthy';
+                $message = 'All storage systems are healthy';
+            } elseif ($minioHealth['status'] === 'error' || $publicHealth['status'] === 'error') {
+                $status = 'error';
+                $message = 'One or more storage systems have errors';
+            } else {
+                $status = 'warning';
+                $message = 'Some storage systems have warnings';
+            }
         }
 
         return [
             'status' => $status,
             'message' => $message,
+            'primary_disk' => $primaryDisk,
             'checked_at' => now(),
         ];
+    }
+
+    /**
+     * Check if public storage is relevant to the current configuration
+     *
+     * @return bool
+     */
+    private function isPublicStorageRelevant(): bool
+    {
+        $primaryDisk = config('filesystems.default');
+        
+        // Public storage is relevant if:
+        // 1. It's the primary disk, OR
+        // 2. It's used as a fallback (you can customize this logic)
+        return $primaryDisk === 'public' || $primaryDisk === 'local';
     }
 
     /**
@@ -247,6 +288,7 @@ class StorageHealthService
             'healthy' => 'success',
             'warning' => 'warning',
             'error' => 'danger',
+            'not_configured' => 'gray',
             default => 'gray',
         };
     }
@@ -263,6 +305,7 @@ class StorageHealthService
             'healthy' => 'heroicon-o-check-circle',
             'warning' => 'heroicon-o-exclamation-triangle',
             'error' => 'heroicon-o-x-circle',
+            'not_configured' => 'heroicon-o-minus-circle',
             default => 'heroicon-o-question-mark-circle',
         };
     }

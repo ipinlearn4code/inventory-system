@@ -24,8 +24,8 @@ class ListAssignmentLetters extends ListRecords
         return 'view';
     }
 
-    public function getHeader(): ?View
-    {
-        return view('filament.pages.assignment-letters-header');
-    }
+    // public function getHeader(): ?View
+    // {
+    //     return view('filament.pages.assignment-letters-header');
+    // }
 }
