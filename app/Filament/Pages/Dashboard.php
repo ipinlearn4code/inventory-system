@@ -29,6 +29,9 @@ class Dashboard extends BaseDashboard
             // Filter Section - Full Width
             \App\Filament\Widgets\GlobalFilterWidget::class,
             
+            // System Status - Important for monitoring
+            \App\Filament\Widgets\StorageStatusWidget::class,
+            
             // Key Metrics - Top Priority Stats (4 columns)
             \App\Filament\Widgets\InventoryOverviewWidget::class,
             

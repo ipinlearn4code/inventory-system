@@ -4,8 +4,10 @@ namespace App\Filament\Resources\AssignmentLetterResource\Pages;
 
 use App\Filament\Resources\AssignmentLetterResource;
 use App\Models\User;
+use App\Services\StorageHealthService;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Contracts\View\View;
 
 class EditAssignmentLetter extends EditRecord
 {
@@ -141,5 +143,10 @@ class EditAssignmentLetter extends EditRecord
                 ->danger()
                 ->send();
         }
+    }
+
+    public function getHeader(): ?View
+    {
+        return view('filament.pages.assignment-letters-header');
     }
 }

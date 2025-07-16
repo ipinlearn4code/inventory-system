@@ -4,8 +4,10 @@ namespace App\Filament\Resources\AssignmentLetterResource\Pages;
 
 use App\Filament\Resources\AssignmentLetterResource;
 use App\Models\User;
+use App\Services\StorageHealthService;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Contracts\View\View;
 
 class CreateAssignmentLetter extends CreateRecord
 {
@@ -79,5 +81,10 @@ class CreateAssignmentLetter extends CreateRecord
                 ->danger()
                 ->send();
         }
+    }
+
+    public function getHeader(): ?View
+    {
+        return view('filament.pages.assignment-letters-header');
     }
 }

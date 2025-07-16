@@ -24,8 +24,7 @@ class DeviceAssignmentResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
     protected static ?string $navigationGroup = 'Device Management';
     protected static ?string $navigationLabel = 'Device Assignments';
-        protected static ?int $navigationSort = 5;
-
+    protected static ?int $navigationSort = 5;
     public static function canViewAny(): bool
     {
         $auth = session('authenticated_user');

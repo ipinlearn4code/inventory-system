@@ -3,8 +3,10 @@
 namespace App\Filament\Resources\AssignmentLetterResource\Pages;
 
 use App\Filament\Resources\AssignmentLetterResource;
+use App\Services\StorageHealthService;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Contracts\View\View;
 
 class ListAssignmentLetters extends ListRecords
 {
@@ -20,5 +22,10 @@ class ListAssignmentLetters extends ListRecords
     protected function getTableRecordAction(): ?string
     {
         return 'view';
+    }
+
+    public function getHeader(): ?View
+    {
+        return view('filament.pages.assignment-letters-header');
     }
 }

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use League\Flysystem\UnableToWriteFile;
+use Exception;
 
 class MinioStorageService
 {
@@ -137,5 +138,64 @@ class MinioStorageService
             ]);
             return false;
         }
+    }
+
+    /**
+     * Check if MinIO storage is available and healthy
+     *
+     * @return array
+     */
+    public function isHealthy(): array
+    {
+        try {
+            // Test basic connection
+            $files = Storage::disk('minio')->files();
+            
+            // Test write operation
+            $testContent = 'MinIO health check - ' . now();
+            $testPath = 'health-check/' . time() . '.txt';
+            
+            $writeResult = Storage::disk('minio')->put($testPath, $testContent);
+            
+            if ($writeResult) {
+                // Test read operation
+                $readContent = Storage::disk('minio')->get($testPath);
+                
+                // Clean up
+                Storage::disk('minio')->delete($testPath);
+                
+                if ($readContent === $testContent) {
+                    return [
+                        'status' => 'healthy',
+                        'message' => 'MinIO storage is working properly',
+                        'timestamp' => now(),
+                    ];
+                }
+            }
+            
+            return [
+                'status' => 'error',
+                'message' => 'MinIO storage read/write test failed',
+                'timestamp' => now(),
+            ];
+            
+        } catch (Exception $e) {
+            return [
+                'status' => 'error',
+                'message' => 'MinIO storage connection failed: ' . $e->getMessage(),
+                'timestamp' => now(),
+            ];
+        }
+    }
+
+    /**
+     * Check if MinIO is available before operations
+     *
+     * @return bool
+     */
+    public function isAvailable(): bool
+    {
+        $health = $this->isHealthy();
+        return $health['status'] === 'healthy';
     }
 }

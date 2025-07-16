@@ -5,11 +5,13 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\AssignmentLetterResource\Pages;
 use App\Filament\Resources\AssignmentLetterResource\RelationManagers;
 use App\Models\AssignmentLetter;
+use App\Services\StorageHealthService;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -124,7 +126,28 @@ class AssignmentLetterResource extends Resource
                     ->disk('public')
                     ->directory('assignment-letters')
                     ->acceptedFileTypes(['application/pdf'])
-                    ->maxSize(5120),
+                    ->maxSize(5120)
+                    ->helperText(function () {
+                        $healthService = app(StorageHealthService::class);
+                        $storageStatus = $healthService->checkMinioHealth();
+                        
+                        if ($storageStatus['status'] === 'healthy') {
+                            return '✅ Storage is healthy. Files will be uploaded to MinIO.';
+                        } elseif ($storageStatus['status'] === 'warning') {
+                            return '⚠️ Storage warning: ' . $storageStatus['message'] . '. Files will be uploaded to local storage as backup.';
+                        } else {
+                            return '❌ Storage error: ' . $storageStatus['message'] . '. Files will be uploaded to local storage only.';
+                        }
+                    })
+                    ->hint(function () {
+                        $healthService = app(StorageHealthService::class);
+                        $storageStatus = $healthService->checkMinioHealth();
+                        
+                        if ($storageStatus['status'] !== 'healthy') {
+                            return 'Note: There are storage connectivity issues. Please verify file uploads after submission.';
+                        }
+                        return null;
+                    }),
 
                 Forms\Components\Hidden::make('created_by')
                     ->default(function () {
@@ -145,7 +168,63 @@ class AssignmentLetterResource extends Resource
 
     public static function table(Table $table): Table
     {
+        // Check storage health before displaying table
+        $healthService = app(StorageHealthService::class);
+        $storageStatus = $healthService->checkMinioHealth();
+        
         return $table
+            ->headerActions([
+                Tables\Actions\Action::make('storage_status')
+                    ->label(function () use ($storageStatus) {
+                        return match ($storageStatus['status']) {
+                            'healthy' => 'Storage: Healthy',
+                            'warning' => 'Storage: Warning',
+                            'error' => 'Storage: Error',
+                            default => 'Storage: Unknown',
+                        };
+                    })
+                    ->color(function () use ($storageStatus) {
+                        return StorageHealthService::getStatusColor($storageStatus['status']);
+                    })
+                    ->icon(function () use ($storageStatus) {
+                        return StorageHealthService::getStatusIcon($storageStatus['status']);
+                    })
+                    ->action(function () use ($healthService) {
+                        $refreshedStatus = $healthService->refreshStorageHealth();
+                        $minioStatus = $refreshedStatus['minio'];
+                        
+                        Notification::make()
+                            ->title('Storage Status Refreshed')
+                            ->body($minioStatus['message'])
+                            ->color(StorageHealthService::getStatusColor($minioStatus['status']))
+                            ->icon(StorageHealthService::getStatusIcon($minioStatus['status']))
+                            ->send();
+                    })
+                    ->tooltip(function () use ($storageStatus) {
+                        $details = '';
+                        if (isset($storageStatus['details']) && is_array($storageStatus['details'])) {
+                            $details = "\nEndpoint: " . ($storageStatus['details']['endpoint'] ?? 'N/A');
+                            $details .= "\nBucket: " . ($storageStatus['details']['bucket'] ?? 'N/A');
+                            if (isset($storageStatus['details']['response_time_ms'])) {
+                                $details .= "\nResponse: " . $storageStatus['details']['response_time_ms'] . "ms";
+                            }
+                        }
+                        return $storageStatus['message'] . $details;
+                    }),
+                    
+                Tables\Actions\Action::make('storage_info')
+                    ->label('Storage Info')
+                    ->icon('heroicon-o-information-circle')
+                    ->color('info')
+                    ->modalHeading('Storage System Information')
+                    ->modalDescription('Current status of all storage systems')
+                    ->modalContent(function () use ($healthService) {
+                        $allStatus = $healthService->checkAllStorageHealth();
+                        return view('filament.modals.storage-info-modal', ['storageStatus' => $allStatus]);
+                    })
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Close'),
+            ])
             ->columns([
                 Tables\Columns\TextColumn::make('letter_number')
                     ->label('Letter Number')
