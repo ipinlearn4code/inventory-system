@@ -719,3 +719,219 @@ a:not(.fi-btn):hover {
 /* ================================================
    END STORAGE WIDGET RESPONSIVE IMPROVEMENTS
    ================================================ */
+
+/* ================================================
+   DASHBOARD RESPONSIVE DESIGN ENHANCEMENTS
+   ================================================ */
+
+/* === DASHBOARD GRID LAYOUT === */
+.fi-page-dashboard .fi-dashboard-widgets-container {
+    @apply gap-3 md:gap-4 lg:gap-6;
+}
+
+/* === MOBILE-FIRST WIDGET SPACING === */
+@media (max-width: 640px) {
+    .fi-page-dashboard .fi-dashboard-widgets-container {
+        @apply gap-2 px-2;
+    }
+    
+    /* Reduce widget padding on mobile */
+    .fi-widget {
+        @apply p-3;
+    }
+    
+    /* Compact widget headers */
+    .fi-widget-header {
+        @apply text-sm font-medium mb-2;
+    }
+}
+
+/* === TABLET OPTIMIZATION === */
+@media (min-width: 641px) and (max-width: 1024px) {
+    .fi-page-dashboard .fi-dashboard-widgets-container {
+        @apply gap-4 px-4;
+    }
+    
+    .fi-widget {
+        @apply p-4;
+    }
+}
+
+/* === DESKTOP OPTIMIZATION === */
+@media (min-width: 1025px) {
+    .fi-page-dashboard .fi-dashboard-widgets-container {
+        @apply gap-6 px-6;
+    }
+    
+    .fi-widget {
+        @apply p-6;
+    }
+}
+
+/* === WIDGET RESPONSIVE BEHAVIOR === */
+
+/* Charts - Better mobile scaling */
+.fi-widget-chart {
+    @apply overflow-hidden;
+}
+
+.fi-widget-chart canvas,
+.fi-widget-chart svg {
+    @apply w-full h-auto;
+    min-height: 200px;
+}
+
+@media (max-width: 640px) {
+    .fi-widget-chart canvas,
+    .fi-widget-chart svg {
+        min-height: 150px;
+    }
+}
+
+/* Tables - Mobile scroll optimization */
+.fi-widget .fi-table-container {
+    @apply overflow-x-auto -mx-3 sm:mx-0;
+}
+
+@media (max-width: 640px) {
+    .fi-widget .fi-table {
+        @apply text-xs;
+    }
+    
+    .fi-widget .fi-table th,
+    .fi-widget .fi-table td {
+        @apply px-2 py-1;
+    }
+}
+
+/* === STATS WIDGETS RESPONSIVE === */
+.fi-stats-overview {
+    @apply grid gap-3 sm:gap-4 lg:gap-6;
+}
+
+@media (max-width: 640px) {
+    .fi-stats-overview {
+        @apply grid-cols-1 gap-2;
+    }
+    
+    .fi-stats-overview .fi-stats-card {
+        @apply p-3;
+    }
+    
+    .fi-stats-overview .fi-stats-card-number {
+        @apply text-lg;
+    }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+    .fi-stats-overview {
+        @apply grid-cols-2;
+    }
+}
+
+@media (min-width: 769px) {
+    .fi-stats-overview {
+        @apply grid-cols-4;
+    }
+}
+
+/* === ACTION BUTTONS RESPONSIVE === */
+.fi-widget-action-buttons {
+    @apply flex flex-wrap gap-2;
+}
+
+@media (max-width: 640px) {
+    /* Mobile: Stack buttons vertically for touch-friendly UI */
+    .fi-widget-action-buttons {
+        @apply flex-col gap-1;
+    }
+    
+    .fi-widget-action-buttons .fi-button {
+        @apply w-full justify-center text-sm py-2;
+    }
+    
+    /* Hide text on icon buttons for space saving */
+    .fi-widget-action-buttons .fi-button .fi-button-icon + .fi-button-label {
+        @apply hidden;
+    }
+    
+    .fi-widget-action-buttons .fi-button .fi-button-icon {
+        @apply mr-0;
+    }
+}
+
+/* === DASHBOARD HEADER RESPONSIVE === */
+.fi-page-header {
+    @apply mb-4 lg:mb-6;
+}
+
+@media (max-width: 640px) {
+    .fi-page-header {
+        @apply mb-2 px-2;
+    }
+    
+    .fi-page-header .fi-page-title {
+        @apply text-lg;
+    }
+}
+
+/* === LOADING STATES === */
+.fi-widget.fi-widget-loading {
+    @apply min-h-24 md:min-h-32;
+}
+
+/* === TOUCH OPTIMIZATION === */
+@media (max-width: 1024px) {
+    /* Larger touch targets */
+    .fi-widget .fi-button,
+    .fi-widget .fi-link {
+        @apply min-h-10 min-w-10;
+    }
+    
+    /* Better spacing for touch */
+    .fi-widget .fi-table tbody tr {
+        @apply h-12;
+    }
+    
+    /* Prevent horizontal scroll on small widgets */
+    .fi-widget {
+        @apply overflow-hidden;
+    }
+}
+
+/* === DARK MODE RESPONSIVE === */
+.dark .fi-widget {
+    @apply border-gray-700;
+}
+
+@media (max-width: 640px) {
+    .dark .fi-widget {
+        @apply bg-gray-800/50;
+    }
+}
+
+/* === PRIORITY-BASED MOBILE LAYOUT === */
+@media (max-width: 640px) {
+    /* Ensure critical widgets are more prominent */
+    .fi-widget[data-widget-priority="high"] {
+        @apply ring-1 ring-blue-200 bg-blue-50/30;
+    }
+    
+    .dark .fi-widget[data-widget-priority="high"] {
+        @apply ring-blue-700 bg-blue-900/20;
+    }
+}
+
+/* === PERFORMANCE OPTIMIZATIONS === */
+.fi-widget-chart,
+.fi-widget-table {
+    @apply transform-gpu;
+    will-change: transform;
+}
+
+/* Reduce animations on mobile for better performance */
+@media (max-width: 640px) {
+    .fi-widget * {
+        @apply transition-none;
+    }
+}

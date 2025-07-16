@@ -12,10 +12,13 @@ use Illuminate\Database\Eloquent\Builder;
 
 class GlobalFilterWidget extends Widget
 {
-    protected static string $view = 'filament.widgets.global-filter-widget';
-    protected static ?int $sort = 2;
-    
-    protected int | string | array $columnSpan = 'full';
+    protected static string $view = 'filament.widgets.global-filter-widget';    protected static ?int $sort = 2;
+
+    protected int | string | array $columnSpan = [
+        'default' => 'full',
+        'md' => 'full',
+        'lg' => 'full',
+    ];
     
     public ?int $mainBranchId = null;
     public ?int $branchId = null;

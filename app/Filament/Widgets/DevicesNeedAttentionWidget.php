@@ -9,10 +9,13 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class DevicesNeedAttentionWidget extends BaseWidget
 {
-    protected static ?string $heading = '🚨 Perangkat Memerlukan Perhatian';
-    protected static ?int $sort = 6;
-    
-    protected int | string | array $columnSpan = 'full';
+    protected static ?string $heading = '🚨 Perangkat Memerlukan Perhatian';    protected static ?int $sort = 5;
+
+    protected int | string | array $columnSpan = [
+        'default' => 'full',
+        'md' => 'full',
+        'lg' => 'full',
+    ];
 
     public function table(Table $table): Table
     {

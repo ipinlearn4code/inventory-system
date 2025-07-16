@@ -11,6 +11,15 @@ class InventoryOverviewWidget extends BaseWidget
 {
     protected static ?int $sort = 3;
     
+    protected int | string | array $columnSpan = [
+        'default' => 'full',
+        'sm' => 'full', 
+        'md' => 2,
+        'lg' => 2,
+        'xl' => 3,
+        '2xl' => 4,
+    ];
+    
     protected function getStats(): array
     {
         // Get filter values from session

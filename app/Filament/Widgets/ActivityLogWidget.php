@@ -13,7 +13,11 @@ class ActivityLogWidget extends Widget
     protected static string $view = 'filament.widgets.activity-log-widget';
     protected static ?int $sort = 8;
 
-    protected int | string | array $columnSpan = 'full';
+    protected int | string | array $columnSpan = [
+        'default' => 'full',
+        'md' => 'full',
+        'lg' => 'full',
+    ];
 
     public function getRecentActivities(): array
     {

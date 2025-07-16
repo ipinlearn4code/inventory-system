@@ -19,7 +19,7 @@ class StorageStatusWidget extends Widget
         '2xl' => 3,           // 3 out of 6 columns on 2xl screens
     ];
 
-    protected static ?int $sort = 5;
+    protected static ?int $sort = 4;
 
     public function getViewData(): array
     {

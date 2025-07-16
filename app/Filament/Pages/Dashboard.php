@@ -13,36 +13,43 @@ class Dashboard extends BaseDashboard
         return [
             'default' => 1,
             'sm' => 2,
-            'md' => 3,
-            'lg' => 4,
-            'xl' => 6,
-            '2xl' => 6,
+            'md' => 4,
+            'lg' => 6,
+            'xl' => 8,
+            '2xl' => 12,
         ];
     }
 
     public function getWidgets(): array
     {
         return [
-            // Header Section - Full Width
+            // === TOP PRIORITY SECTION ===
+            // User context and quick actions (Always visible first)
             \App\Filament\Widgets\UserInfoWidget::class,
             
-            // Filter Section - Full Width
+            // === CONTROL SECTION ===
+            // Essential filters for data control
             \App\Filament\Widgets\GlobalFilterWidget::class,
             
-            // System Status - Important for monitoring
-            \App\Filament\Widgets\StorageStatusWidget::class,
-            
-            // Key Metrics - Top Priority Stats (4 columns)
+            // === KEY METRICS SECTION ===
+            // Most important metrics for quick overview
             \App\Filament\Widgets\InventoryOverviewWidget::class,
             
-            // Action & Charts Section (2 columns layout)
+            // === SYSTEM HEALTH SECTION ===
+            // Critical system monitoring (Mobile: takes priority over charts)
+            \App\Filament\Widgets\StorageStatusWidget::class,
+            
+            // === ALERTS & ATTENTION SECTION ===
+            // Critical alerts that need immediate attention
+            \App\Filament\Widgets\DevicesNeedAttentionWidget::class,
+            
+            // === ANALYTICS SECTION ===
+            // Charts for data analysis (Mobile: lower priority, can scroll)
             \App\Filament\Widgets\DeviceConditionChartWidget::class,
             \App\Filament\Widgets\DeviceDistributionChartWidget::class,
             
-            // Attention Alerts - Full Width for visibility
-            \App\Filament\Widgets\DevicesNeedAttentionWidget::class,
-            
-            // Secondary Charts & Analytics (2 columns)
+            // === ACTIVITY SECTION ===
+            // Historical data and logs (Lowest priority on mobile)
             \App\Filament\Widgets\ActivityLogWidget::class,
         ];
     }
