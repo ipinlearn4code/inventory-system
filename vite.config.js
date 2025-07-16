@@ -5,9 +5,16 @@ export default defineConfig({
     server: {
         host: '0.0.0.0',
         port: 5173,
-        hmr: {
-            host: '192.168.2.69',
-        },
+        hmr: (() => {
+            try {
+                // Attempt to use the specified IP
+                return { host: '192.168.2.69' };
+            } catch (error) {
+                // Fallback to localhost if there's an issue
+                console.error('Error setting HMR host, falling back to localhost:', error);
+                return { host: 'localhost' };
+            }
+        })(),
     },
     plugins: [
         laravel({

@@ -448,7 +448,7 @@ a:not(.fi-btn):hover {
 .fi-dropdown-panel {
     background-color: var(--clean-white) !important;
     border: 1px solid rgb(229 231 235) !important;
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+    box-shadow: 0 10px 15px -3px rgb(0, 0, 0 / 0.1), 0 4px 6px -4px rgb(0, 0, 0 / 0.1) !important;
 }
 
 /* Notification borders by type */
@@ -933,5 +933,112 @@ a:not(.fi-btn):hover {
 @media (max-width: 640px) {
     .fi-widget * {
         @apply transition-none;
+    }
+}
+
+/* ================================================
+   LARGE SCREEN LAYOUT OPTIMIZATIONS (≥1280px)
+   ================================================ */
+
+/* === PREVENT WIDGET OVERCROWDING ON LARGE SCREENS === */
+@media (min-width: 1280px) {
+    /* Ensure minimum widget width to prevent cramped layout */
+    .fi-widget {
+        min-width: 280px; /* Minimum comfortable width */
+        max-width: 600px; /* Prevent widgets from becoming too wide */
+    }
+    
+    /* Optimize spacing for large screens */
+    .fi-page-dashboard .fi-dashboard-widgets-container {
+        @apply gap-8 px-8; /* Increased spacing on large screens */
+        max-width: 1400px; /* Prevent dashboard from stretching too wide */
+        margin: 0 auto; /* Center the dashboard */
+    }
+    
+    /* Enhanced widget padding for better visual hierarchy */
+    .fi-widget {
+        @apply p-8; /* More generous padding on large screens */
+    }
+    
+    /* Optimize stats cards for large screens */
+    .fi-stats-overview {
+        @apply gap-6; /* Increased gap between stats cards */
+    }
+    
+    .fi-stats-overview .fi-stats-card {
+        @apply p-6; /* More padding for stats cards */
+        min-width: 200px; /* Ensure readable minimum width */
+    }
+    
+    /* Chart optimization for large screens */
+    .fi-widget-chart {
+        min-height: 300px; /* Minimum height for better chart visibility */
+    }
+    
+    .fi-widget-chart canvas,
+    .fi-widget-chart svg {
+        min-height: 280px; /* Optimal chart height on large screens */
+    }
+}
+
+/* === ULTRA-WIDE SCREEN OPTIMIZATIONS (≥1536px) === */
+@media (min-width: 1536px) {
+    /* Prevent dashboard from becoming too wide */
+    .fi-page-dashboard .fi-dashboard-widgets-container {
+        max-width: 1600px; /* Maximum dashboard width */
+        @apply gap-10 px-12; /* Extra generous spacing */
+    }
+    
+    /* Ultra-wide widget sizing */
+    .fi-widget {
+        min-width: 320px; /* Larger minimum width */
+        max-width: 700px; /* Larger maximum width */
+        @apply p-10; /* Extra padding */
+    }
+    
+    /* Charts get more space on ultra-wide */
+    .fi-widget-chart canvas,
+    .fi-widget-chart svg {
+        min-height: 320px; /* Larger charts on ultra-wide screens */
+    }
+}
+
+/* === CONSISTENT WIDGET ASPECT RATIOS === */
+@media (min-width: 1024px) {
+    /* Ensure consistent heights for side-by-side widgets */
+    .fi-widget-chart {
+        min-height: 250px; /* Consistent chart widget height */
+    }
+    
+    /* Storage status widget optimization */
+    .storage-status-widget,
+    .fi-widget.storage-status {
+        min-height: 180px; /* Consistent height with other widgets */
+    }
+    
+    /* Stats overview height consistency */
+    .fi-stats-overview .fi-stats-card {
+        min-height: 120px; /* Consistent card height */
+        @apply flex flex-col justify-center; /* Center content vertically */
+    }
+}
+
+/* === PREVENT HORIZONTAL OVERFLOW ON LARGE SCREENS === */
+@media (min-width: 1280px) {
+    /* Ensure no horizontal scrolling */
+    .fi-page-dashboard {
+        overflow-x: hidden;
+    }
+    
+    /* Table responsiveness on large screens */
+    .fi-widget .fi-table-container {
+        max-width: 100%;
+        overflow-x: auto;
+    }
+    
+    /* Text truncation for long content */
+    .fi-widget .fi-table td {
+        max-width: 200px;
+        @apply truncate;
     }
 }

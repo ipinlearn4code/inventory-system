@@ -12,12 +12,12 @@ class InventoryOverviewWidget extends BaseWidget
     protected static ?int $sort = 3;
     
     protected int | string | array $columnSpan = [
-        'default' => 'full',
-        'sm' => 'full', 
-        'md' => 2,
-        'lg' => 2,
-        'xl' => 3,
-        '2xl' => 4,
+        'default' => 'full',  // Full width on mobile for better readability
+        'sm' => 'full',       // Full width on small tablets
+        'md' => 'full',       // Full width on medium screens (key metrics need space) 
+        'lg' => 'full',       // Full width on large screens (stats cards need room)
+        'xl' => 'full',       // Keep full width on XL (stats display better)
+        '2xl' => 4,           // Use 4 out of 6 columns on ultra-wide only
     ];
     
     protected function getStats(): array
