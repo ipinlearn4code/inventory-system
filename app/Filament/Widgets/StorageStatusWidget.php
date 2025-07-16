@@ -16,7 +16,7 @@ class StorageStatusWidget extends Widget
         'md' => 'full',       // Full width on medium screens (important system status)
         'lg' => 2,            // 2 out of 4 columns on large screens
         'xl' => 2,            // 2 out of 4 columns on XL screens (maintain consistency)
-        '2xl' => 3,           // 3 out of 6 columns on ultra-wide screens
+        '2xl' => 2,           // 3 out of 6 columns on ultra-wide screens
     ];
 
     protected static ?int $sort = 4;

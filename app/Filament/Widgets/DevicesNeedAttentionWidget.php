@@ -12,9 +12,12 @@ class DevicesNeedAttentionWidget extends BaseWidget
     protected static ?string $heading = '🚨 Perangkat Memerlukan Perhatian';    protected static ?int $sort = 5;
 
     protected int | string | array $columnSpan = [
-        'default' => 'full',
-        'md' => 'full',
-        'lg' => 'full',
+        'default' => 'full',  // Full width on mobile
+        'sm' => 'full',       // Full width on small screens  
+        'md' => 'full',       // Full width on medium screens (important system status)
+        'lg' => 2,            // 2 out of 4 columns on large screens
+        'xl' => 2,            // 2 out of 4 columns on XL screens (maintain consistency)
+        '2xl' => 4,           // 3 out of 6 columns on ultra-wide screens
     ];
 
     public function table(Table $table): Table

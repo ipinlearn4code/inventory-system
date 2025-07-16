@@ -35,13 +35,13 @@ class Dashboard extends BaseDashboard
             // Most important metrics for quick overview
             \App\Filament\Widgets\InventoryOverviewWidget::class,
             
-            // === SYSTEM HEALTH SECTION ===
-            // Critical system monitoring (Mobile: takes priority over charts)
-            \App\Filament\Widgets\StorageStatusWidget::class,
-            
             // === ALERTS & ATTENTION SECTION ===
             // Critical alerts that need immediate attention
             \App\Filament\Widgets\DevicesNeedAttentionWidget::class,
+            
+            // === SYSTEM HEALTH SECTION ===
+            // Critical system monitoring (Mobile: takes priority over charts)
+            \App\Filament\Widgets\StorageStatusWidget::class,
             
             // === ANALYTICS SECTION ===
             // Charts for data analysis (Mobile: lower priority, can scroll)
