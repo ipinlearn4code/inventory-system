@@ -49,103 +49,97 @@
             </div>
         </x-slot>
 
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 p-3 sm:p-4 bg-white dark:bg-gray-800 rounded-lg">
-            <!-- MinIO Status -->
-            <div class="flex items-center justify-between p-2 sm:p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
-                <div class="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+        <!-- Simplified Content - Clickable to open modal -->
+        <div 
+            class="storage-widget-clickable storage-status-compact cursor-pointer rounded-lg transition-all duration-200"
+            wire:click="openStorageModal"
+            title="Click for detailed storage information"
+        >
+            <!-- Main Status Display -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
                     @php
                         $minioColor = \App\Services\StorageHealthService::getStatusColor($details['minio']['status']);
                         $minioIcon = \App\Services\StorageHealthService::getStatusIcon($details['minio']['status']);
                     @endphp
-                    <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center flex-shrink-0 {{ $minioColor === 'success' ? 'bg-green-100 dark:bg-green-900' : ($minioColor === 'warning' ? 'bg-yellow-100 dark:bg-yellow-900' : 'bg-red-100 dark:bg-red-900') }}">
+                    <!-- MinIO Status Icon -->
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center {{ $minioColor === 'success' ? 'bg-green-100 dark:bg-green-900' : ($minioColor === 'warning' ? 'bg-yellow-100 dark:bg-yellow-900' : 'bg-red-100 dark:bg-red-900') }}">
                         <x-filament::icon 
                             :icon="$minioIcon" 
-                            class="w-3 h-3 sm:w-4 sm:h-4 {{ $minioColor === 'success' ? 'text-green-600 dark:text-green-400' : ($minioColor === 'warning' ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400') }}"
+                            class="w-4 h-4 {{ $minioColor === 'success' ? 'text-green-600 dark:text-green-400' : ($minioColor === 'warning' ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400') }}"
                         />
                     </div>
-                    <div class="min-w-0 flex-1">
-                        <span class="text-xs sm:text-sm font-medium text-gray-900 dark:text-white block truncate">MinIO Storage</span>
-                        <div class="text-xs text-gray-600 dark:text-gray-400 truncate">
-                            {{ $details['minio']['message'] }}
+                    
+                    <!-- Storage Info -->
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm font-medium text-gray-900 dark:text-white">
+                                MinIO Storage
+                            </span>
+                            @if($details['public']['status'] !== 'not_configured')
+                                <span class="text-xs text-gray-500 dark:text-gray-400">
+                                    (+1 more)
+                                </span>
+                            @endif
                         </div>
-                        @if(isset($details['minio']['details']['response_time_ms']))
-                            <div class="text-xs text-gray-500 dark:text-gray-500 hidden sm:block">
-                                Response: {{ $details['minio']['details']['response_time_ms'] }}ms
-                            </div>
-                        @endif
+                        <div class="text-xs text-gray-600 dark:text-gray-400">
+                            {{ $details['minio']['status'] === 'healthy' ? 'Running normally' : $details['minio']['message'] }}
+                            @if(isset($details['minio']['details']['response_time_ms']))
+                                <span class="hidden sm:inline ml-1">• {{ $details['minio']['details']['response_time_ms'] }}ms</span>
+                            @endif
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Mobile: Status icon only -->
-                <div class="flex-shrink-0">
-                    @if($minioColor === 'success')
-                        <x-filament::icon icon="heroicon-s-check-circle" class="w-5 h-5 text-green-600 sm:hidden" />
-                    @elseif($minioColor === 'warning')
-                        <x-filament::icon icon="heroicon-s-exclamation-triangle" class="w-5 h-5 text-yellow-600 sm:hidden" />
-                    @else
-                        <x-filament::icon icon="heroicon-s-x-circle" class="w-5 h-5 text-red-600 sm:hidden" />
-                    @endif
-                    
-                    <!-- Desktop: Status badge -->
-                    <span class="hidden sm:inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ $minioColor === 'success' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200' : ($minioColor === 'warning' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200' : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200') }}">
-                        {{ ucfirst($details['minio']['status']) }}
+                <!-- Status Summary & Click Indicator -->
+                <div class="flex items-center space-x-2">
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ $statusColor === 'success' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200' : ($statusColor === 'warning' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200' : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200') }}">
+                        {{ ucfirst($storageStatus['status']) }}
                     </span>
-                </div>
-            </div>
-
-            <!-- Public Storage Status -->
-            <div class="flex items-center justify-between p-2 sm:p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
-                <div class="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
-                    @php
-                        $publicColor = \App\Services\StorageHealthService::getStatusColor($details['public']['status']);
-                        $publicIcon = \App\Services\StorageHealthService::getStatusIcon($details['public']['status']);
-                    @endphp
-                    <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center flex-shrink-0 {{ $publicColor === 'success' ? 'bg-green-100 dark:bg-green-900' : ($publicColor === 'warning' ? 'bg-yellow-100 dark:bg-yellow-900' : ($publicColor === 'danger' ? 'bg-red-100 dark:bg-red-900' : 'bg-gray-100 dark:bg-gray-800')) }}">
-                        <x-filament::icon 
-                            :icon="$publicIcon" 
-                            class="w-3 h-3 sm:w-4 sm:h-4 {{ $publicColor === 'success' ? 'text-green-600 dark:text-green-400' : ($publicColor === 'warning' ? 'text-yellow-600 dark:text-yellow-400' : ($publicColor === 'danger' ? 'text-red-600 dark:text-red-400' : 'text-gray-400')) }}"
-                        />
-                    </div>
-                    <div class="min-w-0 flex-1">
-                        <span class="text-xs sm:text-sm font-medium text-gray-900 dark:text-white block truncate">Public Storage</span>
-                        <div class="text-xs text-gray-600 dark:text-gray-400 truncate">
-                            {{ $details['public']['status'] === 'not_configured' ? 'Not configured' : $details['public']['message'] }}
-                        </div>
-                        @if($details['public']['status'] === 'not_configured')
-                            <div class="text-xs text-gray-500 dark:text-gray-500 hidden sm:block">
-                                MinIO is primary storage
-                            </div>
-                        @endif
-                    </div>
-                </div>
-                
-                <!-- Mobile: Status icon only -->
-                <div class="flex-shrink-0">
-                    @if($details['public']['status'] === 'not_configured')
-                        <x-filament::icon icon="heroicon-s-minus-circle" class="w-5 h-5 text-gray-400 sm:hidden" />
-                    @elseif($publicColor === 'success')
-                        <x-filament::icon icon="heroicon-s-check-circle" class="w-5 h-5 text-green-600 sm:hidden" />
-                    @elseif($publicColor === 'warning')
-                        <x-filament::icon icon="heroicon-s-exclamation-triangle" class="w-5 h-5 text-yellow-600 sm:hidden" />
-                    @else
-                        <x-filament::icon icon="heroicon-s-x-circle" class="w-5 h-5 text-red-600 sm:hidden" />
-                    @endif
-                    
-                    <!-- Desktop: Status badge -->
-                    <span class="hidden sm:inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ $publicColor === 'success' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200' : ($publicColor === 'warning' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200' : ($publicColor === 'danger' ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200' : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300')) }}">
-                        {{ $details['public']['status'] === 'not_configured' ? 'Not Used' : ucfirst($details['public']['status']) }}
-                    </span>
+                    <x-filament::icon 
+                        icon="heroicon-m-chevron-right" 
+                        class="w-4 h-4 text-gray-400 dark:text-gray-500 storage-chevron"
+                    />
                 </div>
             </div>
         </div>
 
         <!-- Last Checked -->
-        <div class="mt-3 sm:mt-4 pt-2 sm:pt-3 border-t border-gray-200 dark:border-gray-700 text-center">
+        <div class="mt-3 pt-2 border-t border-gray-200 dark:border-gray-700 text-center">
             <p class="text-xs text-gray-500 dark:text-gray-400">
                 <x-filament::icon icon="heroicon-m-clock" class="w-3 h-3 inline mr-1" />
                 <span class="hidden sm:inline">Last checked: </span>{{ $storageStatus['last_checked']->format('H:i:s') }}<span class="hidden sm:inline"> on {{ $storageStatus['last_checked']->format('M d, Y') }}</span>
             </p>
         </div>
     </x-filament::section>
+
+    <!-- Storage Info Modal -->
+    <x-filament::modal id="storage-info-modal" width="4xl">
+        <x-slot name="heading">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
+                    <x-filament::icon 
+                        icon="heroicon-o-server-stack" 
+                        class="w-5 h-5 text-primary-600"
+                    />
+                </div>
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Storage System Details</h2>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Complete storage health overview</p>
+                </div>
+            </div>
+        </x-slot>
+
+        @include('filament.modals.storage-info-modal', [
+            'storageStatus' => [
+                'overall' => [
+                    'status' => $storageStatus['status'],
+                    'message' => $storageStatus['message'],
+                    'checked_at' => $storageStatus['last_checked']
+                ],
+                'minio' => $details['minio'],
+                'public' => $details['public']
+            ]
+        ])
+    </x-filament::modal>
 </x-filament-widgets::widget>

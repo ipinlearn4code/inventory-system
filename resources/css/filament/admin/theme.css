@@ -208,7 +208,7 @@
 .fi-card,
 .fi-wi-stats-overview-card {
     background-color: var(--clean-white) !important;
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
+    box-shadow: 0 1px 2px 0 rgb(0, 0, 0 / 0.05) !important;
     border: 1px solid rgb(229 231 235) !important;
 }
 
@@ -1040,5 +1040,91 @@ a:not(.fi-btn):hover {
     .fi-widget .fi-table td {
         max-width: 200px;
         @apply truncate;
+    }
+}
+
+/* ================================================
+   SIMPLIFIED STORAGE WIDGET ENHANCEMENTS
+   ================================================ */
+
+/* === CLICKABLE STORAGE WIDGET === */
+.storage-widget-clickable {
+    position: relative;
+    transition: all 0.2s ease-in-out;
+}
+
+.storage-widget-clickable:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dark .storage-widget-clickable:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* === STORAGE WIDGET HOVER EFFECTS === */
+.fi-widget .storage-widget-clickable::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 0.5rem;
+    border: 2px solid transparent;
+    transition: border-color 0.2s ease-in-out;
+}
+
+.fi-widget .storage-widget-clickable:hover::after {
+    border-color: var(--primary-500);
+}
+
+.dark .fi-widget .storage-widget-clickable:hover::after {
+    border-color: var(--primary-400);
+}
+
+/* === STORAGE STATUS COMPACT LAYOUT === */
+.storage-status-compact {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(139, 92, 246, 0.05));
+    border: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.dark .storage-status-compact {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+/* === CHEVRON ANIMATION === */
+.storage-chevron {
+    transition: transform 0.2s ease-in-out;
+}
+
+.storage-widget-clickable:hover .storage-chevron {
+    transform: translateX(2px);
+}
+
+/* === RESPONSIVE STORAGE WIDGET === */
+@media (max-width: 640px) {
+    .storage-widget-clickable {
+        padding: 0.75rem;
+    }
+    
+    .storage-widget-clickable:hover {
+        transform: none; /* Disable lift effect on mobile */
+    }
+}
+
+@media (min-width: 641px) {
+    .storage-widget-clickable {
+        padding: 1rem;
+    }
+}
+
+/* === STORAGE MODAL OPTIMIZATIONS === */
+.fi-modal-content .storage-modal-content {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+    .fi-modal-content .storage-modal-content {
+        max-height: 80vh;
     }
 }

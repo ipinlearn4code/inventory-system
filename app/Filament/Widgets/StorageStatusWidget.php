@@ -39,4 +39,9 @@ class StorageStatusWidget extends Widget
         
         $this->dispatch('$refresh');
     }
+
+    public function openStorageModal(): void
+    {
+        $this->dispatch('open-modal', id: 'storage-info-modal');
+    }
 }
