@@ -187,6 +187,7 @@
 .fi-topbar,
 .fi-topbar-nav,
 .flex.items-center.h-16.gap-x-4.bg-white.px-4.shadow-sm.ring-1.ring-gray-950\/5.dark\:bg-gray-900.dark\:ring-white\/10.md\:px-6.lg\:px-8,
+.flex.items-center.h-16.gap-x-4.bg-white.px-4.shadow-sm.ring-1.ring-gray-950\/5.dark\:bg-gray-900.dark\:ring-white\/10,
 .fi-topbar.sticky.top-0.z-20.overflow-x-clip {
     background-color: var(--corporate-blue) !important;
     border-bottom: 1px solid var(--neutral-background) !important;
@@ -625,3 +626,96 @@ a:not(.fi-btn):hover {
 .scrollbar-hide::-webkit-scrollbar {
     display: none; /* WebKit */
 }
+
+/* ================================================
+   STORAGE WIDGET RESPONSIVE IMPROVEMENTS
+   ================================================ */
+
+/* Storage widget mobile responsive design */
+@media (max-width: 640px) {
+    /* Mobile typography scaling */
+    .storage-status-widget .text-sm {
+        font-size: 0.75rem;
+        line-height: 1.2;
+    }
+    
+    .storage-status-widget .text-xs {
+        font-size: 0.65rem;
+        line-height: 1.1;
+    }
+    
+    /* Mobile spacing adjustments */
+    .storage-status-widget .space-x-3 > * + * {
+        margin-left: 0.5rem;
+    }
+    
+    .storage-status-widget .space-x-2 > * + * {
+        margin-left: 0.375rem;
+    }
+    
+    /* Mobile touch targets - minimum 44px for accessibility */
+    .storage-status-widget button {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 0.5rem;
+    }
+    
+    /* Mobile icon sizing optimization */
+    .storage-status-widget .w-6 {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+    
+    /* Mobile card padding reduction */
+    .storage-status-widget .p-2 {
+        padding: 0.5rem;
+    }
+    
+    .storage-status-widget .p-3 {
+        padding: 0.75rem;
+    }
+}
+
+/* Storage widget container - prevent text overflow */
+.storage-status-widget,
+.fi-widget.storage-status {
+    overflow: hidden;
+}
+
+/* Storage widget text truncation */
+.storage-status-widget .truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Storage widget flex containers */
+.storage-status-widget .flex {
+    min-width: 0; /* Allow flex items to shrink */
+}
+
+.storage-status-widget .flex-1 {
+    min-width: 0; /* Prevent flex-1 from preventing shrinking */
+}
+
+/* Mobile-first icon sizing */
+.storage-status-widget .w-5.h-5 {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+@media (min-width: 640px) {
+    .storage-status-widget .sm\\:w-8.sm\\:h-8 {
+        width: 2rem;
+        height: 2rem;
+    }
+    
+    .storage-status-widget .sm\\:w-4.sm\\:h-4 {
+        width: 1rem;
+        height: 1rem;
+    }
+}
+
+/* ================================================
+   END STORAGE WIDGET RESPONSIVE IMPROVEMENTS
+   ================================================ */
