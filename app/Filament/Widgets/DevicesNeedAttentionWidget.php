@@ -83,8 +83,9 @@ class DevicesNeedAttentionWidget extends BaseWidget
                 Tables\Actions\Action::make('viewAll')
                     ->label('View All')
                     ->icon('heroicon-m-arrow-right')
-                    ->url(\App\Filament\Resources\DeviceResource::getUrl('index'))
-                    ->openUrlInNewTab(),
+                    ->url(\App\Filament\Resources\DeviceResource::getUrl('index').'?tableFilters[condition][value]=Rusak')
+                    ->openUrlInNewTab(false),
+
             ]);
     }
 }
