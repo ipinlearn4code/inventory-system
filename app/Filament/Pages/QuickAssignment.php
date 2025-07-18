@@ -109,6 +109,7 @@ class QuickAssignment extends Page
                                     return User::pluck('name', 'user_id')->toArray();
                                 })
                                 ->disabled(fn ($get) => $get('is_approver'))
+                                ->dehydrated(true) // Ensure the field is always included in form state
                                 ->native(false)
                                 ->placeholder('Select an approver')
                                 ->required()
@@ -138,6 +139,11 @@ class QuickAssignment extends Page
         
         // Remove UI helper fields that shouldn't be persisted
         unset($data['is_approver']);
+        
+        // Ensure approver_id is set
+        if (!isset($data['approver_id']) || !$data['approver_id']) {
+            throw new \Exception('Approver ID is required');
+        }
         
         // Begin a transaction to ensure all operations succeed or fail together
         DB::beginTransaction();
@@ -284,7 +290,6 @@ class QuickAssignment extends Page
     private function getCurrentUserId(): ?int
     {
         $auth = session('authenticated_user');
-        dd($auth);
         if ($auth) {
             $user = User::where('pn', $auth['pn'])->first();
             if ($user) {
