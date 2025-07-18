@@ -9,7 +9,8 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class DevicesNeedAttentionWidget extends BaseWidget
 {
-    protected static ?string $heading = '🚨 Perangkat Memerlukan Perhatian';    protected static ?int $sort = 5;
+    protected static ?string $heading = '🚨 Devices Needing Attention';    
+    protected static ?int $sort = 5;
 
     protected int | string | array $columnSpan = [
         'default' => 'full',  // Full width on mobile
@@ -41,17 +42,17 @@ class DevicesNeedAttentionWidget extends BaseWidget
                     ->searchable(),
                     
                 Tables\Columns\TextColumn::make('currentAssignment.branch.unit_name')
-                    ->label('Lokasi')
-                    ->default('Tidak Ditugaskan')
+                    ->label('Location')
+                    ->default('Not Assigned')
                     ->icon('heroicon-m-map-pin'),
                     
                 Tables\Columns\TextColumn::make('currentAssignment.user.name')
-                    ->label('Pengguna')
-                    ->default('Tidak Ditugaskan')
+                    ->label('User')
+                    ->default('Not Assigned')
                     ->icon('heroicon-m-user'),
                     
                 Tables\Columns\TextColumn::make('condition')
-                    ->label('Kondisi')
+                    ->label('Condition')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'Baik' => 'success',
@@ -66,13 +67,13 @@ class DevicesNeedAttentionWidget extends BaseWidget
                     }),
                     
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->label('Terakhir Update')
+                    ->label('Last Updated')
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
             ])
             ->actions([
                 Tables\Actions\Action::make('view')
-                    ->label('Lihat')
+                    ->label('View')
                     ->icon('heroicon-m-eye')
                     ->url(fn (Device $record): string => \App\Filament\Resources\DeviceResource::getUrl('edit', ['record' => $record]))
                     ->openUrlInNewTab(),
@@ -80,7 +81,7 @@ class DevicesNeedAttentionWidget extends BaseWidget
             ->paginated(false)
             ->headerActions([
                 Tables\Actions\Action::make('viewAll')
-                    ->label('Lihat Semua')
+                    ->label('View All')
                     ->icon('heroicon-m-arrow-right')
                     ->url(\App\Filament\Resources\DeviceResource::getUrl('index'))
                     ->openUrlInNewTab(),
