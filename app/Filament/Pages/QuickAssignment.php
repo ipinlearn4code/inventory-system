@@ -210,12 +210,31 @@ class QuickAssignment extends Page
                             true
                         );
                         
-                        // Store file through our model method that uses MinIO
-                        $path = $assignmentLetter->storeFile($uploadedFile);
+                        // Use MinioStorageService to store the file
+                        $minioService = app(MinioStorageService::class);
+                        
+                        // Format the letter date properly
+                        $letterDate = $assignmentLetter->letter_date;
+                        if ($letterDate instanceof \Carbon\Carbon) {
+                            $formattedDate = $letterDate->format('Y-m-d');
+                        } else {
+                            $formattedDate = \Carbon\Carbon::parse((string) $letterDate)->format('Y-m-d');
+                        }
+                        
+                        $path = $minioService->storeAssignmentLetterFile(
+                            $uploadedFile,
+                            $assignmentLetter->letter_type,
+                            $assignmentLetter->assignment_id,
+                            $formattedDate,
+                            $assignmentLetter->letter_number
+                        );
                         
                         if (!$path) {
                             throw new \Exception('Failed to upload assignment letter file to MinIO');
                         }
+                        
+                        // Update the assignment letter record with the file path
+                        $assignmentLetter->update(['file_path' => $path]);
                         
                         // Delete the temporary file
                         Storage::disk('public')->delete($filePath);
@@ -280,8 +299,7 @@ class QuickAssignment extends Page
                 ->send();
         }
     }
-    // Note: This method is used to get the current authenticated user's ID, but i think i want to get userid from form 'approver_id' field
-    // so i can use it in the form state
+    
     /**
      * Get the current authenticated user's ID
      *
