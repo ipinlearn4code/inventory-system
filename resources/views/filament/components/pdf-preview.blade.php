@@ -75,12 +75,13 @@
                 </div>
                 
                 <!-- Loading Indicator -->
-                <div class="fi-pdf-preview-loading" id="pdf-loading">
+                <!-- <div class="fi-pdf-preview-loading" id="pdf-loading">
                     <div class="flex flex-col items-center space-y-2">
                         <div class="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-blue-600"></div>
                         <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Loading PDF preview...</p>
                     </div>
-                </div>
+                </div> -->
+                <!-- Loading Indicator error, didnt want to dissappear so overlaying ppreview -->
             </div>
         </div>
     @else
