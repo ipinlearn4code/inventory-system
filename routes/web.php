@@ -30,12 +30,27 @@ Route::withoutMiddleware(['web'])->group(function () {
     Route::post('/test-upload/minio', [FileUploadTestController::class, 'testMinioUpload']);
 });
 
+// QR Code routes
+Route::prefix('qr-code')->group(function () {
+    Route::get('/generate/{assetCode}', [App\Http\Controllers\QRCodeController::class, 'generateQRCode'])->name('qr-code.generate');
+    Route::get('/sticker/{deviceId}', [App\Http\Controllers\QRCodeController::class, 'showSticker'])->name('qr-code.sticker');
+    Route::get('/sticker/asset/{assetCode}', [App\Http\Controllers\QRCodeController::class, 'showStickerByAssetCode'])->name('qr-code.sticker.asset');
+    Route::get('/stickers/bulk', [App\Http\Controllers\QRCodeController::class, 'showBulkStickers'])->name('qr-code.stickers.bulk');
+});
+
+// QR Code Scanner routes
+Route::prefix('qr-scanner')->group(function () {
+    Route::get('/', [App\Http\Controllers\QRCodeScannerController::class, 'index'])->name('qr-scanner.index');
+    Route::post('/scan', [App\Http\Controllers\QRCodeScannerController::class, 'scan'])->name('qr-scanner.scan');
+});
+
 // Simple test routes
 Route::get('/simple-test-route', [SimpleTestController::class, 'test']);
 Route::post('/simple-upload-test', [SimpleTestController::class, 'upload']);
 
 // Include debug routes
 include __DIR__ . '/test-debug.php';
+include __DIR__ . '/test-qr.php';
 
 // Debug route to check session data
 Route::get('/debug-session', function () {

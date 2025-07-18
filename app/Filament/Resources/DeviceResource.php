@@ -289,6 +289,13 @@ class DeviceResource extends Resource
                         ->tooltip('View device details'),
                     Tables\Actions\EditAction::make()
                         ->tooltip('Edit device information'),
+                    Tables\Actions\Action::make('viewQRSticker')
+                        ->label('View QR Sticker')
+                        ->icon('heroicon-o-qr-code')
+                        ->color('info')
+                        ->url(fn ($record) => route('qr-code.sticker', $record->device_id))
+                        ->openUrlInNewTab()
+                        ->tooltip('View printable QR code sticker'),
                     Tables\Actions\DeleteAction::make()
                         ->tooltip('Delete this device'),
                 ])
@@ -301,6 +308,17 @@ class DeviceResource extends Resource
 
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('printQRStickers')
+                        ->label('Print QR Stickers')
+                        ->icon('heroicon-o-printer')
+                        ->color('success')
+                        ->url(function ($records) {
+                            $deviceIds = $records->pluck('device_id')->toArray();
+                            return route('qr-code.stickers.bulk', ['device_ids' => $deviceIds]);
+                        })
+                        ->openUrlInNewTab()
+                        ->deselectRecordsAfterCompletion()
+                        ->tooltip('Generate printable QR stickers for selected devices'),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
 

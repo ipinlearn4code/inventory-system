@@ -70,4 +70,34 @@ class Device extends Model
     {
         return $query->whereDoesntHave('currentAssignment');
     }
+    
+    /**
+     * Get the QR code data for this device
+     *
+     * @return string
+     */
+    public function getQRCodeData(): string
+    {
+        return "briven-{$this->asset_code}";
+    }
+    
+    /**
+     * Get the QR code sticker URL for this device
+     *
+     * @return string
+     */
+    public function getQRCodeStickerUrl(): string
+    {
+        return route('qr-code.sticker', $this->device_id);
+    }
+    
+    /**
+     * Get the QR code image URL for this device
+     *
+     * @return string
+     */
+    public function getQRCodeImageUrl(): string
+    {
+        return route('qr-code.generate', $this->asset_code);
+    }
 }
