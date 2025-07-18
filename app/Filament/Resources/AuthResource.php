@@ -93,6 +93,7 @@ class AuthResource extends Resource
                     ->password()
                     ->required(fn (string $operation): bool => $operation === 'create')
                     ->dehydrated(fn ($state) => filled($state))
+                    ->dehydrateStateUsing(fn ($state) => filled($state) ? \Hash::make($state) : null)
                     ->maxLength(50),
                 
                 Forms\Components\Select::make('role')

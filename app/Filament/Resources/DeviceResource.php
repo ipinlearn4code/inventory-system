@@ -254,17 +254,19 @@ class DeviceResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                
+
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('condition')
+                    ->multiple()
                     ->options([
                         'Baik' => 'Baik',
                         'Rusak' => 'Rusak',
                         'Perlu Pengecekan' => 'Perlu Pengecekan',
                     ]),
                 Tables\Filters\SelectFilter::make('bribox_category')
-                    ->label('Category')
+                    // ->label('Category')
+                    // ->multiple()
                     ->options(\App\Models\BriboxesCategory::all()->pluck('category_name', 'bribox_category_id'))
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
@@ -290,9 +292,9 @@ class DeviceResource extends Resource
                     Tables\Actions\DeleteAction::make()
                         ->tooltip('Delete this device'),
                 ])
-                ->iconButton()
-                ->icon('heroicon-o-ellipsis-horizontal')
-                ->tooltip('Device Actions'),
+                    ->iconButton()
+                    ->icon('heroicon-o-ellipsis-horizontal')
+                    ->tooltip('Device Actions'),
             ])
 
             ->recordUrl(null)
