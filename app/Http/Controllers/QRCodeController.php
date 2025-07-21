@@ -25,15 +25,19 @@ class QRCodeController extends Controller
     public function generateQRCode(string $assetCode): Response
     {
         try {
-            $pngData = $this->qrCodeService->getQRCodePngData($assetCode);
+            $service = $this->qrCodeService;
+            $mimeType = $service->getPreferredMimeType();
+            $data = $service->getQRCodePngData($assetCode);
             
-            return response($pngData, 200, [
-                'Content-Type' => 'image/png',
-                'Content-Disposition' => "inline; filename=\"qr_code_{$assetCode}.png\"",
+            $extension = $mimeType === 'image/png' ? 'png' : 'svg';
+            
+            return response($data, 200, [
+                'Content-Type' => $mimeType,
+                'Content-Disposition' => "inline; filename=\"qr_code_{$assetCode}.{$extension}\"",
                 'Cache-Control' => 'public, max-age=3600',
             ]);
         } catch (\Exception $e) {
-            return response('Error generating QR code', 500);
+            return response('Error generating QR code: ' . $e->getMessage(), 500);
         }
     }
 
@@ -97,18 +101,34 @@ class QRCodeController extends Controller
                 ->whereIn('device_id', $deviceIds)
                 ->get();
             
+            if ($devices->isEmpty()) {
+                return response('No devices found with the provided IDs', 404);
+            }
+            
             $stickers = [];
             foreach ($devices as $device) {
-                $qrCodeDataUrl = $this->qrCodeService->getQRCodeDataUrl($device->asset_code);
-                $stickers[] = [
-                    'device' => $device,
-                    'qrCodeDataUrl' => $qrCodeDataUrl,
-                ];
+                try {
+                    $qrCodeDataUrl = $this->qrCodeService->getQRCodeDataUrl($device->asset_code);
+                    $stickers[] = [
+                        'device' => $device,
+                        'qrCodeDataUrl' => $qrCodeDataUrl,
+                    ];
+                } catch (\Exception $qrError) {
+                    // Log the error but continue with other devices
+                    \Log::error("Failed to generate QR code for device {$device->device_id}: " . $qrError->getMessage());
+                    
+                    // Add a fallback entry
+                    $stickers[] = [
+                        'device' => $device,
+                        'qrCodeDataUrl' => 'data:image/svg+xml;base64,' . base64_encode('<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><text x="150" y="150" text-anchor="middle" fill="red">QR Error</text></svg>'),
+                    ];
+                }
             }
             
             return view('sticker.bulk-preview', compact('stickers'));
         } catch (\Exception $e) {
-            return response('Error generating stickers', 500);
+            \Log::error("Bulk stickers generation failed: " . $e->getMessage());
+            return response('Error generating stickers: ' . $e->getMessage(), 500);
         }
     }
 }

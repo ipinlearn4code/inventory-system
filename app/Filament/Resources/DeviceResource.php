@@ -312,11 +312,28 @@ class DeviceResource extends Resource
                         ->label('Print QR Stickers')
                         ->icon('heroicon-o-printer')
                         ->color('success')
-                        ->url(function ($records) {
+                        ->action(function ($records) {
+                            // Validate that records exist and are not empty
+                            // dd($records);
+                            if (!$records || $records->isEmpty()) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('No devices selected')
+                                    ->body('Please select at least one device to generate QR stickers.')
+                                    ->warning()
+                                    ->send();
+                                return;
+                            }
+
                             $deviceIds = $records->pluck('device_id')->toArray();
-                            return route('qr-code.stickers.bulk', ['device_ids' => $deviceIds]);
+                            $url = route('qr-code.stickers.bulk', ['device_ids' => $deviceIds]);
+                            
+                            // Open URL in new tab using JavaScript
+                            return redirect()->away($url);
                         })
-                        ->openUrlInNewTab()
+                        ->requiresConfirmation()
+                        ->modalHeading('Generate QR Stickers')
+                        ->modalDescription('This will generate printable QR stickers for the selected devices in a new tab.')
+                        ->modalSubmitActionLabel('Generate Stickers')
                         ->deselectRecordsAfterCompletion()
                         ->tooltip('Generate printable QR stickers for selected devices'),
                     Tables\Actions\DeleteBulkAction::make(),

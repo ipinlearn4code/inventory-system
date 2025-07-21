@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
+use Endroid\QrCode\Writer\SvgWriter;
 use Endroid\QrCode\ErrorCorrectionLevel;
 
 class QRCodeService
@@ -25,10 +26,17 @@ class QRCodeService
             margin: 10
         );
         
-        $writer = new PngWriter();
-        $result = $writer->write($qrCode);
-        
-        return 'data:image/png;base64,' . base64_encode($result->getString());
+        try {
+            // Try PNG first (requires GD extension)
+            $writer = new PngWriter();
+            $result = $writer->write($qrCode);
+            return 'data:image/png;base64,' . base64_encode($result->getString());
+        } catch (\Exception $e) {
+            // Fallback to SVG (doesn't require GD extension)
+            $writer = new SvgWriter();
+            $result = $writer->write($qrCode);
+            return 'data:image/svg+xml;base64,' . base64_encode($result->getString());
+        }
     }
     
     /**
@@ -59,9 +67,36 @@ class QRCodeService
             margin: 10
         );
         
-        $writer = new PngWriter();
-        $result = $writer->write($qrCode);
-        
-        return $result->getString();
+        try {
+            // Try PNG first (requires GD extension)
+            $writer = new PngWriter();
+            $result = $writer->write($qrCode);
+            return $result->getString();
+        } catch (\Exception $e) {
+            // Fallback to SVG (doesn't require GD extension)
+            $writer = new SvgWriter();
+            $result = $writer->write($qrCode);
+            return $result->getString();
+        }
+    }
+    
+    /**
+     * Check if GD extension is available
+     *
+     * @return bool
+     */
+    public function isGdAvailable(): bool
+    {
+        return extension_loaded('gd');
+    }
+    
+    /**
+     * Get the preferred MIME type based on available extensions
+     *
+     * @return string
+     */
+    public function getPreferredMimeType(): string
+    {
+        return $this->isGdAvailable() ? 'image/png' : 'image/svg+xml';
     }
 }
