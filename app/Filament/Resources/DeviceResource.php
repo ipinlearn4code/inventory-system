@@ -289,13 +289,6 @@ class DeviceResource extends Resource
                         ->tooltip('View device details'),
                     Tables\Actions\EditAction::make()
                         ->tooltip('Edit device information'),
-                    Tables\Actions\Action::make('viewQRSticker')
-                        ->label('View QR Sticker')
-                        ->icon('heroicon-o-qr-code')
-                        ->color('info')
-                        ->url(fn ($record) => route('qr-code.sticker', $record->device_id))
-                        ->openUrlInNewTab()
-                        ->tooltip('View printable QR code sticker'),
                     Tables\Actions\DeleteAction::make()
                         ->tooltip('Delete this device'),
                 ])
@@ -314,7 +307,6 @@ class DeviceResource extends Resource
                         ->color('success')
                         ->action(function ($records) {
                             // Validate that records exist and are not empty
-                            // dd($records);
                             if (!$records || $records->isEmpty()) {
                                 \Filament\Notifications\Notification::make()
                                     ->title('No devices selected')
@@ -325,15 +317,14 @@ class DeviceResource extends Resource
                             }
 
                             $deviceIds = $records->pluck('device_id')->toArray();
-                            $url = route('qr-code.stickers.bulk', ['device_ids' => $deviceIds]);
                             
-                            // Open URL in new tab using JavaScript
-                            return redirect()->away($url);
+                            // Redirect to the nested page within the admin panel
+                            return redirect()->to('/admin/devices/generate-qr?' . http_build_query(['devices' => $deviceIds]));
                         })
                         ->requiresConfirmation()
                         ->modalHeading('Generate QR Stickers')
-                        ->modalDescription('This will generate printable QR stickers for the selected devices in a new tab.')
-                        ->modalSubmitActionLabel('Generate Stickers')
+                        ->modalDescription('This will take you to the QR sticker generation page with the selected devices.')
+                        ->modalSubmitActionLabel('Continue')
                         ->deselectRecordsAfterCompletion()
                         ->tooltip('Generate printable QR stickers for selected devices'),
                     Tables\Actions\DeleteBulkAction::make(),
@@ -355,7 +346,9 @@ class DeviceResource extends Resource
         return [
             'index' => Pages\ListDevices::route('/'),
             'create' => Pages\CreateDevice::route('/create'),
+            'view' => Pages\ViewDevice::route('/{record}'),
             'edit' => Pages\EditDevice::route('/{record}/edit'),
+            'generate-qr' => Pages\GenerateQRStickers::route('/generate-qr'),
         ];
     }
 
