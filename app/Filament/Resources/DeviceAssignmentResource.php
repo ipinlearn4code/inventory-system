@@ -83,35 +83,28 @@ class DeviceAssignmentResource extends Resource
                             ->icon('heroicon-o-qr-code')
                             ->tooltip('Scan QR Code')
                             ->color('primary')
-                            ->action(function (Forms\Set $set, Forms\Get $get) {
-                                // This will trigger the QR scanner modal
-                                return true;
+                            ->action(function () {
+                                // Empty action to prevent errors
                             })
-                            ->modalHeading('Scan QR Code')
-                            ->modalDescription('Scan a device QR code to automatically select the device')
-                            ->modalContent(view('filament.components.qr-scanner-modal'))
-                            ->modalSubmitAction(false)
-                            ->modalCancelActionLabel('Close')
-                            ->extraModalFooterActions([
-                                Forms\Components\Actions\Action::make('manualInput')
-                                    ->label('Manual Input')
-                                    ->color('gray')
-                                    ->action(function () {
-                                        // Close modal and allow manual selection
-                                        return true;
-                                    })
-                            ])
                             ->extraAttributes([
-                                'x-on:device-selected.window' => '
-                                    const deviceId = $event.detail.deviceId;
-                                    if (deviceId) {
-                                        $wire.set("data.device_id", deviceId);
-                                        // Close the modal
-                                        document.querySelector("[x-on\\:close-modal]")?.click();
-                                    }
-                                '
+                                'x-on:click.prevent' => '$dispatch("open-modal")'
                             ])
                     ),
+
+                // QR Scanner Modal Component
+                Forms\Components\ViewField::make('qr_scanner_modal')
+                    ->view('filament.components.qr-scanner-inline')
+                    ->extraAttributes([
+                        'x-data' => '{ qrModalOpen: false }',
+                        'x-on:open-modal.window' => 'qrModalOpen = true',
+                        'x-on:device-selected.window' => '
+                            const deviceId = $event.detail.deviceId;
+                            if (deviceId) {
+                                $wire.set("data.device_id", deviceId);
+                                qrModalOpen = false;
+                            }
+                        '
+                    ]),
 
                 Select::make('user_id')
                     ->label('Assign to User')
