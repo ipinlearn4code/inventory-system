@@ -71,42 +71,42 @@ class DeviceResource extends Resource
                         Forms\Components\Select::make('brand')
                             ->label('Brand')
                             ->required()
-                            ->options([
-                                'Dell' => 'Dell',
-                                'HP' => 'HP',
-                                'Lenovo' => 'Lenovo',
-                                'Asus' => 'Asus',
-                                'Acer' => 'Acer',
-                                'Apple' => 'Apple',
-                                'Microsoft' => 'Microsoft',
-                                'Samsung' => 'Samsung',
-                                'LG' => 'LG',
-                                'Canon' => 'Canon',
-                                'Epson' => 'Epson',
-                                'Brother' => 'Brother',
-                                'Other' => 'Other',
-                            ])
+                            ->options(Device::distinct()->pluck('brand', 'brand')->toArray())
                             ->searchable()
+                            ->searchPrompt('Search or click + to add')
                             ->createOptionForm([
                                 Forms\Components\TextInput::make('new_brand')
                                     ->label('New Brand Name')
+                                    ->maxLength(50)
                                     ->required(),
                             ])
                             ->createOptionUsing(function (array $data) {
                                 return $data['new_brand'];
                             }),
 
-                        Forms\Components\TextInput::make('brand_name')
+                        Forms\Components\Select::make('brand_name')
                             ->label('Brand Name (Model/Series)')
                             ->required()
-                            ->maxLength(50)
-                            ->helperText('e.g., OptiPlex 7090, EliteBook 840, ThinkPad X1'),
+                            ->options(Device::distinct()->pluck('brand_name', 'brand_name')->toArray())
+                            ->searchable()
+                            ->searchPrompt('Search or click + to add')
+                            ->createOptionForm([
+                                Forms\Components\TextInput::make('new_brand_name')
+                                    ->label('New Brand Name (Model/Series)')
+                                    ->maxLength(50)
+                                    ->required(),
+                            ])
+                            ->helperText('e.g., OptiPlex 7090, ThinkPad X1 Carbon')
+                            ->createOptionUsing(function (array $data) {
+                                return $data['new_brand_name'];
+                            }),
 
                         Forms\Components\TextInput::make('serial_number')
                             ->label('Serial Number')
                             ->required()
                             ->maxLength(50)
-                            ->unique(ignoreRecord: true),
+                            ->unique(ignoreRecord: true)
+                            ->autocomplete(null),
 
                         Forms\Components\TextInput::make('asset_code')
                             ->disabled(function ($livewire) {
@@ -248,7 +248,7 @@ class DeviceResource extends Resource
                     ->label('Model/Series')
                     ->searchable()
                     ->sortable(),
-                    // ->toggleable(),
+                // ->toggleable(),
 
                 Tables\Columns\TextColumn::make('serial_number')
                     ->searchable()
@@ -348,7 +348,7 @@ class DeviceResource extends Resource
                                                     ->suffixAction(
                                                         Forms\Components\Actions\Action::make('copy')
                                                             ->icon('heroicon-m-clipboard')
-                                                            ->tooltip('Copy Asset Code')    
+                                                            ->tooltip('Copy Asset Code')
                                                     ),
                                                 Forms\Components\TextInput::make('brand')
                                                     ->label('Brand')
