@@ -211,7 +211,9 @@
                 <div class="specs">
                     @if($device->spec1) {{ $device->spec1 }}<br>@endif
                     @if($device->spec2) {{ $device->spec2 }}<br>@endif
-                    @if($device->spec3) {{ $device->spec3 }}@endif
+                    @if($device->spec3) {{ $device->spec3 }}<br>@endif
+                    @if($device->spec4) {{ $device->spec4 }}<br>@endif
+                    @if($device->spec5) {{ $device->spec5 }}@endif
                 </div>
                 @endif
                 
