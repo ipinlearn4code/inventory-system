@@ -49,20 +49,14 @@
                                 </div>
                                 
                                 <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
-                                    <div><span class="font-medium">Brand:</span> {{ $stickerData['device']->brand }}</div>
-                                    <div><span class="font-medium">Brand Name:</span> {{ $stickerData['device']->brand_name }}</div>
+                                    <div><span class="font-medium">Asset Code:</span> {{ $stickerData['device']->asset_code }}</div>
                                     <div><span class="font-medium">Category:</span> {{ $stickerData['device']->bribox->category->category_name ?? 'N/A' }}</div>
-                                    <div><span class="font-medium">Status:</span> 
-                                        @if ($stickerData['device']->currentAssignment)
-                                            <span class="text-green-600 dark:text-green-400">Assigned</span>
-                                        @else
-                                            <span class="text-yellow-600 dark:text-yellow-400">Available</span>
-                                        @endif
+                                    <div>
+                                        <span class="font-medium">Device Name:</span> 
+                                        <span class="truncate block">{{ $stickerData['device']->brand }} {{ $stickerData['device']->brand_name }} </span>
                                     </div>
-                                    @if ($stickerData['device']->currentAssignment)
-                                        <div><span class="font-medium">User:</span> {{ $stickerData['device']->currentAssignment->user->name }}</div>
-                                        <div><span class="font-medium">Branch:</span> {{ $stickerData['device']->currentAssignment->branch->branch_name ?? 'N/A' }}</div>
-                                    @endif
+                                    <div><span class="font-medium">SN:</span> {{ $stickerData['device']->serial_number }}</div>
+                                    
                                 </div>
 
                                 @if (!$stickerData['error'])
