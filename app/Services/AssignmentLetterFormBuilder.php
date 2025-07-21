@@ -32,7 +32,7 @@ class AssignmentLetterFormBuilder
             $this->buildLetterDatePicker(),
             $this->buildApproverSection(),
             $this->buildFileUploadSection(),
-            $this->buildHiddenFields(),
+            ...$this->buildHiddenFields(),
         ];
     }
 
