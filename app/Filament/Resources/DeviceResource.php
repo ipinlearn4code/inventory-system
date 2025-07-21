@@ -247,8 +247,8 @@ class DeviceResource extends Resource
                 Tables\Columns\TextColumn::make('brand_name')
                     ->label('Model/Series')
                     ->searchable()
-                    ->sortable()
-                    ->toggleable(),
+                    ->sortable(),
+                    // ->toggleable(),
 
                 Tables\Columns\TextColumn::make('serial_number')
                     ->searchable()
@@ -294,21 +294,7 @@ class DeviceResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('brand')
                     ->multiple()
-                    ->options([
-                        'Dell' => 'Dell',
-                        'HP' => 'HP',
-                        'Lenovo' => 'Lenovo',
-                        'Asus' => 'Asus',
-                        'Acer' => 'Acer',
-                        'Apple' => 'Apple',
-                        'Microsoft' => 'Microsoft',
-                        'Samsung' => 'Samsung',
-                        'LG' => 'LG',
-                        'Canon' => 'Canon',
-                        'Epson' => 'Epson',
-                        'Brother' => 'Brother',
-                        'Other' => 'Other',
-                    ]),
+                    ->options(Device::distinct()->pluck('brand', 'brand')->toArray()),
                 Tables\Filters\SelectFilter::make('condition')
                     ->multiple()
                     ->options([
@@ -362,7 +348,7 @@ class DeviceResource extends Resource
                                                     ->suffixAction(
                                                         Forms\Components\Actions\Action::make('copy')
                                                             ->icon('heroicon-m-clipboard')
-                                                            ->tooltip('Copy Asset Code')
+                                                            ->tooltip('Copy Asset Code')    
                                                     ),
                                                 Forms\Components\TextInput::make('brand')
                                                     ->label('Brand')
