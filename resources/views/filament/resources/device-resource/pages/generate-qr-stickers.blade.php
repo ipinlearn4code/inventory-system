@@ -49,9 +49,10 @@
                                 </div>
                                 
                                 <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
-                                    <div><span class="font-medium">Brand:</span> {{ $stickerData['device']->brand_name }}</div>
+                                    <div><span class="font-medium">Brand:</span> {{ $stickerData['device']->brand }}</div>
+                                    <div><span class="font-medium">Brand Name:</span> {{ $stickerData['device']->brand_name }}</div>
                                     <div><span class="font-medium">Category:</span> {{ $stickerData['device']->bribox->category->category_name ?? 'N/A' }}</div>
-                                    <div><span class="font-medium">Status:</span> 
+                                    <!-- <div><span class="font-medium">Status:</span>  -->
                                         @if ($stickerData['device']->currentAssignment)
                                             <span class="text-green-600 dark:text-green-400">Assigned</span>
                                         @else

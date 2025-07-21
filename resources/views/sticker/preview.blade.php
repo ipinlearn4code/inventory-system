@@ -201,7 +201,7 @@
             
             <div class="info-section">
                 <div class="asset-code">{{ $device->asset_code }}</div>
-                <div class="brand-name">{{ $device->brand_name }}</div>
+                <div class="brand-name">{{ $device->brand }} {{ $device->brand_name }}</div>
                 <div class="serial-number">{{ $device->serial_number }}</div>
                 <div class="condition {{ strtolower(str_replace(' ', '-', $device->condition)) }}">
                     {{ $device->condition }}

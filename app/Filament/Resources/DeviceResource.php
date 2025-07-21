@@ -68,10 +68,39 @@ class DeviceResource extends Resource
             ->schema([
                 Forms\Components\Section::make('Device Information')
                     ->schema([
-                        Forms\Components\TextInput::make('brand_name')
-                            ->label('Brand Name')
+                        Forms\Components\Select::make('brand')
+                            ->label('Brand')
                             ->required()
-                            ->maxLength(50),
+                            ->options([
+                                'Dell' => 'Dell',
+                                'HP' => 'HP',
+                                'Lenovo' => 'Lenovo',
+                                'Asus' => 'Asus',
+                                'Acer' => 'Acer',
+                                'Apple' => 'Apple',
+                                'Microsoft' => 'Microsoft',
+                                'Samsung' => 'Samsung',
+                                'LG' => 'LG',
+                                'Canon' => 'Canon',
+                                'Epson' => 'Epson',
+                                'Brother' => 'Brother',
+                                'Other' => 'Other',
+                            ])
+                            ->searchable()
+                            ->createOptionForm([
+                                Forms\Components\TextInput::make('new_brand')
+                                    ->label('New Brand Name')
+                                    ->required(),
+                            ])
+                            ->createOptionUsing(function (array $data) {
+                                return $data['new_brand'];
+                            }),
+
+                        Forms\Components\TextInput::make('brand_name')
+                            ->label('Brand Name (Model/Series)')
+                            ->required()
+                            ->maxLength(50)
+                            ->helperText('e.g., OptiPlex 7090, EliteBook 840, ThinkPad X1'),
 
                         Forms\Components\TextInput::make('serial_number')
                             ->label('Serial Number')
@@ -210,7 +239,13 @@ class DeviceResource extends Resource
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
+                Tables\Columns\TextColumn::make('brand')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
+
                 Tables\Columns\TextColumn::make('brand_name')
+                    ->label('Model/Series')
                     ->searchable()
                     ->sortable()
                     ->toggleable(),
@@ -257,6 +292,23 @@ class DeviceResource extends Resource
 
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('brand')
+                    ->multiple()
+                    ->options([
+                        'Dell' => 'Dell',
+                        'HP' => 'HP',
+                        'Lenovo' => 'Lenovo',
+                        'Asus' => 'Asus',
+                        'Acer' => 'Acer',
+                        'Apple' => 'Apple',
+                        'Microsoft' => 'Microsoft',
+                        'Samsung' => 'Samsung',
+                        'LG' => 'LG',
+                        'Canon' => 'Canon',
+                        'Epson' => 'Epson',
+                        'Brother' => 'Brother',
+                        'Other' => 'Other',
+                    ]),
                 Tables\Filters\SelectFilter::make('condition')
                     ->multiple()
                     ->options([
@@ -312,8 +364,11 @@ class DeviceResource extends Resource
                                                             ->icon('heroicon-m-clipboard')
                                                             ->tooltip('Copy Asset Code')
                                                     ),
+                                                Forms\Components\TextInput::make('brand')
+                                                    ->label('Brand')
+                                                    ->disabled(),
                                                 Forms\Components\TextInput::make('brand_name')
-                                                    ->label('Brand Name')
+                                                    ->label('Model/Series')
                                                     ->disabled(),
                                                 Forms\Components\TextInput::make('serial_number')
                                                     ->label('Serial Number')

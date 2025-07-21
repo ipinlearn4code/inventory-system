@@ -170,7 +170,8 @@ class AdminController extends Controller
 
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('brand_name', 'like', "%{$search}%")
+                $q->where('brand', 'like', "%{$search}%")
+                  ->orWhere('brand_name', 'like', "%{$search}%")
                   ->orWhere('serial_number', 'like', "%{$search}%")
                   ->orWhere('asset_code', 'like', "%{$search}%");
             });
@@ -185,7 +186,8 @@ class AdminController extends Controller
         $data = $devices->map(function ($device) {
             return [
                 'deviceId' => $device->device_id,
-                'brand' => $device->brand_name,
+                'brand' => $device->brand,
+                'brandName' => $device->brand_name,
                 'serialNumber' => $device->serial_number,
                 'condition' => $device->condition
             ];

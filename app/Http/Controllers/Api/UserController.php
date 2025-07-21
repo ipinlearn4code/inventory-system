@@ -57,7 +57,8 @@ class UserController extends Controller
                 'device' => [
                     'deviceId' => $assignment->device->device_id,
                     'categoryName' => $assignment->device->bribox->category->category_name ?? 'Unknown',
-                    'brand' => $assignment->device->brand_name,
+                    'brand' => $assignment->device->brand,
+                    'brandName' => $assignment->device->brand_name,
                     'serialNumber' => $assignment->device->serial_number
                 ]
             ];
@@ -99,7 +100,8 @@ class UserController extends Controller
         return response()->json([
             'data' => [
                 'deviceId' => $device->device_id,
-                'brand' => $device->brand_name,
+                'brand' => $device->brand,
+                'brandName' => $device->brand_name,
                 'serialNumber' => $device->serial_number,
                 'assetCode' => $device->asset_code,
                 'assignedDate' => (string) $assignment->assigned_date,
@@ -191,6 +193,7 @@ class UserController extends Controller
 
         $data = $assignments->map(function ($assignment) {
             return [
+                'brand' => $assignment->device->brand,
                 'deviceName' => $assignment->device->brand_name,
                 'serialNumber' => $assignment->device->serial_number,
                 'assignedDate' => (string) $assignment->assigned_date,

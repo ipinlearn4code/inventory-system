@@ -52,6 +52,7 @@ class QRCodeScannerController extends Controller
             'success' => true,
             'device' => [
                 'asset_code' => $device->asset_code,
+                'brand' => $device->brand,
                 'brand_name' => $device->brand_name,
                 'serial_number' => $device->serial_number,
                 'condition' => $device->condition,

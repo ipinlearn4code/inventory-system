@@ -34,7 +34,7 @@ class ActivityLogWidget extends Widget
                     'icon' => 'heroicon-m-plus-circle',
                     'color' => 'success',
                     'title' => 'Perangkat baru ditambahkan',
-                    'description' => $device->brand_name . ' (' . ($device->bribox->category->category_name ?? 'Unknown') . ')',
+                    'description' => $device->brand . ' ' . $device->brand_name . ' (' . ($device->bribox->category->category_name ?? 'Unknown') . ')',
                     'user' => $device->created_by ?? 'System',
                     'time' => $device->created_at,
                 ];
@@ -51,7 +51,7 @@ class ActivityLogWidget extends Widget
                     'icon' => 'heroicon-m-arrow-right-circle',
                     'color' => 'info',
                     'title' => 'Perangkat ditugaskan',
-                    'description' => "{$assignment->device->brand_name} kepada {$assignment->user->name}",
+                    'description' => "{$assignment->device->brand} {$assignment->device->brand_name} kepada {$assignment->user->name}",
                     'user' => $assignment->created_by ?? 'System',
                     'time' => $assignment->assigned_date,
                 ];

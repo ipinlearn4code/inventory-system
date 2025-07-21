@@ -63,7 +63,7 @@ class GenerateQRStickers extends Page implements HasForms
                                         $category = $device->bribox->category->category_name ?? 'Unknown';
                                         
                                         return [
-                                            $device->device_id => "{$device->asset_code} - {$device->brand_name} - {$category}{$assignedTo}"
+                                            $device->device_id => "{$device->asset_code} - {$device->brand} {$device->brand_name} - {$category}{$assignedTo}"
                                         ];
                                     });
                             })

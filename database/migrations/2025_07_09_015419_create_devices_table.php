@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('devices', function (Blueprint $table) {
             $table->increments('device_id');
+            $table->string('brand', 50)->notNull();
             $table->string('brand_name', 50)->notNull();
             $table->string('serial_number', 50)->unique()->notNull();
             $table->string('asset_code', 20)->unique()->notNull();

@@ -10,6 +10,7 @@ class Device extends Model
     public $timestamps = false; // Using custom created_at/updated_at fields
 
     protected $fillable = [
+        'brand',
         'brand_name',
         'serial_number',
         'asset_code',

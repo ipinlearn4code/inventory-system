@@ -104,6 +104,11 @@
                                 
                                 <div>
                                     <span class="font-medium text-gray-700 dark:text-gray-300">Brand:</span>
+                                    <span class="ml-2 text-gray-900 dark:text-white">{{ $scannedDevice->brand }}</span>
+                                </div>
+                                
+                                <div>
+                                    <span class="font-medium text-gray-700 dark:text-gray-300">Model/Series:</span>
                                     <span class="ml-2 text-gray-900 dark:text-white">{{ $scannedDevice->brand_name }}</span>
                                 </div>
                                 

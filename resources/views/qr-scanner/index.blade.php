@@ -378,6 +378,10 @@
                         </div>
                         <div class="info-item">
                             <div class="info-label">Brand</div>
+                            <div class="info-value">${device.brand}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Model/Series</div>
                             <div class="info-value">${device.brand_name}</div>
                         </div>
                         <div class="info-item">

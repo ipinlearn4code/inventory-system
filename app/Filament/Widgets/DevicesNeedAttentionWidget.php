@@ -37,8 +37,12 @@ class DevicesNeedAttentionWidget extends BaseWidget
                     ->copyable()
                     ->fontFamily('mono'),
                     
-                Tables\Columns\TextColumn::make('brand_name')
+                Tables\Columns\TextColumn::make('brand')
                     ->label('Brand')
+                    ->searchable(),
+                    
+                Tables\Columns\TextColumn::make('brand_name')
+                    ->label('Model/Series')
                     ->searchable(),
                     
                 Tables\Columns\TextColumn::make('currentAssignment.branch.unit_name')

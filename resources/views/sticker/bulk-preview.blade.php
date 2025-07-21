@@ -223,7 +223,7 @@
             
             <div class="info-section">
                 <div class="asset-code">{{ $sticker['device']->asset_code }}</div>
-                <div class="brand-name">{{ $sticker['device']->brand_name }}</div>
+                <div class="brand-name">{{ $sticker['device']->brand }} {{ $sticker['device']->brand_name }}</div>
                 <div class="serial-number">{{ $sticker['device']->serial_number }}</div>
                 <div class="condition {{ strtolower(str_replace(' ', '-', $sticker['device']->condition)) }}">
                     {{ $sticker['device']->condition }}

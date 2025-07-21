@@ -71,7 +71,7 @@ class DeviceAssignmentResource extends Resource
                         return Device::available()
                             ->get()
                             ->mapWithKeys(function ($device) {
-                                return [$device->device_id => "{$device->asset_code} - {$device->brand_name} ({$device->serial_number})"];
+                                return [$device->device_id => "{$device->asset_code} - {$device->brand} {$device->brand_name} ({$device->serial_number})"];
                             });
                     })
                     ->required()
@@ -144,8 +144,13 @@ class DeviceAssignmentResource extends Resource
                     ->sortable()
                     ->toggleable(),
 
+                Tables\Columns\TextColumn::make('device.brand')
+                    ->label('Brand')
+                    ->searchable()
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('device.brand_name')
-                    ->label('Device Brand')
+                    ->label('Model/Series')
                     ->searchable()
                     ->sortable()
                     ->toggleable(),
