@@ -286,7 +286,133 @@ class DeviceResource extends Resource
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make()
                         ->slideOver()
-                        ->tooltip('View device details'),
+                        ->tooltip('View device details')
+                        ->form(function (Device $record) {
+                            $qrCodeService = app(\App\Services\QRCodeService::class);
+                            $qrCodeDataUrl = null;
+                            try {
+                                $qrCodeDataUrl = $qrCodeService->getQRCodeDataUrl($record->asset_code);
+                            } catch (\Exception $e) {
+                                // Handle QR code generation error
+                            }
+
+                            return [
+                                Forms\Components\Section::make('Device Information')
+                                    ->schema([
+                                        Forms\Components\Grid::make(2)
+                                            ->schema([
+                                                Forms\Components\TextInput::make('device_id')
+                                                    ->label('Device ID')
+                                                    ->disabled(),
+                                                Forms\Components\TextInput::make('asset_code')
+                                                    ->label('Asset Code')
+                                                    ->disabled()
+                                                    ->suffixAction(
+                                                        Forms\Components\Actions\Action::make('copy')
+                                                            ->icon('heroicon-m-clipboard')
+                                                            ->tooltip('Copy Asset Code')
+                                                    ),
+                                                Forms\Components\TextInput::make('brand_name')
+                                                    ->label('Brand Name')
+                                                    ->disabled(),
+                                                Forms\Components\TextInput::make('serial_number')
+                                                    ->label('Serial Number')
+                                                    ->disabled(),
+                                                Forms\Components\TextInput::make('bribox.type')
+                                                    ->label('Type')
+                                                    ->disabled(),
+                                                Forms\Components\TextInput::make('bribox.category.category_name')
+                                                    ->label('Category')
+                                                    ->disabled(),
+                                                Forms\Components\TextInput::make('condition')
+                                                    ->label('Condition')
+                                                    ->disabled(),
+                                                Forms\Components\DatePicker::make('dev_date')
+                                                    ->label('Development Date')
+                                                    ->disabled(),
+                                            ]),
+                                    ]),
+
+                                Forms\Components\Section::make('QR Code')
+                                    ->description('QR code for this device containing: briven-' . $record->asset_code)
+                                    ->schema([
+                                        Forms\Components\Grid::make(1)
+                                            ->schema([
+                                                Forms\Components\ViewField::make('qr_code_preview')
+                                                    ->label('')
+                                                    ->view('filament.components.qr-code-preview', [
+                                                        'qrCodeDataUrl' => $qrCodeDataUrl,
+                                                        'assetCode' => $record->asset_code,
+                                                        'deviceId' => $record->device_id,
+                                                    ])
+                                                    ->extraAttributes(['style' => 'text-align: center;']),
+                                            ]),
+                                    ]),
+
+                                Forms\Components\Section::make('Specifications')
+                                    ->schema([
+                                        Forms\Components\Grid::make(2)
+                                            ->schema([
+                                                Forms\Components\TextInput::make('spec1')
+                                                    ->label('Specification 1')
+                                                    ->disabled(),
+                                                Forms\Components\TextInput::make('spec2')
+                                                    ->label('Specification 2')
+                                                    ->disabled(),
+                                                Forms\Components\TextInput::make('spec3')
+                                                    ->label('Specification 3')
+                                                    ->disabled(),
+                                                Forms\Components\TextInput::make('spec4')
+                                                    ->label('Specification 4')
+                                                    ->disabled(),
+                                                Forms\Components\TextInput::make('spec5')
+                                                    ->label('Specification 5')
+                                                    ->disabled(),
+                                            ]),
+                                    ])
+                                    ->collapsible(),
+
+                                Forms\Components\Section::make('Assignment Information')
+                                    ->schema([
+                                        Forms\Components\Grid::make(2)
+                                            ->schema([
+                                                Forms\Components\TextInput::make('currentAssignment.user.name')
+                                                    ->label('Assigned To')
+                                                    ->disabled(),
+                                                Forms\Components\TextInput::make('currentAssignment.branch.branch_name')
+                                                    ->label('Branch')
+                                                    ->disabled(),
+                                                Forms\Components\DatePicker::make('currentAssignment.assigned_date')
+                                                    ->label('Assignment Date')
+                                                    ->disabled(),
+                                                Forms\Components\Textarea::make('currentAssignment.notes')
+                                                    ->label('Assignment Notes')
+                                                    ->disabled(),
+                                            ]),
+                                    ])
+                                    ->visible(fn() => $record->currentAssignment !== null),
+
+                                Forms\Components\Section::make('Audit Trail')
+                                    ->schema([
+                                        Forms\Components\Grid::make(2)
+                                            ->schema([
+                                                Forms\Components\TextInput::make('created_by')
+                                                    ->label('Created By')
+                                                    ->disabled(),
+                                                Forms\Components\DateTimePicker::make('created_at')
+                                                    ->label('Created At')
+                                                    ->disabled(),
+                                                Forms\Components\TextInput::make('updated_by')
+                                                    ->label('Updated By')
+                                                    ->disabled(),
+                                                Forms\Components\DateTimePicker::make('updated_at')
+                                                    ->label('Updated At')
+                                                    ->disabled(),
+                                            ]),
+                                    ])
+                                    ->collapsible(),
+                            ];
+                        }),
                     Tables\Actions\EditAction::make()
                         ->tooltip('Edit device information'),
                     Tables\Actions\DeleteAction::make()
@@ -317,7 +443,7 @@ class DeviceResource extends Resource
                             }
 
                             $deviceIds = $records->pluck('device_id')->toArray();
-                            
+
                             // Redirect to the nested page within the admin panel
                             return redirect()->to('/admin/devices/generate-qr?' . http_build_query(['devices' => $deviceIds]));
                         })
@@ -346,7 +472,6 @@ class DeviceResource extends Resource
         return [
             'index' => Pages\ListDevices::route('/'),
             'create' => Pages\CreateDevice::route('/create'),
-            'view' => Pages\ViewDevice::route('/{record}'),
             'edit' => Pages\EditDevice::route('/{record}/edit'),
             'generate-qr' => Pages\GenerateQRStickers::route('/generate-qr'),
         ];
