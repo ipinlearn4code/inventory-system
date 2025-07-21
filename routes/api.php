@@ -44,7 +44,26 @@ Route::prefix('v1')->group(function () {
         Route::prefix('admin')->middleware('role:admin,superadmin')->group(function () {
             Route::get('/dashboard/kpis', [AdminController::class, 'dashboardKpis']);
             Route::get('/dashboard/charts', [AdminController::class, 'dashboardCharts']);
+            
+            // Device management
             Route::get('/devices', [AdminController::class, 'devices']);
+            Route::get('/devices/{id}', [AdminController::class, 'deviceDetails']);
+            Route::post('/devices', [AdminController::class, 'createDevice']);
+            Route::put('/devices/{id}', [AdminController::class, 'updateDevice']);
+            Route::delete('/devices/{id}', [AdminController::class, 'deleteDevice']);
+            
+            // Device assignment management
+            Route::get('/device-assignments', [AdminController::class, 'deviceAssignments']);
+            Route::post('/device-assignments', [AdminController::class, 'createDeviceAssignment']);
+            Route::put('/device-assignments/{id}', [AdminController::class, 'updateDeviceAssignment']);
+            Route::post('/device-assignments/{id}/return', [AdminController::class, 'returnDevice']);
+            
+            // User management
+            Route::get('/users', [AdminController::class, 'users']);
+            
+            // Master data
+            Route::get('/branches', [AdminController::class, 'branches']);
+            Route::get('/categories', [AdminController::class, 'categories']);
         });
     });
 

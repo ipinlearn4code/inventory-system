@@ -1,135 +1,156 @@
-# Inventory Control System
+# 📝 Project Summary: Inventory Control System
 
-A Laravel-based inventory management system with role-based access control and Filament admin panel.
+## Purpose
+A comprehensive Laravel-based inventory management system designed to track and manage IT devices/equipment across multiple branches and departments. It solves the problem of asset tracking, device assignment management, condition monitoring, and provides role-based access control for organizations managing large inventories of devices with QR code integration for efficient identification and tracking.
 
-## Features
-
+## Key Features
+- **Device Inventory Management**: Complete CRUD operations with asset code generation
+- **QR Code Integration**: Generation and scanning for device identification (with "briven-" prefix)
+- **Multi-Branch Organization**: Support for multiple branches and departments
 - **Role-Based Authentication**: Three-tier access system (User, Admin, SuperAdmin)
-- **Device Management**: Complete CRUD operations for inventory devices
-- **Asset Code Generation**: Auto-generate unique 15-character alphanumeric asset codes
-- **Assignment Tracking**: Track device assignments to personnel
-- **Department Management**: Organize users by departments
-- **Branch Management**: Multi-branch support
-- **Bribox Categories**: Device categorization system
-- **Audit Trail**: Track changes and user actions
+- **Device Assignment Tracking**: Track device assignments with assignment letters
+- **RESTful API**: Complete mobile app integration with Sanctum authentication
+- **Administrative Dashboard**: Analytics widgets and comprehensive reporting
+- **File Storage Integration**: MinIO/S3 support for document management
+- **Device Condition Monitoring**: Real-time status tracking and reporting
+- **Audit Trail**: Complete activity logging and change tracking
+- **Bulk Operations**: Bulk QR code sticker generation and device management
 
-## Technology Stack
+## Technologies Used
 
-- **Backend**: Laravel 11
-- **Admin Panel**: Filament 3
-- **Authentication**: Custom session-based + Spatie Laravel Permission
+### Backend (PHP)
+- **Language**: PHP 8.2+
+- **Framework**: Laravel 12.0
+- **Admin Panel**: Filament 3.3
+- **Authentication**: Laravel Sanctum 4.1 + Custom session-based auth
+- **Permissions**: Spatie Laravel Permission 6.20
+- **QR Code Generation**: Endroid QR Code 6.0
+- **File Storage**: League Flysystem AWS S3 v3 3.29
+- **Development Tools**: Laravel Tinker, Laravel Pail, Laravel Telescope
+
+### Frontend Dependencies
+
+#### Core Framework & Build Tools
+- **Vite**: 6.2.4 (Module bundler and dev server)
+- **Laravel Vite Plugin**: 1.2.0 (Laravel-Vite integration)
+- **Axios**: 1.8.2 (HTTP client for API requests)
+
+#### CSS Framework & Styling
+- **TailwindCSS**: 3.4.17 (Utility-first CSS framework)
+- **@tailwindcss/forms**: 0.5.10 (Form styling plugin)
+- **@tailwindcss/typography**: 0.5.16 (Typography plugin)
+- **PostCSS**: 8.5.6 with PostCSS Nesting 13.0.2
+- **Autoprefixer**: 10.4.21
+- **Custom Filament Theme**: Corporate blue theme with custom scrollbars
+
+#### JavaScript Libraries & CDN Dependencies
+- **Alpine.js**: Integrated in Filament for reactive components
+  - Used extensively in QR scanner modals (`x-data`, `@click`, `x-init`)
+  - User menu dropdowns and interactive elements
+- **Livewire**: Server-side reactive components
+  - `PermissionToggle.php` - Role permission management
+  - `StorageStatusAlert.php` - Storage monitoring alerts
+  - Wire directives (`wire:click`, `wire:model.live`) throughout admin interface
+- **html5-qrcode**: 2.3.8 (via CDN) - JavaScript QR code scanner library
+- **TailwindCSS CDN**: Used in login page for standalone styling
+
+#### Development & Build Process
+- **Concurrently**: 9.0.1 (Running multiple dev processes simultaneously)
+- **Vite HMR**: Hot module replacement for development
+- **Laravel Mix**: Asset compilation and optimization
+
+### Database & Storage
 - **Database**: MySQL
-- **Frontend**: Blade Templates + Livewire
+- **Storage**: MinIO/AWS S3 integration
+- **File Systems**: Local and cloud storage support
 
-## Quick Start
+## Architecture / How It Works
 
-### Test Accounts
+### System Architecture
+The system follows Laravel's MVC architecture enhanced with:
+- **Filament Admin Panel**: Provides comprehensive admin interface
+- **Multi-layered Authentication**: Custom session + Sanctum token-based API
+- **Role-Based Access Control**: Using Spatie permissions package
 
-| Username | Password | Role | Access Level |
-|----------|----------|------|--------------|
-| `ADM001` | `admin123` | SuperAdmin | Full system access |
-| `TEST01` | `test123` | Admin | Device & user management |
-| `USER01` | `user123` | User | Mobile app only |
+### Core Data Models
+- **Users**: Organized by departments and branches with role assignments
+- **Devices**: Unique asset codes with QR code generation
+- **DeviceAssignments**: Tracking device allocation and returns
+- **Bribox Categories**: Device classification system
+- **Branches & Departments**: Organizational structure
+- **InventoryLog**: Audit trail for all operations
 
-### Access URLs
+### QR Code System
+- **Generation**: Server-side using Endroid QR Code library
+- **Format**: "briven-{asset_code}" prefix for company identification
+- **Scanning**: Browser-based using html5-qrcode library with Alpine.js integration
+- **Stickers**: Printable sticker generation for physical labeling
 
-- **Admin Panel**: `/admin`
-- **Login**: `/login`
-- **Logout**: `/logout`
+### API Architecture
+- **RESTful API**: `/api/v1/` endpoints with Sanctum authentication
+- **Mobile App Support**: Complete CRUD operations for mobile clients
+- **Role-Based Endpoints**: Different access levels for users, admins, and superadmins
+- **Real-time Updates**: Livewire components for instant UI updates
 
-## Documentation
+## Usage / How to Run It
 
-- **[Authentication & Permissions](AUTHENTICATION.md)** - Complete guide to roles, permissions, and security
-- **[Database Schema](tabel.md)** - Database structure and relationships
-- **[Data Flow Diagram](DFD.md)** - System architecture and user flows
+### Development Environment
+```bash
+# Start development server (currently running)
+php artisan serve --host=0.0.0.0 --port=8000
 
-## Installation
+# Development with all services
+composer run dev  # Runs server, queue, logs, and vite concurrently
 
-1. Clone the repository
-2. Install dependencies: `composer install`
-3. Configure environment: Copy `.env.example` to `.env`
-4. Generate application key: `php artisan key:generate`
-5. Run migrations: `php artisan migrate`
-6. Seed database: `php artisan db:seed`
-7. Start server: `php artisan serve`
+# Asset compilation
+npm run dev        # Development mode with HMR
+npm run build      # Production build
+```
 
-## Key Components
+### Access Points
+- **Admin Panel**: `http://localhost:8000/admin`
+- **Login Page**: `http://localhost:8000/login`
+- **API Base**: `http://localhost:8000/api/v1/`
+- **QR Code Generation**: `/qr-code/generate/{assetCode}`
+- **QR Scanner**: `/qr-scanner/`
 
-### Models
-- **User**: Personnel information (no auth data)
-- **Auth**: Authentication credentials and roles
-- **Device**: Inventory items with asset codes
-- **Department**: Organizational units
-- **Branch**: Company locations
-- **Bribox**: Device categories
-- **DeviceAssignment**: Assignment tracking
+### Authentication Levels
+| Role | Access Level | Capabilities |
+|------|-------------|--------------|
+| SuperAdmin | Full system access | All operations, user management, system config |
+| Admin | Device & user management | CRUD operations, reporting, assignments |
+| User | Mobile app only | View assigned devices, report issues |
 
-### Filament Resources
-- **UserResource**: Personnel management
-- **AuthResource**: Authentication management
-- **DeviceResource**: Inventory management with asset code generation
-- **DepartmentResource**: Department management (SuperAdmin only)
-- **BranchResource**: Branch management (SuperAdmin only)
-- **BriboxResource**: Category management (SuperAdmin only)
+### API Endpoints
+- **Authentication**: `POST /api/v1/auth/login`, `/refresh`, `/logout`
+- **User Operations**: `GET /api/v1/user/devices`, `/profile`, `/history`
+- **Admin Operations**: `GET /api/v1/admin/dashboard`, `/devices`
+- **Device Management**: Full CRUD operations with role-based access
 
-## Security Features
+## Development Features
+- **Hot Module Replacement**: Vite HMR for instant development feedback
+- **Multi-process Development**: Concurrent server, queue, logs, and asset compilation
+- **Custom Themes**: Corporate branding with Filament customization
+- **Responsive Design**: Mobile-first approach with TailwindCSS
+- **Real-time Components**: Livewire for dynamic user interfaces
+- **Interactive Elements**: Alpine.js for client-side reactivity
 
-- Session-based authentication
-- Role-based access control (RBAC)
-- Password hashing
-- Permission caching
-- CSRF protection
-- Input validation
+## File Structure Highlights
+```
+├── app/
+│   ├── Filament/          # Admin panel resources & widgets
+│   ├── Http/Controllers/  # API and web controllers
+│   ├── Livewire/         # Reactive components
+│   ├── Models/           # Eloquent models
+│   └── Services/         # Business logic (QR Code service)
+├── resources/
+│   ├── css/              # TailwindCSS and custom themes
+│   ├── js/               # Alpine.js and Axios setup
+│   └── views/            # Blade templates with QR components
+├── routes/
+│   ├── api.php           # RESTful API routes
+│   └── web.php           # Web and QR code routes
+└── config/               # Laravel and package configurations
+```
 
-## About Laravel
-
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
-
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This inventory system represents a modern, full-stack solution combining Laravel's robust backend capabilities with contemporary frontend technologies to deliver a comprehensive asset management platform suitable for enterprise environments.

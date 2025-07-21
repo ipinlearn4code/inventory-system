@@ -166,7 +166,7 @@ class AdminController extends Controller
         $page = $request->input('page', 1);
         $perPage = $request->input('perPage', 20);
 
-        $query = Device::query();
+        $query = Device::with(['bribox.category', 'currentAssignment.user']);
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -186,10 +186,24 @@ class AdminController extends Controller
         $data = $devices->map(function ($device) {
             return [
                 'deviceId' => $device->device_id,
+                'assetCode' => $device->asset_code,
                 'brand' => $device->brand,
                 'brandName' => $device->brand_name,
                 'serialNumber' => $device->serial_number,
-                'condition' => $device->condition
+                'condition' => $device->condition,
+                'category' => $device->bribox->category->name ?? null,
+                'spec1' => $device->spec1,
+                'spec2' => $device->spec2,
+                'spec3' => $device->spec3,
+                'spec4' => $device->spec4,
+                'spec5' => $device->spec5,
+                'isAssigned' => $device->currentAssignment !== null,
+                'assignedTo' => $device->currentAssignment ? $device->currentAssignment->user->name : null,
+                'assignedDate' => $device->currentAssignment ? $device->currentAssignment->assigned_date : null,
+                'createdAt' => $device->created_at,
+                'createdBy' => $device->created_by,
+                'updatedAt' => $device->updated_at,
+                'updatedBy' => $device->updated_by,
             ];
         });
 
@@ -201,5 +215,551 @@ class AdminController extends Controller
                 'total' => $devices->total()
             ]
         ]);
+    }
+
+    /**
+     * Get device details by ID
+     */
+    public function deviceDetails(Request $request, $id)
+    {
+        $device = Device::with(['bribox.category', 'currentAssignment.user.branch', 'assignments.user'])
+            ->findOrFail($id);
+
+        return response()->json([
+            'data' => [
+                'deviceId' => $device->device_id,
+                'assetCode' => $device->asset_code,
+                'brand' => $device->brand,
+                'brandName' => $device->brand_name,
+                'serialNumber' => $device->serial_number,
+                'condition' => $device->condition,
+                'category' => $device->bribox->category->name ?? null,
+                'spec1' => $device->spec1,
+                'spec2' => $device->spec2,
+                'spec3' => $device->spec3,
+                'spec4' => $device->spec4,
+                'spec5' => $device->spec5,
+                'devDate' => $device->dev_date,
+                'currentAssignment' => $device->currentAssignment ? [
+                    'assignmentId' => $device->currentAssignment->assignment_id,
+                    'user' => [
+                        'userId' => $device->currentAssignment->user->user_id,
+                        'name' => $device->currentAssignment->user->name,
+                        'pn' => $device->currentAssignment->user->pn,
+                        'position' => $device->currentAssignment->user->position,
+                    ],
+                    'branch' => [
+                        'branchId' => $device->currentAssignment->user->branch->branch_id,
+                        'unitName' => $device->currentAssignment->user->branch->unit_name,
+                        'branchCode' => $device->currentAssignment->user->branch->branch_code,
+                    ],
+                    'assignedDate' => $device->currentAssignment->assigned_date,
+                    'status' => $device->currentAssignment->status,
+                    'notes' => $device->currentAssignment->notes,
+                ] : null,
+                'assignmentHistory' => $device->assignments->map(function ($assignment) {
+                    return [
+                        'assignmentId' => $assignment->assignment_id,
+                        'userName' => $assignment->user->name,
+                        'userPn' => $assignment->user->pn,
+                        'assignedDate' => $assignment->assigned_date,
+                        'returnedDate' => $assignment->returned_date,
+                        'status' => $assignment->status,
+                        'notes' => $assignment->notes,
+                    ];
+                }),
+                'createdAt' => $device->created_at,
+                'createdBy' => $device->created_by,
+                'updatedAt' => $device->updated_at,
+                'updatedBy' => $device->updated_by,
+            ]
+        ]);
+    }
+
+    /**
+     * Create a new device
+     */
+    public function createDevice(Request $request)
+    {
+        $request->validate([
+            'brand' => 'required|string|max:255',
+            'brand_name' => 'required|string|max:255',
+            'serial_number' => 'required|string|max:255|unique:devices,serial_number',
+            'asset_code' => 'required|string|max:20|unique:devices,asset_code',
+            'bribox_id' => 'required|exists:briboxes,bribox_id',
+            'condition' => 'required|in:Baik,Rusak,Perlu Pengecekan',
+            'spec1' => 'nullable|string|max:255',
+            'spec2' => 'nullable|string|max:255',
+            'spec3' => 'nullable|string|max:255',
+            'spec4' => 'nullable|string|max:255',
+            'spec5' => 'nullable|string|max:255',
+            'dev_date' => 'nullable|date',
+        ]);
+
+        $currentUserPn = auth()->user()?->pn ?? session('authenticated_user.pn') ?? 'api-system';
+
+        $device = Device::create(array_merge($request->validated(), [
+            'created_by' => $currentUserPn,
+            'created_at' => now(),
+        ]));
+
+        // Log the creation
+        InventoryLog::create([
+            'resource_type' => 'device',
+            'resource_id' => $device->device_id,
+            'action_type' => 'CREATE',
+            'old_value' => null,
+            'new_value' => json_encode($device->toArray()),
+            'created_by' => $currentUserPn,
+            'created_at' => now(),
+        ]);
+
+        return response()->json([
+            'data' => [
+                'deviceId' => $device->device_id,
+                'assetCode' => $device->asset_code,
+                'brand' => $device->brand,
+                'brandName' => $device->brand_name,
+                'serialNumber' => $device->serial_number,
+                'condition' => $device->condition,
+            ]
+        ], 201);
+    }
+
+    /**
+     * Update a device
+     */
+    public function updateDevice(Request $request, $id)
+    {
+        $device = Device::findOrFail($id);
+
+        $request->validate([
+            'brand' => 'sometimes|string|max:255',
+            'brand_name' => 'sometimes|string|max:255',
+            'serial_number' => 'sometimes|string|max:255|unique:devices,serial_number,' . $id . ',device_id',
+            'asset_code' => 'sometimes|string|max:20|unique:devices,asset_code,' . $id . ',device_id',
+            'bribox_id' => 'sometimes|exists:briboxes,bribox_id',
+            'condition' => 'sometimes|in:Baik,Rusak,Perlu Pengecekan',
+            'spec1' => 'nullable|string|max:255',
+            'spec2' => 'nullable|string|max:255',
+            'spec3' => 'nullable|string|max:255',
+            'spec4' => 'nullable|string|max:255',
+            'spec5' => 'nullable|string|max:255',
+            'dev_date' => 'nullable|date',
+        ]);
+
+        $currentUserPn = auth()->user()?->pn ?? session('authenticated_user.pn') ?? 'api-system';
+        $oldData = $device->toArray();
+
+        $device->update(array_merge($request->validated(), [
+            'updated_by' => $currentUserPn,
+            'updated_at' => now(),
+        ]));
+
+        // Log the update
+        InventoryLog::create([
+            'resource_type' => 'device',
+            'resource_id' => $device->device_id,
+            'action_type' => 'UPDATE',
+            'old_value' => json_encode($oldData),
+            'new_value' => json_encode($device->fresh()->toArray()),
+            'created_by' => $currentUserPn,
+            'created_at' => now(),
+        ]);
+
+        return response()->json([
+            'data' => [
+                'deviceId' => $device->device_id,
+                'assetCode' => $device->asset_code,
+                'brand' => $device->brand,
+                'brandName' => $device->brand_name,
+                'serialNumber' => $device->serial_number,
+                'condition' => $device->condition,
+            ]
+        ]);
+    }
+
+    /**
+     * Delete a device
+     */
+    public function deleteDevice($id)
+    {
+        $device = Device::findOrFail($id);
+
+        // Check if device is currently assigned
+        if ($device->currentAssignment) {
+            return response()->json([
+                'message' => 'Cannot delete device that is currently assigned.',
+                'errorCode' => 'ERR_DEVICE_ASSIGNED'
+            ], 400);
+        }
+
+        $currentUserPn = auth()->user()?->pn ?? session('authenticated_user.pn') ?? 'api-system';
+        $deviceData = $device->toArray();
+
+        // Log the deletion
+        InventoryLog::create([
+            'resource_type' => 'device',
+            'resource_id' => $device->device_id,
+            'action_type' => 'DELETE',
+            'old_value' => json_encode($deviceData),
+            'new_value' => null,
+            'created_by' => $currentUserPn,
+            'created_at' => now(),
+        ]);
+
+        $device->delete();
+
+        return response()->json([
+            'message' => 'Device deleted successfully.',
+            'errorCode' => null
+        ]);
+    }
+
+    /**
+     * Get device assignments with pagination
+     */
+    public function deviceAssignments(Request $request)
+    {
+        $search = $request->input('search');
+        $status = $request->input('status');
+        $branchId = $request->input('branchId');
+        $activeOnly = $request->input('activeOnly', false);
+        $page = $request->input('page', 1);
+        $perPage = $request->input('perPage', 20);
+
+        $query = DeviceAssignment::with(['device', 'user.department', 'branch']);
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('device', function ($deviceQuery) use ($search) {
+                    $deviceQuery->where('asset_code', 'like', "%{$search}%")
+                               ->orWhere('brand', 'like', "%{$search}%")
+                               ->orWhere('serial_number', 'like', "%{$search}%");
+                })->orWhereHas('user', function ($userQuery) use ($search) {
+                    $userQuery->where('name', 'like', "%{$search}%")
+                             ->orWhere('pn', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        if ($branchId) {
+            $query->where('branch_id', $branchId);
+        }
+
+        if ($activeOnly) {
+            $query->whereNull('returned_date');
+        }
+
+        $assignments = $query->orderBy('assigned_date', 'desc')
+                            ->paginate($perPage, ['*'], 'page', $page);
+
+        $data = $assignments->map(function ($assignment) {
+            return [
+                'assignmentId' => $assignment->assignment_id,
+                'device' => [
+                    'deviceId' => $assignment->device->device_id,
+                    'assetCode' => $assignment->device->asset_code,
+                    'brand' => $assignment->device->brand,
+                    'brandName' => $assignment->device->brand_name,
+                    'serialNumber' => $assignment->device->serial_number,
+                ],
+                'user' => [
+                    'userId' => $assignment->user->user_id,
+                    'name' => $assignment->user->name,
+                    'pn' => $assignment->user->pn,
+                    'position' => $assignment->user->position,
+                    'department' => $assignment->user->department->name ?? null,
+                ],
+                'branch' => [
+                    'branchId' => $assignment->branch->branch_id,
+                    'unitName' => $assignment->branch->unit_name,
+                    'branchCode' => $assignment->branch->branch_code,
+                ],
+                'assignedDate' => $assignment->assigned_date,
+                'returnedDate' => $assignment->returned_date,
+                'status' => $assignment->status,
+                'notes' => $assignment->notes,
+                'isActive' => $assignment->returned_date === null,
+                'createdAt' => $assignment->created_at,
+                'createdBy' => $assignment->created_by,
+            ];
+        });
+
+        return response()->json([
+            'data' => $data,
+            'meta' => [
+                'currentPage' => $assignments->currentPage(),
+                'lastPage' => $assignments->lastPage(),
+                'total' => $assignments->total()
+            ]
+        ]);
+    }
+
+    /**
+     * Create a new device assignment
+     */
+    public function createDeviceAssignment(Request $request)
+    {
+        $request->validate([
+            'device_id' => 'required|exists:devices,device_id',
+            'user_id' => 'required|exists:users,user_id',
+            'assigned_date' => 'required|date|before_or_equal:today',
+            'status' => 'sometimes|in:Digunakan,Tidak Digunakan,Cadangan',
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        // Check if device is available
+        $device = Device::findOrFail($request->device_id);
+        if ($device->currentAssignment) {
+            return response()->json([
+                'message' => 'Device is already assigned to another user.',
+                'errorCode' => 'ERR_DEVICE_ALREADY_ASSIGNED'
+            ], 400);
+        }
+
+        // Get user's branch
+        $user = \App\Models\User::findOrFail($request->user_id);
+        $currentUserPn = auth()->user()?->pn ?? session('authenticated_user.pn') ?? 'api-system';
+
+        $assignment = DeviceAssignment::create([
+            'device_id' => $request->device_id,
+            'user_id' => $request->user_id,
+            'branch_id' => $user->branch_id,
+            'assigned_date' => $request->assigned_date,
+            'status' => $request->status ?? 'Digunakan',
+            'notes' => $request->notes,
+            'created_by' => $currentUserPn,
+            'created_at' => now(),
+        ]);
+
+        // Log the assignment
+        InventoryLog::create([
+            'resource_type' => 'device_assignment',
+            'resource_id' => $assignment->assignment_id,
+            'action_type' => 'CREATE',
+            'old_value' => null,
+            'new_value' => json_encode($assignment->toArray()),
+            'created_by' => $currentUserPn,
+            'created_at' => now(),
+        ]);
+
+        return response()->json([
+            'data' => [
+                'assignmentId' => $assignment->assignment_id,
+                'deviceId' => $assignment->device_id,
+                'userId' => $assignment->user_id,
+                'assignedDate' => $assignment->assigned_date,
+                'status' => $assignment->status,
+            ]
+        ], 201);
+    }
+
+    /**
+     * Update a device assignment
+     */
+    public function updateDeviceAssignment(Request $request, $id)
+    {
+        $assignment = DeviceAssignment::findOrFail($id);
+
+        $request->validate([
+            'status' => 'sometimes|in:Digunakan,Tidak Digunakan,Cadangan',
+            'notes' => 'nullable|string|max:500',
+            'returned_date' => 'nullable|date|after_or_equal:assigned_date',
+        ]);
+
+        $currentUserPn = auth()->user()?->pn ?? session('authenticated_user.pn') ?? 'api-system';
+        $oldData = $assignment->toArray();
+
+        $assignment->update(array_merge($request->validated(), [
+            'updated_by' => $currentUserPn,
+            'updated_at' => now(),
+        ]));
+
+        // Log the update
+        InventoryLog::create([
+            'resource_type' => 'device_assignment',
+            'resource_id' => $assignment->assignment_id,
+            'action_type' => 'UPDATE',
+            'old_value' => json_encode($oldData),
+            'new_value' => json_encode($assignment->fresh()->toArray()),
+            'created_by' => $currentUserPn,
+            'created_at' => now(),
+        ]);
+
+        return response()->json([
+            'data' => [
+                'assignmentId' => $assignment->assignment_id,
+                'status' => $assignment->status,
+                'returnedDate' => $assignment->returned_date,
+                'notes' => $assignment->notes,
+            ]
+        ]);
+    }
+
+    /**
+     * Return a device (mark assignment as returned)
+     */
+    public function returnDevice(Request $request, $id)
+    {
+        $assignment = DeviceAssignment::findOrFail($id);
+
+        if ($assignment->returned_date) {
+            return response()->json([
+                'message' => 'Device has already been returned.',
+                'errorCode' => 'ERR_DEVICE_ALREADY_RETURNED'
+            ], 400);
+        }
+
+        $request->validate([
+            'returned_date' => 'sometimes|date|after_or_equal:assigned_date',
+            'return_notes' => 'nullable|string|max:500',
+        ]);
+
+        $currentUserPn = auth()->user()?->pn ?? session('authenticated_user.pn') ?? 'api-system';
+        $oldData = $assignment->toArray();
+
+        $returnDate = $request->returned_date ?? now()->toDateString();
+        $notes = $assignment->notes;
+        if ($request->return_notes) {
+            $notes = $notes ? $notes . ' | Return: ' . $request->return_notes : 'Return: ' . $request->return_notes;
+        }
+
+        $assignment->update([
+            'returned_date' => $returnDate,
+            'notes' => $notes,
+            'updated_by' => $currentUserPn,
+            'updated_at' => now(),
+        ]);
+
+        // Log the return
+        InventoryLog::create([
+            'resource_type' => 'device_assignment',
+            'resource_id' => $assignment->assignment_id,
+            'action_type' => 'UPDATE',
+            'old_value' => json_encode($oldData),
+            'new_value' => json_encode($assignment->fresh()->toArray()),
+            'created_by' => $currentUserPn,
+            'created_at' => now(),
+        ]);
+
+        return response()->json([
+            'data' => [
+                'assignmentId' => $assignment->assignment_id,
+                'returnedDate' => $assignment->returned_date,
+                'message' => 'Device returned successfully.',
+            ]
+        ]);
+    }
+
+    /**
+     * Get users list with pagination
+     */
+    public function users(Request $request)
+    {
+        $search = $request->input('search');
+        $departmentId = $request->input('departmentId');
+        $branchId = $request->input('branchId');
+        $page = $request->input('page', 1);
+        $perPage = $request->input('perPage', 20);
+
+        $query = \App\Models\User::with(['department', 'branch', 'deviceAssignments' => function ($q) {
+            $q->whereNull('returned_date');
+        }]);
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('pn', 'like', "%{$search}%")
+                  ->orWhere('position', 'like', "%{$search}%");
+            });
+        }
+
+        if ($departmentId) {
+            $query->where('department_id', $departmentId);
+        }
+
+        if ($branchId) {
+            $query->where('branch_id', $branchId);
+        }
+
+        $users = $query->paginate($perPage, ['*'], 'page', $page);
+
+        $data = $users->map(function ($user) {
+            return [
+                'userId' => $user->user_id,
+                'pn' => $user->pn,
+                'name' => $user->name,
+                'position' => $user->position,
+                'department' => [
+                    'departmentId' => $user->department->department_id ?? null,
+                    'name' => $user->department->name ?? null,
+                ],
+                'branch' => [
+                    'branchId' => $user->branch->branch_id ?? null,
+                    'unitName' => $user->branch->unit_name ?? null,
+                    'branchCode' => $user->branch->branch_code ?? null,
+                ],
+                'activeDevicesCount' => $user->deviceAssignments->count(),
+            ];
+        });
+
+        return response()->json([
+            'data' => $data,
+            'meta' => [
+                'currentPage' => $users->currentPage(),
+                'lastPage' => $users->lastPage(),
+                'total' => $users->total()
+            ]
+        ]);
+    }
+
+    /**
+     * Get branches list
+     */
+    public function branches(Request $request)
+    {
+        $branches = Branch::with('mainBranch')->get();
+
+        $data = $branches->map(function ($branch) {
+            return [
+                'branchId' => $branch->branch_id,
+                'unitName' => $branch->unit_name,
+                'branchCode' => $branch->branch_code,
+                'address' => $branch->address,
+                'mainBranch' => [
+                    'mainBranchId' => $branch->mainBranch->main_branch_id ?? null,
+                    'name' => $branch->mainBranch->main_branch_name ?? null,
+                ],
+            ];
+        });
+
+        return response()->json(['data' => $data]);
+    }
+
+    /**
+     * Get categories (briboxes) list
+     */
+    public function categories(Request $request)
+    {
+        $categories = \App\Models\Bribox::with('category')->get();
+
+        $data = $categories->map(function ($bribox) {
+            return [
+                'briboxId' => $bribox->bribox_id,
+                'name' => $bribox->name,
+                'description' => $bribox->description,
+                'category' => [
+                    'categoryId' => $bribox->category->briboxes_category_id ?? null,
+                    'name' => $bribox->category->name ?? null,
+                ],
+            ];
+        });
+
+        return response()->json(['data' => $data]);
     }
 }
