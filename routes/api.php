@@ -48,6 +48,30 @@ Route::prefix('v1')->group(function () {
         });
     });
 
+    // Internal API routes for admin panel (no auth middleware for simplicity)
+    Route::prefix('internal')->group(function () {
+        Route::get('/devices/find-by-asset-code/{assetCode}', function ($assetCode) {
+            $device = \App\Models\Device::where('asset_code', $assetCode)
+                ->whereDoesntHave('currentAssignment') // Only available devices
+                ->first();
+            
+            if (!$device) {
+                return response()->json(['error' => 'Device not found or not available'], 404);
+            }
+            
+            return response()->json([
+                'device' => [
+                    'id' => $device->device_id,
+                    'device_id' => $device->device_id,
+                    'asset_code' => $device->asset_code,
+                    'brand_name' => $device->brand_name,
+                    'serial_number' => $device->serial_number,
+                    'available' => true
+                ]
+            ]);
+        });
+    });
+
     // Changelog endpoint (public)
     Route::get('/changelog', function () {
         return response()->json([

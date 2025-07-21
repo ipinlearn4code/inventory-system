@@ -77,7 +77,41 @@ class DeviceAssignmentResource extends Resource
                     ->required()
                     ->searchable()
                     ->preload()
-                    ->helperText('Only available devices (not currently assigned) are shown'),
+                    ->helperText('Only available devices (not currently assigned) are shown')
+                    ->suffixAction(
+                        Forms\Components\Actions\Action::make('scanQR')
+                            ->icon('heroicon-o-qr-code')
+                            ->tooltip('Scan QR Code')
+                            ->color('primary')
+                            ->action(function (Forms\Set $set, Forms\Get $get) {
+                                // This will trigger the QR scanner modal
+                                return true;
+                            })
+                            ->modalHeading('Scan QR Code')
+                            ->modalDescription('Scan a device QR code to automatically select the device')
+                            ->modalContent(view('filament.components.qr-scanner-modal'))
+                            ->modalSubmitAction(false)
+                            ->modalCancelActionLabel('Close')
+                            ->extraModalFooterActions([
+                                Forms\Components\Actions\Action::make('manualInput')
+                                    ->label('Manual Input')
+                                    ->color('gray')
+                                    ->action(function () {
+                                        // Close modal and allow manual selection
+                                        return true;
+                                    })
+                            ])
+                            ->extraAttributes([
+                                'x-on:device-selected.window' => '
+                                    const deviceId = $event.detail.deviceId;
+                                    if (deviceId) {
+                                        $wire.set("data.device_id", deviceId);
+                                        // Close the modal
+                                        document.querySelector("[x-on\\:close-modal]")?.click();
+                                    }
+                                '
+                            ])
+                    ),
 
                 Select::make('user_id')
                     ->label('Assign to User')
