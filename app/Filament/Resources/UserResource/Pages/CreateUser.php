@@ -43,9 +43,10 @@ class CreateUser extends CreateRecord
                 $auth = Auth::create([
                     'pn' => $user->pn,
                     'password' => Hash::make($authData['password']),
+                    'role' => $authData['role'] ?? 'user', // Set the role column
                 ]);
                 
-                // Assign the role
+                // Also assign the role using Spatie permissions
                 if (isset($authData['role'])) {
                     $auth->assignRole($authData['role']);
                 }
