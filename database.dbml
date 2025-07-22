@@ -1,0 +1,477 @@
+// Inventory Control System Database Schema
+// Project: Inventory Management Platform
+// Version: 1.0
+// Date: July 2025
+// Description: Comprehensive inventory management system for IT devices and equipment
+
+Project InventorySystem {
+  database_type: 'MySQL'
+  Note: '''
+  # Inventory Control System Database
+  
+  A comprehensive inventory management platform built with Laravel 12,
+  aimed at efficiently tracking IT devices and equipment across branches
+  and departments with role-based access, QR code integration, assignment
+  tracking, and monitoring tools tailored for enterprise-level use.
+  
+  ## Key Features:
+  - Device Inventory Management with auto asset codes
+  - QR Code Integration (prefix: briven-)
+  - Multi-Branch Support with department segregation
+  - Role-Based Access (SuperAdmin, Admin, User)
+  - Device Assignment tracking with letters and logs
+  - RESTful API with Sanctum authentication
+  - Admin Dashboard with analytics
+  - File Storage with MinIO/AWS S3
+  - Device Condition Monitoring
+  - Comprehensive Audit Logging
+  '''
+}
+
+// ================================
+// CORE ORGANIZATIONAL TABLES
+// ================================
+
+Table main_branch {
+  main_branch_id tinyint [pk, increment, note: 'Primary key for main branches']
+  main_branch_code varchar(4) [unique, not null, note: 'Unique code for main branch']
+  main_branch_name varchar(50) [not null, note: 'Name of the main branch']
+  
+  indexes {
+    main_branch_name [name: 'idx_main_branch_name']
+  }
+  
+  Note: 'Main organizational branches/regions'
+}
+
+Table branch {
+  branch_id tinyint [pk, increment, note: 'Primary key for branches']
+  branch_code varchar(8) [unique, not null, note: 'Unique identifier code for branch']
+  unit_name varchar(50) [not null, note: 'Name of the branch unit']
+  main_branch_id tinyint [not null, ref: > main_branch.main_branch_id, note: 'Reference to main branch']
+  
+  indexes {
+    unit_name [name: 'idx_unit_name']
+  }
+  
+  Note: 'Sub-branches under main branches'
+}
+
+Table departments {
+  department_id varchar(4) [pk, note: 'Primary key for departments']
+  name varchar(50) [unique, not null, note: 'Department name']
+  
+  indexes {
+    name [name: 'idx_department_name']
+  }
+  
+  Note: 'Organizational departments'
+}
+
+// ================================
+// USER MANAGEMENT TABLES
+// ================================
+
+Table users {
+  user_id smallint [pk, increment, note: 'Primary key for users']
+  pn varchar(8) [unique, not null, note: 'Personnel Number - unique employee identifier']
+  name varchar(50) [not null, note: 'Full name of the user']
+  department_id varchar(4) [not null, ref: > departments.department_id, note: 'Reference to department']
+  branch_id tinyint [not null, ref: > branch.branch_id, note: 'Reference to branch']
+  position varchar(100) [null, note: 'Job position/title']
+  
+  indexes {
+    pn [name: 'idx_user_pn']
+    department_id [name: 'idx_user_department']
+    branch_id [name: 'idx_user_branch']
+  }
+  
+  Note: 'System users with organizational assignments'
+}
+
+Table auth {
+  pn varchar(8) [pk, ref: - users.pn, note: 'Personnel Number - links to users table']
+  password varchar(255) [not null, note: 'Hashed password']
+  role enum('user', 'admin', 'superadmin') [not null, note: 'User role for access control']
+  
+  Note: 'Authentication credentials and role assignments'
+}
+
+// ================================
+// DEVICE CATEGORY TABLES
+// ================================
+
+Table briboxes_category {
+  bribox_category_id tinyint [pk, increment, note: 'Primary key for device categories']
+  category_name varchar(25) [not null, note: 'Name of the device category']
+  
+  indexes {
+    category_name [name: 'idx_category_name']
+  }
+  
+  Note: 'High-level device categories (e.g., IT Equipment, Office Equipment)'
+}
+
+Table briboxes {
+  bribox_id varchar(2) [pk, note: 'Primary key for device types']
+  type varchar(40) [not null, note: 'Specific device type name']
+  bribox_category_id tinyint [not null, ref: > briboxes_category.bribox_category_id, note: 'Reference to category']
+  
+  indexes {
+    bribox_id [name: 'idx_bribox_id']
+    type [name: 'idx_bribox_type']
+  }
+  
+  Note: 'Specific device types within categories (e.g., Laptop, Desktop, Printer)'
+}
+
+// ================================
+// DEVICE MANAGEMENT TABLES
+// ================================
+
+Table devices {
+  device_id int [pk, increment, note: 'Primary key for devices']
+  brand varchar(50) [not null, note: 'Device manufacturer brand']
+  brand_name varchar(50) [not null, note: 'Specific model/product name']
+  serial_number varchar(50) [unique, not null, note: 'Manufacturer serial number']
+  asset_code varchar(20) [unique, not null, note: 'Internal asset tracking code']
+  bribox_id varchar(2) [not null, ref: > briboxes.bribox_id, note: 'Reference to device type']
+  condition enum('Baik', 'Rusak', 'Perlu Pengecekan') [not null, note: 'Physical condition of device']
+  status enum('Digunakan', 'Tidak Digunakan', 'Cadangan') [not null, default: 'Tidak Digunakan', note: 'Usage status of device']
+  spec1 varchar(100) [null, note: 'Device specification 1 (e.g., CPU)']
+  spec2 varchar(100) [null, note: 'Device specification 2 (e.g., RAM)']
+  spec3 varchar(100) [null, note: 'Device specification 3 (e.g., Storage)']
+  spec4 varchar(100) [null, note: 'Device specification 4 (e.g., Display)']
+  spec5 varchar(100) [null, note: 'Device specification 5 (e.g., Graphics)']
+  dev_date date [null, note: 'Device manufacture/purchase date']
+  created_at datetime [not null, note: 'Record creation timestamp']
+  created_by varchar(7) [not null, note: 'Personnel number of creator']
+  updated_at datetime [null, note: 'Last update timestamp']
+  updated_by varchar(7) [null, note: 'Personnel number of last updater']
+  
+  indexes {
+    serial_number [name: 'idx_device_serial']
+    asset_code [name: 'idx_device_asset_code']
+    bribox_id [name: 'idx_device_bribox']
+  }
+  
+  Note: '''
+  Core device inventory with detailed specifications.
+  QR codes are generated using asset_code with prefix "briven-"
+  '''
+}
+
+// ================================
+// ASSIGNMENT TRACKING TABLES
+// ================================
+
+Table device_assignments {
+  assignment_id int [pk, increment, note: 'Primary key for assignments']
+  device_id int [not null, ref: > devices.device_id, note: 'Reference to assigned device']
+  user_id smallint [not null, ref: > users.user_id, note: 'Reference to assigned user']
+  branch_id tinyint [not null, ref: > branch.branch_id, note: 'Reference to assignment branch']
+  assigned_date date [not null, note: 'Date when device was assigned']
+  returned_date date [null, note: 'Date when device was returned (null if still assigned)']
+  notes text [null, note: 'Additional assignment notes or conditions']
+  created_at datetime [not null, note: 'Record creation timestamp']
+  created_by varchar(7) [not null, note: 'Personnel number of creator']
+  updated_at datetime [null, note: 'Last update timestamp']
+  updated_by varchar(7) [null, note: 'Personnel number of last updater']
+  
+  indexes {
+    device_id [name: 'idx_assignment_device']
+    assigned_date [name: 'idx_assignment_date']
+    (device_id, assigned_date) [unique, name: 'idx_device_assignment_unique']
+  }
+  
+  Note: '''
+  Device assignment tracking with timeline.
+  Null returned_date indicates active assignment.
+  '''
+}
+
+Table assignment_letters {
+  letter_id int [pk, increment, note: 'Primary key for assignment letters']
+  assignment_id int [not null, ref: > device_assignments.assignment_id, note: 'Reference to device assignment']
+  letter_type enum('assignment', 'return', 'transfer', 'maintenance') [not null, note: 'Type of letter/document']
+  letter_number varchar(50) [unique, not null, note: 'Official letter/document number']
+  letter_date date [not null, note: 'Date of the letter']
+  approver_id smallint [not null, ref: > users.user_id, note: 'User who approved the letter']
+  file_path varchar(255) [null, note: 'Path to stored letter document file']
+  created_at datetime [not null, note: 'Record creation timestamp']
+  created_by varchar(7) [not null, note: 'Personnel number of creator']
+  updated_at datetime [null, note: 'Last update timestamp']
+  updated_by varchar(7) [null, note: 'Personnel number of last updater']
+  
+  indexes {
+    assignment_id [name: 'idx_letter_assignment']
+    letter_number [name: 'idx_letter_number']
+  }
+  
+  Note: 'Official letters and documents for device assignments'
+}
+
+// ================================
+// AUDIT AND LOGGING TABLES
+// ================================
+
+Table inventory_logs {
+  log_id bigint [pk, increment, note: 'Primary key for audit logs']
+  changed_fields int [not null, note: 'Identifier for what was changed']
+  action_type enum('CREATE', 'UPDATE', 'DELETE') [not null, note: 'Type of action performed']
+  old_value text [null, note: 'Previous value before change (JSON format)']
+  new_value text [null, note: 'New value after change (JSON format)']
+  user_affected varchar(7) [null, note: 'Personnel number of affected user']
+  created_at datetime [not null, note: 'When the action occurred']
+  created_by varchar(7) [not null, note: 'Personnel number who performed action']
+  
+  indexes {
+    changed_fields [name: 'idx_log_changed_fields']
+    created_at [name: 'idx_log_created_at']
+  }
+  
+  Note: 'Comprehensive audit trail for all system changes'
+}
+
+// ================================
+// LARAVEL FRAMEWORK TABLES
+// ================================
+
+Table personal_access_tokens {
+  id bigint [pk, increment, note: 'Primary key for API tokens']
+  tokenable_type varchar(255) [not null, note: 'Model type that owns the token']
+  tokenable_id bigint [not null, note: 'ID of the model that owns the token']
+  name varchar(255) [not null, note: 'Token name/description']
+  token varchar(64) [unique, not null, note: 'Hashed token value']
+  abilities text [null, note: 'JSON array of token abilities/permissions']
+  last_used_at timestamp [null, note: 'Last time token was used']
+  expires_at timestamp [null, note: 'Token expiration time']
+  created_at timestamp [null, note: 'Token creation time']
+  updated_at timestamp [null, note: 'Token last update time']
+  
+  indexes {
+    (tokenable_type, tokenable_id) [name: 'idx_tokenable']
+  }
+  
+  Note: 'Laravel Sanctum API authentication tokens'
+}
+
+Table sessions {
+  id varchar(255) [pk, note: 'Session identifier']
+  user_id bigint [null, note: 'Associated user ID for authenticated sessions']
+  ip_address varchar(45) [null, note: 'Client IP address']
+  user_agent text [null, note: 'Client user agent string']
+  payload longtext [not null, note: 'Serialized session data']
+  last_activity int [not null, note: 'Unix timestamp of last activity']
+  
+  indexes {
+    user_id [name: 'idx_sessions_user_id']
+    last_activity [name: 'idx_sessions_last_activity']
+  }
+  
+  Note: 'Laravel session storage'
+}
+
+Table cache {
+  key varchar(255) [pk, note: 'Cache key']
+  value mediumtext [not null, note: 'Cached value']
+  expiration int [not null, note: 'Unix timestamp when cache expires']
+  
+  Note: 'Laravel cache storage'
+}
+
+Table cache_locks {
+  key varchar(255) [pk, note: 'Lock key']
+  owner varchar(255) [not null, note: 'Lock owner identifier']
+  expiration int [not null, note: 'Unix timestamp when lock expires']
+  
+  Note: 'Laravel cache lock mechanism'
+}
+
+Table jobs {
+  id bigint [pk, increment, note: 'Job ID']
+  queue varchar(255) [not null, note: 'Queue name']
+  payload longtext [not null, note: 'Serialized job data']
+  attempts tinyint [not null, note: 'Number of execution attempts']
+  reserved_at int [null, note: 'Unix timestamp when job was reserved']
+  available_at int [not null, note: 'Unix timestamp when job becomes available']
+  created_at int [not null, note: 'Unix timestamp when job was created']
+  
+  indexes {
+    queue [name: 'idx_jobs_queue']
+  }
+  
+  Note: 'Laravel queue job storage'
+}
+
+Table job_batches {
+  id varchar(255) [pk, note: 'Batch ID']
+  name varchar(255) [not null, note: 'Batch name']
+  total_jobs int [not null, note: 'Total number of jobs in batch']
+  pending_jobs int [not null, note: 'Number of pending jobs']
+  failed_jobs int [not null, note: 'Number of failed jobs']
+  failed_job_ids longtext [not null, note: 'JSON array of failed job IDs']
+  options mediumtext [null, note: 'Batch options']
+  cancelled_at int [null, note: 'Unix timestamp when batch was cancelled']
+  created_at int [not null, note: 'Unix timestamp when batch was created']
+  finished_at int [null, note: 'Unix timestamp when batch finished']
+  
+  Note: 'Laravel job batch tracking'
+}
+
+Table failed_jobs {
+  id bigint [pk, increment, note: 'Failed job ID']
+  uuid varchar(255) [unique, not null, note: 'Unique job identifier']
+  connection text [not null, note: 'Queue connection']
+  queue text [not null, note: 'Queue name']
+  payload longtext [not null, note: 'Serialized job data']
+  exception longtext [not null, note: 'Exception details']
+  failed_at timestamp [not null, default: `CURRENT_TIMESTAMP`, note: 'When job failed']
+  
+  Note: 'Laravel failed job storage'
+}
+
+// ================================
+// PERMISSION SYSTEM TABLES
+// ================================
+
+Table permissions {
+  id bigint [pk, increment, note: 'Permission ID']
+  name varchar(255) [not null, note: 'Permission name']
+  guard_name varchar(255) [not null, note: 'Guard name (web/api)']
+  created_at timestamp [null, note: 'Creation timestamp']
+  updated_at timestamp [null, note: 'Update timestamp']
+  
+  indexes {
+    (name, guard_name) [unique, name: 'permissions_name_guard_name_unique']
+  }
+  
+  Note: 'Spatie Laravel Permission - Available permissions'
+}
+
+Table roles {
+  id bigint [pk, increment, note: 'Role ID']
+  name varchar(255) [not null, note: 'Role name']
+  guard_name varchar(255) [not null, note: 'Guard name (web/api)']
+  created_at timestamp [null, note: 'Creation timestamp']
+  updated_at timestamp [null, note: 'Update timestamp']
+  
+  indexes {
+    (name, guard_name) [unique, name: 'roles_name_guard_name_unique']
+  }
+  
+  Note: 'Spatie Laravel Permission - Available roles'
+}
+
+Table model_has_permissions {
+  permission_id bigint [not null, ref: > permissions.id, note: 'Permission reference']
+  model_type varchar(255) [not null, note: 'Model class name']
+  model_id bigint [not null, note: 'Model instance ID']
+  
+  indexes {
+    (permission_id, model_id, model_type) [pk, name: 'model_has_permissions_permission_model_type_primary']
+    model_id [name: 'model_has_permissions_model_id_model_type_index']
+  }
+  
+  Note: 'Spatie Laravel Permission - Direct model permissions'
+}
+
+Table model_has_roles {
+  role_id bigint [not null, ref: > roles.id, note: 'Role reference']
+  model_type varchar(255) [not null, note: 'Model class name']
+  model_id bigint [not null, note: 'Model instance ID']
+  
+  indexes {
+    (role_id, model_id, model_type) [pk, name: 'model_has_roles_role_model_type_primary']
+    model_id [name: 'model_has_roles_model_id_model_type_index']
+  }
+  
+  Note: 'Spatie Laravel Permission - Model role assignments'
+}
+
+Table role_has_permissions {
+  permission_id bigint [not null, ref: > permissions.id, note: 'Permission reference']
+  role_id bigint [not null, ref: > roles.id, note: 'Role reference']
+  
+  indexes {
+    (permission_id, role_id) [pk, name: 'role_has_permissions_permission_id_role_id_primary']
+  }
+  
+  Note: 'Spatie Laravel Permission - Role-permission relationships'
+}
+
+// ================================
+// DEBUGGING AND MONITORING TABLES
+// ================================
+
+Table telescope_entries {
+  sequence bigint [pk, increment, note: 'Entry sequence number']
+  uuid char(36) [unique, not null, note: 'Unique entry identifier']
+  batch_id char(36) [not null, note: 'Batch identifier']
+  family_hash varchar(255) [null, note: 'Family hash for grouping']
+  should_display_on_index boolean [not null, default: true, note: 'Whether to show on index']
+  type varchar(20) [not null, note: 'Entry type (request, query, etc.)']
+  content longtext [not null, note: 'Entry content JSON']
+  created_at datetime [null, note: 'Creation timestamp']
+  
+  indexes {
+    uuid [name: 'telescope_entries_uuid_index']
+    batch_id [name: 'telescope_entries_batch_id_index']
+    family_hash [name: 'telescope_entries_family_hash_index']
+    created_at [name: 'telescope_entries_created_at_index']
+    (type, should_display_on_index) [name: 'telescope_entries_type_should_display_on_index_index']
+  }
+  
+  Note: 'Laravel Telescope debugging entries'
+}
+
+Table telescope_entries_tags {
+  entry_uuid char(36) [not null, ref: > telescope_entries.uuid, note: 'Entry reference']
+  tag varchar(255) [not null, note: 'Tag value']
+  
+  indexes {
+    (entry_uuid, tag) [pk, name: 'telescope_entries_tags_entry_uuid_tag_primary']
+    tag [name: 'telescope_entries_tags_tag_index']
+  }
+  
+  Note: 'Laravel Telescope entry tags for filtering'
+}
+
+Table telescope_monitoring {
+  tag varchar(255) [pk, note: 'Monitoring tag']
+  
+  Note: 'Laravel Telescope monitoring configuration'
+}
+
+// ================================
+// RELATIONSHIPS SUMMARY
+// ================================
+
+// Organizational Structure
+// main_branch -> branch -> users
+// departments -> users
+
+// Authentication & Authorization
+// users -> auth (1:1)
+// Spatie permission system handles roles/permissions
+
+// Device Management
+// briboxes_category -> briboxes -> devices
+// devices -> device_assignments -> users
+// device_assignments -> assignment_letters
+
+// Auditing
+// All changes tracked in inventory_logs
+
+// API & Sessions
+// Laravel Sanctum for API tokens
+// Standard Laravel session management
+
+// Key Business Rules:
+// 1. Each device has unique serial_number and asset_code
+// 2. QR codes generated with "briven-" prefix + asset_code
+// 3. Device assignments track timeline with assigned_date/returned_date
+// 4. Device status moved from assignments to devices table
+// 5. Comprehensive audit logging for all changes
+// 6. Role-based access: superadmin > admin > user
+// 7. File storage integrated with MinIO/AWS S3

@@ -1,4 +1,4 @@
-<!-- QR Scanner Modal - Inline Version for Filament SPA -->
+QR Scanner Modal - Inline Version for Filament SPA
 <div x-show="qrModalOpen" 
      x-transition:enter="ease-out duration-300"
      x-transition:enter-start="opacity-0 scale-95"

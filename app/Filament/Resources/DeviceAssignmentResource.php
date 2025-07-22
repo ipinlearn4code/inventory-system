@@ -83,28 +83,13 @@ class DeviceAssignmentResource extends Resource
                             ->icon('heroicon-o-qr-code')
                             ->tooltip('Scan QR Code')
                             ->color('primary')
+                            ->modalHeading('QR Code Scanner')
+                            ->modalWidth('lg')
+                            ->modalContent(view('filament.components.qr-scanner-modal-content'))
                             ->action(function () {
-                                // Empty action to prevent errors
+                                // Modal action is handled by the QR scanner component
                             })
-                            ->extraAttributes([
-                                'x-on:click.prevent' => '$dispatch("open-modal")'
-                            ])
                     ),
-
-                // QR Scanner Modal Component
-                Forms\Components\ViewField::make('qr_scanner_modal')
-                    ->view('filament.components.qr-scanner-inline')
-                    ->extraAttributes([
-                        'x-data' => '{ qrModalOpen: false }',
-                        'x-on:open-modal.window' => 'qrModalOpen = true',
-                        'x-on:device-selected.window' => '
-                            const deviceId = $event.detail.deviceId;
-                            if (deviceId) {
-                                $wire.set("data.device_id", deviceId);
-                                qrModalOpen = false;
-                            }
-                        '
-                    ]),
 
                 Select::make('user_id')
                     ->label('Assign to User')

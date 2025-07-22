@@ -99,4 +99,43 @@ class QRCodeService
     {
         return $this->isGdAvailable() ? 'image/png' : 'image/svg+xml';
     }
+
+    /**
+     * Process scanned QR code data and return device information
+     *
+     * @param string $qrData
+     * @return array
+     */
+    public function processScannedCode(string $qrData): array
+    {
+        // Extract asset code from QR data
+        if (strpos($qrData, 'briven-') === 0) {
+            $assetCode = substr($qrData, 7); // Remove 'briven-' prefix
+        } else {
+            return [
+                'success' => false,
+                'error' => 'Invalid QR code format. Expected format: briven-{asset_code}',
+                'device' => null
+            ];
+        }
+
+        // Find the device
+        $device = \App\Models\Device::with(['bribox.category', 'currentAssignment.user', 'currentAssignment.branch'])
+            ->where('asset_code', $assetCode)
+            ->first();
+
+        if (!$device) {
+            return [
+                'success' => false,
+                'error' => "Device with asset code '{$assetCode}' not found",
+                'device' => null
+            ];
+        }
+
+        return [
+            'success' => true,
+            'error' => null,
+            'device' => $device
+        ];
+    }
 }

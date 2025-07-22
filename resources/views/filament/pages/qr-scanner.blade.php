@@ -1,53 +1,9 @@
 <x-filament-panels::page>
     <div class="space-y-6">
-        {{-- QR Scanner Section --}}
-        @if ($showScanner)
-            <x-filament::section>
-                <x-slot name="heading">
-                    QR Code Scanner
-                </x-slot>
-                <x-slot name="description">
-                    Point your camera at a QR code to scan device information
-                </x-slot>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {{-- Camera Scanner --}}
-                    <div class="flex flex-col items-center space-y-4">
-                        <div id="qr-reader" 
-                             class="w-full max-w-md h-64 sm:h-80 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
-                        </div>
-                        
-                        <div class="flex flex-col sm:flex-row gap-2 w-full max-w-md">
-                            <x-filament::button
-                                id="start-scanner"
-                                size="sm"
-                                color="primary"
-                                icon="heroicon-o-play"
-                                class="flex-1"
-                            >
-                                Start Camera
-                            </x-filament::button>
-                            
-                            <x-filament::button
-                                id="stop-scanner"
-                                size="sm"
-                                color="gray"
-                                icon="heroicon-o-stop"
-                                class="flex-1"
-                                style="display: none;"
-                            >
-                                Stop Camera
-                            </x-filament::button>
-                        </div>
-
-                        <div id="scanner-status" class="text-sm text-gray-600 dark:text-gray-400 text-center">
-                            Click "Start Camera" to begin scanning
-                        </div>
-                    </div>
-
-                    {{-- Instructions --}}
-                    <div class="space-y-4">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Instructions</h3>
+        {{-- QR Scanner Component --}}
+        <x-qr-scanner mode="full" />
+    </div>
+</x-filament-panels::page>
                         
                         <div class="prose dark:prose-invert max-w-none">
                             <ol class="text-sm text-gray-600 dark:text-gray-300 space-y-2 list-decimal list-inside">
