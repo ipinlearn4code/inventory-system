@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Textarea;
+use Fadlee\FilamentQrCodeField\Forms\Components\QrCodeInput;
 
 class DeviceAssignmentResource extends Resource
 {
@@ -65,31 +66,59 @@ class DeviceAssignmentResource extends Resource
     {
         return $form
             ->schema([
+                // QR Scanner for Device Selection
+                QrCodeInput::make('qr_scanner')
+                    ->label('Scan Device QR Code')
+                    ->placeholder('Click to scan device QR code...')
+                    ->live()
+                    ->afterStateUpdated(function (string $state = null, Forms\Set $set) {
+                        if ($state) {
+                            // Extract asset code from QR data
+                            if (strpos($state, 'briven-') === 0) {
+                                $assetCode = substr($state, 7); // Remove 'briven-' prefix
+                            } else {
+                                $assetCode = $state; // Use as-is if no prefix
+                            }
+
+                            // Find the device
+                            $device = Device::available()
+                                ->where('asset_code', $assetCode)
+                                ->first();
+
+                            if ($device) {
+                                $set('device_id', $device['device_id']);
+                                
+                                // Show success notification
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Device Found!')
+                                    ->body("Successfully scanned device: {$device['asset_code']}")
+                                    ->success()
+                                    ->send();
+                            } else {
+                                // Show error notification
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Device Not Found')
+                                    ->body("No available device found with asset code: {$assetCode}")
+                                    ->danger()
+                                    ->send();
+                            }
+                        }
+                    })
+                    ->columnSpanFull(),
+
                 Select::make('device_id')
                     ->label('Device')
                     ->options(function () {
                         return Device::available()
                             ->get()
                             ->mapWithKeys(function ($device) {
-                                return [$device->device_id => "{$device->asset_code} - {$device->brand} {$device->brand_name} ({$device->serial_number})"];
+                                return [$device['device_id'] => "{$device['asset_code']} - {$device['brand']} {$device['brand_name']} ({$device['serial_number']})"];
                             });
                     })
                     ->required()
                     ->searchable()
                     ->preload()
-                    ->helperText('Only available devices (not currently assigned) are shown')
-                    ->suffixAction(
-                        Forms\Components\Actions\Action::make('scanQR')
-                            ->icon('heroicon-o-qr-code')
-                            ->tooltip('Scan QR Code')
-                            ->color('primary')
-                            ->modalHeading('QR Code Scanner')
-                            ->modalWidth('lg')
-                            ->modalContent(view('filament.components.qr-scanner-modal-content'))
-                            ->action(function () {
-                                // Modal action is handled by the QR scanner component
-                            })
-                    ),
+                    ->helperText('Only available devices (not currently assigned) are shown. Use QR scanner above for quick selection.'),
 
                 Select::make('user_id')
                     ->label('Assign to User')

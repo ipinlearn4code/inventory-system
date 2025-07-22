@@ -124,27 +124,6 @@ Route::prefix('v1')->group(function () {
                 ]
             ]);
         });
-
-        // QR Scanner endpoint - returns full device info regardless of assignment status
-        Route::get('/devices/qr-scan/{assetCode}', function ($assetCode) {
-            $device = \App\Models\Device::with(['bribox.category', 'currentAssignment.user', 'currentAssignment.branch'])
-                ->where('asset_code', $assetCode)
-                ->first();
-            
-            if (!$device) {
-                return response()->json([
-                    'success' => false,
-                    'error' => "Device with asset code '{$assetCode}' not found",
-                    'device' => null
-                ], 404);
-            }
-            
-            return response()->json([
-                'success' => true,
-                'error' => null,
-                'device' => $device
-            ]);
-        });
     });
 
     // Changelog endpoint (public)
