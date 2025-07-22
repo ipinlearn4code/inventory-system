@@ -47,24 +47,36 @@ Route::prefix('v1')->group(function () {
             Route::get('/dashboard/charts', [AdminController::class, 'dashboardCharts']);
             
             // Device management
-            Route::get('/devices', [AdminController::class, 'devices']);
-            Route::get('/devices/{id}', [AdminController::class, 'deviceDetails']);
-            Route::post('/devices', [AdminController::class, 'createDevice']);
-            Route::put('/devices/{id}', [AdminController::class, 'updateDevice']);
-            Route::delete('/devices/{id}', [AdminController::class, 'deleteDevice']);
+            Route::prefix('devices')->group(function () {
+                Route::get('/form-options', [\App\Http\Controllers\Api\FormOptionsController::class, 'deviceFormOptions']);
+                Route::get('/', [AdminController::class, 'devices']);
+                Route::get('/{id}', [AdminController::class, 'deviceDetails']);
+                Route::post('/', [AdminController::class, 'createDevice']);
+                Route::put('/{id}', [AdminController::class, 'updateDevice']);
+                Route::delete('/{id}', [AdminController::class, 'deleteDevice']);
+            });
             
             // Device assignment management
-            Route::post('/device-assignments', [AdminController::class, 'createDeviceAssignment']);
-            Route::put('/device-assignments/{id}', [AdminController::class, 'updateDeviceAssignment']);
-            Route::post('/device-assignments/{id}/return', [AdminController::class, 'returnDevice']);
-            Route::get('/device-assignments', [AdminController::class, 'deviceAssignments']);
-            
+            Route::prefix('device-assignments')->group(function () {
+                Route::get('/form-options', [\App\Http\Controllers\Api\FormOptionsController::class, 'deviceAssignmentFormOptions']);
+                Route::get('/', [AdminController::class, 'deviceAssignments']);
+                Route::get('/{id}', [AdminController::class, 'deviceAssignmentDetails']);
+                Route::post('/', [AdminController::class, 'createDeviceAssignment']);
+                Route::put('/{id}', [AdminController::class, 'updateDeviceAssignment']);
+                Route::post('/{id}/return', [AdminController::class, 'returnDevice']);
+            });
             // User management
             Route::get('/users', [AdminController::class, 'users']);
             
             // Master data
             Route::get('/branches', [AdminController::class, 'branches']);
             Route::get('/categories', [AdminController::class, 'categories']);
+            
+            // Form options for external apps
+            Route::prefix('form-options')->group(function () {
+                Route::get('/validation/devices', [\App\Http\Controllers\Api\FormOptionsController::class, 'deviceValidationRules']);
+                Route::get('/validation/device-assignments', [\App\Http\Controllers\Api\FormOptionsController::class, 'deviceAssignmentValidationRules']);
+            });
             
             // File management (MinIO)
             Route::prefix('files')->group(function () {

@@ -481,6 +481,36 @@ class AdminController extends Controller
         ]);
     }
 
+    public function deviceAssignmentDetails($id)
+    {
+        $assignment = DeviceAssignment::with(['device', 'user.branch', 'branch'])
+            ->findOrFail($id);
+
+        return response()->json([
+            'data' => [
+                'assignmentId' => $assignment->assignment_id,
+                'deviceId' => $assignment->device->device_id,
+                'assetCode' => $assignment->device->asset_code,
+                'brand' => $assignment->device->brand . ' ' . $assignment->device->brand_name,
+                'serialNumber' => $assignment->device->serial_number,
+                'assignedTo' => [
+                    'userId' => $assignment->user->user_id,
+                    'name' => $assignment->user->name,
+                    'pn' => $assignment->user->pn,
+                    'branch' => [
+                        'branchId' => $assignment->user->branch->branch_id,
+                        'unitName' => $assignment->user->branch->unit_name,
+                        'branchCode' => $assignment->user->branch->branch_code,
+                    ],
+                ],
+                'assignedDate' => $assignment->assigned_date,
+                'returnedDate' => $assignment->returned_date,
+                'status' => $assignment->status,
+                'notes' => $assignment->notes,
+            ]
+        ]);
+    }
+
     /**
      * Create a new device assignment
      */
