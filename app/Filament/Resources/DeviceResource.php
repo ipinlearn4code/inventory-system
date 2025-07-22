@@ -240,6 +240,7 @@ class DeviceResource extends Resource
 
     public static function table(Table $table): Table
     {
+
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('device_id')
@@ -348,6 +349,7 @@ class DeviceResource extends Resource
                             $qrCodeService = app(\App\Services\QRCodeService::class);
                             $qrCodeDataUrl = null;
                             try {
+                                // dd($record);
                                 $qrCodeDataUrl = $qrCodeService->getQRCodeDataUrl($record->asset_code);
                             } catch (\Exception $e) {
                                 // Handle QR code generation error
@@ -358,9 +360,6 @@ class DeviceResource extends Resource
                                     ->schema([
                                         Forms\Components\Grid::make(2)
                                             ->schema([
-                                                Forms\Components\TextInput::make('device_id')
-                                                    ->label('Device ID')
-                                                    ->disabled(),
                                                 Forms\Components\TextInput::make('asset_code')
                                                     ->label('Asset Code')
                                                     ->disabled()

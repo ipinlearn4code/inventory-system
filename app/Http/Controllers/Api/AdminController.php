@@ -283,17 +283,17 @@ class AdminController extends Controller
     public function createDevice(Request $request)
     {
         $request->validate([
-            'brand' => 'required|string|max:255',
-            'brand_name' => 'required|string|max:255',
-            'serial_number' => 'required|string|max:255|unique:devices,serial_number',
+            'brand' => 'required|string|max:50',
+            'brand_name' => 'required|string|max:50',
+            'serial_number' => 'required|string|max:50|unique:devices,serial_number',
             'asset_code' => 'required|string|max:20|unique:devices,asset_code',
             'bribox_id' => 'required|exists:briboxes,bribox_id',
             'condition' => 'required|in:Baik,Rusak,Perlu Pengecekan',
-            'spec1' => 'nullable|string|max:255',
-            'spec2' => 'nullable|string|max:255',
-            'spec3' => 'nullable|string|max:255',
-            'spec4' => 'nullable|string|max:255',
-            'spec5' => 'nullable|string|max:255',
+            'spec1' => 'nullable|string|max:100',
+            'spec2' => 'nullable|string|max:100',
+            'spec3' => 'nullable|string|max:100',
+            'spec4' => 'nullable|string|max:100',
+            'spec5' => 'nullable|string|max:100',
             'dev_date' => 'nullable|date',
         ]);
 
