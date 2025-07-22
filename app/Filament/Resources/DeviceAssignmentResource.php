@@ -260,13 +260,7 @@ class DeviceAssignmentResource extends Resource
                         ->tooltip('View assignment details'),
                     Tables\Actions\EditAction::make()
                         ->tooltip('Edit assignment information'),
-                    Tables\Actions\Action::make('viewQRSticker')
-                        ->label('View QR Sticker')
-                        ->icon('heroicon-o-qr-code')
-                        ->color('info')
-                        ->url(fn ($record) => route('qr-code.sticker', $record->device_id))
-                        ->openUrlInNewTab()
-                        ->tooltip('View printable QR code sticker for this device'),
+                    
                     Tables\Actions\DeleteAction::make()
                         ->tooltip('Delete this assignment'),
                 ])

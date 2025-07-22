@@ -473,6 +473,13 @@ class DeviceResource extends Resource
                                     ->collapsible(),
                             ];
                         }),
+                    Tables\Actions\Action::make('Print QR Sticker')
+                        ->label('Print QR Sticker')
+                        ->icon('heroicon-o-qr-code')
+                        ->color('info')
+                        ->url(fn($record) => route('qr-code.sticker', $record->device_id))
+                        ->openUrlInNewTab()
+                        ->tooltip('View printable QR code sticker for this device'),
                     Tables\Actions\EditAction::make()
                         ->tooltip('Edit device information'),
                     Tables\Actions\DeleteAction::make()
