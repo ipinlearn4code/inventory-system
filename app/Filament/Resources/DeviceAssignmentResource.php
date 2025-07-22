@@ -7,6 +7,7 @@ use App\Models\DeviceAssignment;
 use App\Models\Device;
 use App\Models\User;
 use App\Models\Branch;
+use Fadlee\FilamentQrCodeField\Forms\Components\QrCodeInput;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -16,7 +17,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Textarea;
-use Fadlee\FilamentQrCodeField\Forms\Components\QrCodeInput;
+use App\Filament\Forms\Components\QrCodeScanner;
 
 class DeviceAssignmentResource extends Resource
 {
@@ -66,10 +67,11 @@ class DeviceAssignmentResource extends Resource
     {
         return $form
             ->schema([
-                // QR Scanner for Device Selection
-                QrCodeInput::make('qr_scanner')
+                // QR Scanner for Device Selection - Custom Button
+                QrCodeScanner::make('qr_scanner')
                     ->label('Scan Device QR Code')
-                    ->placeholder('Click to scan device QR code...')
+                    ->asButton('📱 Scan QR Code', 'primary', 'md')
+                    ->withIcon('heroicon-o-qr-code')
                     ->live()
                     ->afterStateUpdated(function (string $state = null, Forms\Set $set) {
                         if ($state) {
