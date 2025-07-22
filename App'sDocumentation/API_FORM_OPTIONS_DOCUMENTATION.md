@@ -100,49 +100,44 @@ Get all dropdown options for device assignment creation/editing forms.
 #### Response Format
 ```json
 {
+  "success": true,
   "data": {
     "devices": [
       {
-        "value": 1,
-        "label": "AST001 - Dell OptiPlex 7090 (DL001234567)",
-        "device_id": 1,
-        "asset_code": "AST001",
-        "brand": "Dell",
-        "brand_name": "OptiPlex 7090",
-        "serial_number": "DL001234567",
+        "device_id": 4,
+        "label": "Lenovo Thinkpad P52 (1254846454)",
+        "asset_code": "7OCFAEC10PWDGKU",
+        "condition": "Baik",
+        "status": "Tidak Digunakan"
+      },
+      {
+        "device_id": 6,
+        "label": "HP Elitedesk (45646213546)",
+        "asset_code": "a45s46a5s4d64",
         "condition": "Baik",
         "status": "Tidak Digunakan"
       }
     ],
     "users": [
       {
-        "value": 1,
-        "label": "USER01 - John Doe (IT Department)",
         "user_id": 1,
-        "pn": "USER01",
-        "name": "John Doe",
-        "position": "Software Engineer",
-        "department": "IT Department",
-        "department_id": 1
+        "label": "USER01 - John Doe (Information Technology)",
+        "position": "IT Manager"
+      },
+      {
+        "user_id": 2,
+        "label": "USER02 - Jane Smith (Human Resources)",
+        "position": "HR Specialist"
       }
     ],
     "branches": [
       {
-        "value": 1,
-        "label": "Jakarta Pusat (Head Office)",
         "branch_id": 1,
-        "unit_name": "Jakarta Pusat",
-        "branch_code": "JKT001",
-        "main_branch": "Head Office",
-        "address": "Jl. Sudirman No. 1"
-      }
-    ],
-    "departments": [
+        "label": "Jakarta Central (Head Office Jakarta)"
+      },
       {
-        "value": 1,
-        "label": "IT Department",
-        "department_id": 1,
-        "name": "IT Department"
+        "branch_id": 2,
+        "label": "Jakarta South (Head Office Jakarta)"
       }
     ]
   }
