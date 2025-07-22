@@ -14,6 +14,8 @@ class UserSeeder extends Seeder
             ['pn' => 'USER02', 'name' => 'Jane Smith', 'department_id' => 'HR01', 'branch_id' => 2, 'position' => 'HR Specialist'],
             ['pn' => 'ADMIN01', 'name' => 'Admin User', 'department_id' => 'IT01', 'branch_id' => 1, 'position' => 'System Administrator'],
             ['pn' => 'SUPER01', 'name' => 'Super Admin', 'department_id' => 'IT01', 'branch_id' => 1, 'position' => 'Super Administrator'],
+            ['pn' => '1', 'name' => 'Guest User', 'department_id' => 'IT01', 'branch_id' => 1, 'position' => 'Guest'],
+            ['pn' => '2', 'name' => 'Test User', 'department_id' => 'IT01', 'branch_id' => 1, 'position' => 'Nizam Engineer'],
         ];
 
         foreach ($users as $user) {
