@@ -18,10 +18,10 @@ class AdminController extends Controller
     public function dashboardKpis(Request $request)
     {
         $branchId = $request->input('branchId');
-        
+
         // Base query for devices
         $deviceQuery = Device::query();
-        
+
         if ($branchId) {
             // Filter by devices assigned to users in specific branch
             $deviceQuery->whereHas('currentAssignment.user', function ($query) use ($branchId) {
@@ -30,7 +30,7 @@ class AdminController extends Controller
         }
 
         $totalDevices = $deviceQuery->count();
-        
+
         // Devices in use (have current assignment)
         $inUse = DeviceAssignment::whereNull('returned_date')
             ->when($branchId, function ($query) use ($branchId) {
@@ -59,12 +59,12 @@ class AdminController extends Controller
             ->get()
             ->map(function ($log) {
                 $newValue = json_decode($log->new_value, true);
-                
+
                 $type = 'device-updated';
                 $category = 'info';
                 $title = 'Perubahan Perangkat';
                 $description = 'Data perangkat diperbarui';
-                
+
                 if ($log->action_type === 'CREATE') {
                     $type = 'device-created';
                     $category = 'success';
@@ -128,16 +128,18 @@ class AdminController extends Controller
             });
 
         // Devices per branch
-        $devicesPerBranch = Branch::with(['users.deviceAssignments' => function ($query) {
+        $devicesPerBranch = Branch::with([
+            'users.deviceAssignments' => function ($query) {
                 $query->whereNull('returned_date');
-            }])
+            }
+        ])
             ->get()
             ->map(function ($branch) {
                 $deviceCount = 0;
                 foreach ($branch->users as $user) {
                     $deviceCount += $user->deviceAssignments->count();
                 }
-                
+
                 return [
                     'branchName' => $branch->unit_name,
                     'count' => $deviceCount
@@ -171,9 +173,9 @@ class AdminController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('brand', 'like', "%{$search}%")
-                  ->orWhere('brand_name', 'like', "%{$search}%")
-                  ->orWhere('serial_number', 'like', "%{$search}%")
-                  ->orWhere('asset_code', 'like', "%{$search}%");
+                    ->orWhere('brand_name', 'like', "%{$search}%")
+                    ->orWhere('serial_number', 'like', "%{$search}%")
+                    ->orWhere('asset_code', 'like', "%{$search}%");
             });
         }
 
@@ -434,11 +436,11 @@ class AdminController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->whereHas('device', function ($deviceQuery) use ($search) {
                     $deviceQuery->where('asset_code', 'like', "%{$search}%")
-                               ->orWhere('brand', 'like', "%{$search}%")
-                               ->orWhere('serial_number', 'like', "%{$search}%");
+                        ->orWhere('brand', 'like', "%{$search}%")
+                        ->orWhere('serial_number', 'like', "%{$search}%");
                 })->orWhereHas('user', function ($userQuery) use ($search) {
                     $userQuery->where('name', 'like', "%{$search}%")
-                             ->orWhere('pn', 'like', "%{$search}%");
+                        ->orWhere('pn', 'like', "%{$search}%");
                 });
             });
         }
@@ -456,37 +458,17 @@ class AdminController extends Controller
         }
 
         $assignments = $query->orderBy('assigned_date', 'desc')
-                            ->paginate($perPage, ['*'], 'page', $page);
+            ->paginate($perPage, ['*'], 'page', $page);
 
         $data = $assignments->map(function ($assignment) {
             return [
                 'assignmentId' => $assignment->assignment_id,
-                'device' => [
-                    'deviceId' => $assignment->device->device_id,
-                    'assetCode' => $assignment->device->asset_code,
-                    'brand' => $assignment->device->brand,
-                    'brandName' => $assignment->device->brand_name,
-                    'serialNumber' => $assignment->device->serial_number,
-                ],
-                'user' => [
-                    'userId' => $assignment->user->user_id,
-                    'name' => $assignment->user->name,
-                    'pn' => $assignment->user->pn,
-                    'position' => $assignment->user->position,
-                    'department' => $assignment->user->department->name ?? null,
-                ],
-                'branch' => [
-                    'branchId' => $assignment->branch->branch_id,
-                    'unitName' => $assignment->branch->unit_name,
-                    'branchCode' => $assignment->branch->branch_code,
-                ],
-                'assignedDate' => $assignment->assigned_date,
-                'returnedDate' => $assignment->returned_date,
+                'assetCode' => $assignment->device->asset_code,
+                'brand' => $assignment->device->brand . ' ' . $assignment->device->brand_name,
+                'serialNumber' => $assignment->device->serial_number,
+                'Assigned To' => $assignment->user->name,
+                'unitName' => $assignment->branch->unit_name,
                 'status' => $assignment->status,
-                'notes' => $assignment->notes,
-                'isActive' => $assignment->returned_date === null,
-                'createdAt' => $assignment->created_at,
-                'createdBy' => $assignment->created_by,
             ];
         });
 
@@ -667,15 +649,19 @@ class AdminController extends Controller
         $page = $request->input('page', 1);
         $perPage = $request->input('perPage', 20);
 
-        $query = \App\Models\User::with(['department', 'branch', 'deviceAssignments' => function ($q) {
-            $q->whereNull('returned_date');
-        }]);
+        $query = \App\Models\User::with([
+            'department',
+            'branch',
+            'deviceAssignments' => function ($q) {
+                $q->whereNull('returned_date');
+            }
+        ]);
 
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('pn', 'like', "%{$search}%")
-                  ->orWhere('position', 'like', "%{$search}%");
+                    ->orWhere('pn', 'like', "%{$search}%")
+                    ->orWhere('position', 'like', "%{$search}%");
             });
         }
 

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\StorageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,7 +17,7 @@ use App\Http\Controllers\Api\AdminController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
+Route::get('/device-assignments', [AdminController::class, 'deviceAssignments']);
 // Public routes
 Route::prefix('v1')->group(function () {
     // Authentication routes
@@ -53,10 +54,10 @@ Route::prefix('v1')->group(function () {
             Route::delete('/devices/{id}', [AdminController::class, 'deleteDevice']);
             
             // Device assignment management
-            Route::get('/device-assignments', [AdminController::class, 'deviceAssignments']);
             Route::post('/device-assignments', [AdminController::class, 'createDeviceAssignment']);
             Route::put('/device-assignments/{id}', [AdminController::class, 'updateDeviceAssignment']);
             Route::post('/device-assignments/{id}/return', [AdminController::class, 'returnDevice']);
+            // Route::get('/device-assignments', [AdminController::class, 'deviceAssignments']);
             
             // User management
             Route::get('/users', [AdminController::class, 'users']);
@@ -64,9 +65,20 @@ Route::prefix('v1')->group(function () {
             // Master data
             Route::get('/branches', [AdminController::class, 'branches']);
             Route::get('/categories', [AdminController::class, 'categories']);
+            
+            // File management (MinIO)
+            Route::prefix('files')->group(function () {
+                Route::post('/assignment-letters', [StorageController::class, 'uploadAssignmentLetter']);
+                Route::get('/assignment-letters/{letterId}/download', [StorageController::class, 'downloadAssignmentLetter'])->name('api.minio.download.assignment-letter');
+                Route::get('/assignment-letters/{letterId}/url', [StorageController::class, 'getAssignmentLetterUrl']);
+                Route::post('/upload', [StorageController::class, 'uploadFile']);
+                Route::post('/download', [StorageController::class, 'downloadFile']);
+                Route::delete('/delete', [StorageController::class, 'deleteFile']);
+                Route::get('/health', [StorageController::class, 'healthCheck']);
+            });
         });
     });
-
+    
     // Internal API routes for admin panel (no auth middleware for simplicity)
     Route::prefix('internal')->group(function () {
         Route::get('/devices/find-by-asset-code/{assetCode}', function ($assetCode) {
