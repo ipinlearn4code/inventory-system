@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\AssignmentLetter;
+use App\Models\Device;
 use App\Models\DeviceAssignment;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
@@ -48,16 +49,24 @@ class QuickAssignmentService
     {
         $user = User::findOrFail($data['user_id']);
         
-        return DeviceAssignment::create([
+        $assignment = DeviceAssignment::create([
             'device_id' => $data['device_id'],
             'user_id' => $data['user_id'],
             'branch_id' => $user->branch_id,
             'assigned_date' => $data['assigned_date'],
-            'status' => 'Digunakan',
             'notes' => $data['assignment_notes'] ?? null,
             'created_by' => $this->authService->getCurrentUserId(),
             'created_at' => now(),
         ]);
+
+        // Update device status
+        Device::where('device_id', $data['device_id'])->update([
+            'status' => 'Digunakan',
+            'updated_by' => $this->authService->getCurrentUserId(),
+            'updated_at' => now(),
+        ]);
+
+        return $assignment;
     }
 
     /**

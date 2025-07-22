@@ -15,7 +15,6 @@ class DeviceAssignment extends Model
         'branch_id',
         'assigned_date',
         'returned_date',
-        'status',
         'notes',
         'created_at',
         'created_by',

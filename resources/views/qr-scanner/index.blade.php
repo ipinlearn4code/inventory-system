@@ -347,13 +347,21 @@
                                 <div class="info-label">Assigned Date</div>
                                 <div class="info-value">${device.assignment.assigned_date}</div>
                             </div>
-                            <div class="info-item">
-                                <div class="info-label">Status</div>
-                                <div class="info-value">${device.assignment.status}</div>
-                            </div>
                         </div>
                     </div>
                 `;
+            }
+            
+            // Always show status regardless of assignment
+            statusHtml += `
+                <div class="assignment-info">
+                    <h4>Device Status</h4>
+                    <div class="info-item">
+                        <div class="info-label">Status</div>
+                        <div class="info-value">${device.status}</div>
+                    </div>
+                </div>
+            `;
             }
             
             let specsHtml = '';

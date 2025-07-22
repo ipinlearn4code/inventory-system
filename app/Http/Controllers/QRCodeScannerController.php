@@ -67,8 +67,8 @@ class QRCodeScannerController extends Controller
                     'user_name' => $device->currentAssignment->user->name,
                     'branch_name' => $device->currentAssignment->branch->unit_name,
                     'assigned_date' => $device->currentAssignment->assigned_date,
-                    'status' => $device->currentAssignment->status,
                 ] : null,
+                'status' => $device->status,
             ],
         ]);
     }

@@ -16,6 +16,7 @@ class Device extends Model
         'asset_code',
         'bribox_id',
         'condition',
+        'status',
         'spec1',
         'spec2',
         'spec3',

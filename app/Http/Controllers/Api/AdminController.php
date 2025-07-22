@@ -256,9 +256,9 @@ class AdminController extends Controller
                         'branchCode' => $device->currentAssignment->user->branch->branch_code,
                     ],
                     'assignedDate' => $device->currentAssignment->assigned_date,
-                    'status' => $device->currentAssignment->status,
                     'notes' => $device->currentAssignment->notes,
                 ] : null,
+                'status' => $device->status,
                 'assignmentHistory' => $device->assignments->map(function ($assignment) {
                     return [
                         'assignmentId' => $assignment->assignment_id,
@@ -266,7 +266,6 @@ class AdminController extends Controller
                         'userPn' => $assignment->user->pn,
                         'assignedDate' => $assignment->assigned_date,
                         'returnedDate' => $assignment->returned_date,
-                        'status' => $assignment->status,
                         'notes' => $assignment->notes,
                     ];
                 }),
@@ -468,7 +467,7 @@ class AdminController extends Controller
                 'serialNumber' => $assignment->device->serial_number,
                 'Assigned To' => $assignment->user->name,
                 'unitName' => $assignment->branch->unit_name,
-                'status' => $assignment->status,
+                'status' => $assignment->device->status,
             ];
         });
 
@@ -513,10 +512,16 @@ class AdminController extends Controller
             'user_id' => $request->user_id,
             'branch_id' => $user->branch_id,
             'assigned_date' => $request->assigned_date,
-            'status' => $request->status ?? 'Digunakan',
             'notes' => $request->notes,
             'created_by' => $currentUserPn,
             'created_at' => now(),
+        ]);
+
+        // Update device status
+        $device->update([
+            'status' => $request->status ?? 'Digunakan',
+            'updated_by' => $currentUserPn,
+            'updated_at' => now(),
         ]);
 
         // Log the assignment
@@ -536,7 +541,7 @@ class AdminController extends Controller
                 'deviceId' => $assignment->device_id,
                 'userId' => $assignment->user_id,
                 'assignedDate' => $assignment->assigned_date,
-                'status' => $assignment->status,
+                'status' => $device->status,
             ]
         ], 201);
     }
@@ -576,7 +581,7 @@ class AdminController extends Controller
         return response()->json([
             'data' => [
                 'assignmentId' => $assignment->assignment_id,
-                'status' => $assignment->status,
+                'status' => $assignment->device->status,
                 'returnedDate' => $assignment->returned_date,
                 'notes' => $assignment->notes,
             ]
@@ -614,6 +619,13 @@ class AdminController extends Controller
         $assignment->update([
             'returned_date' => $returnDate,
             'notes' => $notes,
+            'updated_by' => $currentUserPn,
+            'updated_at' => now(),
+        ]);
+
+        // Update device status to "Tidak Digunakan" when returned
+        $assignment->device->update([
+            'status' => 'Tidak Digunakan',
             'updated_by' => $currentUserPn,
             'updated_at' => now(),
         ]);
