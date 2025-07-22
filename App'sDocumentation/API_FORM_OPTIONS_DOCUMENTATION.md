@@ -28,33 +28,31 @@ Get all dropdown options for device creation/editing forms.
 #### Response Format
 ```json
 {
+  "success": true,
   "data": {
     "brands": [
       {
-        "value": "Dell",
-        "label": "Dell"
+        "value": "Dell"
       }
     ],
     "brandNames": [
       {
-        "value": "OptiPlex 7090",
-        "label": "OptiPlex 7090"
+        "value": "OptiPlex 7090"
       }
     ],
     "briboxes": [
       {
         "value": "A1",
-        "label": "A1 - Desktop Computer (Hardware)",
-        "bribox_id": "A1",
-        "type": "Desktop Computer",
-        "category": "Hardware",
-        "category_id": 1
+        "label": "PC STANDART (PC)"
+      },
+      {
+        "value": "A2",
+        "label": "PC STANDART BDS SERVER (PC)"
       }
     ],
     "conditions": [
       {
         "value": "Baik",
-        "label": "Baik"
       },
       {
         "value": "Rusak",
@@ -62,29 +60,17 @@ Get all dropdown options for device creation/editing forms.
       },
       {
         "value": "Perlu Pengecekan",
-        "label": "Perlu Pengecekan"
       }
     ],
     "statuses": [
       {
         "value": "Digunakan",
-        "label": "Digunakan"
       },
       {
         "value": "Tidak Digunakan",
-        "label": "Tidak Digunakan"
       },
       {
         "value": "Cadangan",
-        "label": "Cadangan"
-      }
-    ],
-    "categories": [
-      {
-        "value": 1,
-        "label": "Hardware",
-        "category_id": 1,
-        "category_name": "Hardware"
       }
     ]
   }

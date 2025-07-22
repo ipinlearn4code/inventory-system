@@ -31,7 +31,7 @@ class FormOptionsService implements FormOptionsServiceInterface
             'briboxes' => $this->getBriboxOptions($search),
             'conditions' => $this->getConditionOptions(),
             'statuses' => $this->getStatusOptions(),
-            'categories' => $this->getCategoryOptions($search),
+            // 'categories' => $this->getCategoryOptions($search),
         ];
     }
 
@@ -52,7 +52,7 @@ class FormOptionsService implements FormOptionsServiceInterface
             'devices' => $this->getAvailableDeviceOptions($search),
             'users' => $this->getUserOptions($search),
             'branches' => $this->getBranchOptions($search),
-            'departments' => $this->getDepartmentOptions($search),
+            // 'departments' => $this->getDepartmentOptions($search),
         ];
     }
 
@@ -91,7 +91,6 @@ class FormOptionsService implements FormOptionsServiceInterface
             ->map(function ($brand, $key) {
                 return [
                     'value' => $key,
-                    'label' => $brand,
                 ];
             })
             ->values()
@@ -113,7 +112,6 @@ class FormOptionsService implements FormOptionsServiceInterface
             ->map(function ($brandName, $key) {
                 return [
                     'value' => $key,
-                    'label' => $brandName,
                 ];
             })
             ->values()
@@ -186,10 +184,8 @@ class FormOptionsService implements FormOptionsServiceInterface
         return $query->get()
             ->map(function ($category) {
                 return [
-                    'value' => $category->getKey(),
-                    'label' => $category->category_name,
                     'category_id' => $category->getKey(),
-                    'category_name' => $category->category_name,
+                    'label' => $category->category_name
                 ];
             })
             ->toArray();
@@ -214,13 +210,9 @@ class FormOptionsService implements FormOptionsServiceInterface
         return $query->get()
             ->map(function ($device) {
                 return [
-                    'value' => $device->getKey(),
-                    'label' => "{$device->asset_code} - {$device->brand} {$device->brand_name} ({$device->serial_number})",
                     'device_id' => $device->getKey(),
+                    'label' => "{$device->brand} {$device->brand_name} ({$device->serial_number})",
                     'asset_code' => $device->asset_code,
-                    'brand' => $device->brand,
-                    'brand_name' => $device->brand_name,
-                    'serial_number' => $device->serial_number,
                     'condition' => $device->condition,
                     'status' => $device->status,
                 ];
@@ -247,14 +239,9 @@ class FormOptionsService implements FormOptionsServiceInterface
             ->map(function ($user) {
                 $deptName = isset($user->department) ? $user->department->name : 'No Dept';
                 return [
-                    'value' => $user->getKey(),
-                    'label' => $user->pn . ' - ' . $user->name . ' (' . $deptName . ')',
                     'user_id' => $user->getKey(),
-                    'pn' => $user->pn,
-                    'name' => $user->name,
+                    'label' => $user->pn . ' - ' . $user->name . ' (' . $deptName . ')',
                     'position' => $user->position,
-                    'department' => $deptName,
-                    'department_id' => $user->department_id,
                 ];
             })
             ->toArray();
@@ -281,13 +268,8 @@ class FormOptionsService implements FormOptionsServiceInterface
             ->map(function ($branch) {
                 $mainBranchName = $branch->mainBranch ? $branch->mainBranch->main_branch_name : 'No Main Branch';
                 return [
-                    'value' => $branch->getKey(),
-                    'label' => $branch->unit_name . ' (' . $mainBranchName . ')',
                     'branch_id' => $branch->getKey(),
-                    'unit_name' => $branch->unit_name,
-                    'branch_code' => $branch->branch_code,
-                    'main_branch' => $mainBranchName,
-                    'address' => $branch->address,
+                    'label' => $branch->unit_name . ' (' . $mainBranchName . ')',
                 ];
             })
             ->toArray();
