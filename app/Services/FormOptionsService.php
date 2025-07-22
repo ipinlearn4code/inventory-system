@@ -152,9 +152,9 @@ class FormOptionsService implements FormOptionsServiceInterface
     public function getConditionOptions(): array
     {
         return [
-            ['value' => 'Baik', 'label' => 'Baik'],
-            ['value' => 'Rusak', 'label' => 'Rusak'],
-            ['value' => 'Perlu Pengecekan', 'label' => 'Perlu Pengecekan'],
+            ['value' => 'Baik'],
+            ['value' => 'Rusak'],
+            ['value' => 'Perlu Pengecekan'],
         ];
     }
 
@@ -164,9 +164,9 @@ class FormOptionsService implements FormOptionsServiceInterface
     public function getStatusOptions(): array
     {
         return [
-            ['value' => 'Digunakan', 'label' => 'Digunakan'],
-            ['value' => 'Tidak Digunakan', 'label' => 'Tidak Digunakan'],
-            ['value' => 'Cadangan', 'label' => 'Cadangan'],
+            ['value' => 'Digunakan'],
+            ['value' => 'Tidak Digunakan'],
+            ['value' => 'Cadangan'],
         ];
     }
 

@@ -55,10 +55,6 @@ Content-Type: application/json
             {
                 "value": "LAPTOP-001",
                 "label": "LAPTOP-001 - Laptop (IT Equipment)",
-                "bribox_id": "LAPTOP-001",
-                "type": "Laptop",
-                "category": "IT Equipment",
-                "category_id": 1
             }
         ],
         "conditions": [
