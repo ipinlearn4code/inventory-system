@@ -15,49 +15,62 @@
                     Scanned device: {{ $scannedDevice['asset_code'] }}
                 </x-slot>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 lg:grid-cols-1 gap-6">
                     {{-- Device Details --}}
                     <div class="space-y-4">
                         <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-3">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                                 <div>
-                                    <span class="font-medium text-gray-700 dark:text-gray-300">Asset Code:</span>
-                                    <span class="ml-2 text-gray-900 dark:text-white font-mono">{{ $scannedDevice['asset_code'] }}</span>
+                                    @php
+                                        $fields = [
+                                            ['label' => 'Asset Code', 'value' => $scannedDevice['asset_code'], 'class' => 'font-mono'],
+                                            ['label' => 'Brand', 'value' => $scannedDevice['brand']],
+                                            ['label' => 'Model/Series', 'value' => $scannedDevice['brand_name']],
+                                            ['label' => 'Category', 'value' => $scannedDevice['bribox']['category']['category_name'] ?? 'N/A'],
+                                            ['label' => 'Serial Number', 'value' => $scannedDevice['serial_number'] ?? 'N/A'],
+                                            ['label' => 'Condition', 'value' => $scannedDevice['condition'] ?? 'N/A'],
+                                        ];
+                                    @endphp
+
+                                    <table class="w-full text-sm align-middle">
+                                        <tbody>
+                                            @foreach ($fields as $field)
+                                                <tr>
+                                                    <td class="pr-2 py-1 whitespace-nowrap font-medium text-gray-700 dark:text-gray-300 text-right align-top" style="width: 1%;">
+                                                        {{ $field['label'] }}
+                                                        <span class="inline-block" style="min-width: 1.5em; text-align: center;">:</span>
+                                                    </td>
+                                                    <td class="pl-2 py-1 text-gray-900 dark:text-white {{ $field['class'] ?? '' }}">
+                                                        {{ $field['value'] }}
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                            <tr>
+                                                <td class="pr-2 py-1 whitespace-nowrap font-medium text-gray-700 dark:text-gray-300 text-right align-top">
+                                                    Status
+                                                    <span class="inline-block" style="min-width: 1.5em; text-align: center;">:</span>
+                                                </td>
+                                                <td class="pl-2 py-1">
+                                                    @if ($scannedDevice['currentAssignment'] ?? false)
+                                                        <span class="text-green-600 dark:text-green-400 font-medium">Assigned</span>
+                                                    @else
+                                                        <span class="text-yellow-600 dark:text-yellow-400 font-medium">Available</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
-                                
                                 <div>
-                                    <span class="font-medium text-gray-700 dark:text-gray-300">Brand:</span>
-                                    <span class="ml-2 text-gray-900 dark:text-white">{{ $scannedDevice['brand'] }}</span>
+                                    <span class="font-medium text-gray-700 dark:text-gray-300">Specification :</span>
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <div>
+                                            <span
+                                                class="ml-2 text-gray-900 dark:text-white">{{ $scannedDevice['spec' . $i] ?? '' }}</span>
+                                        </div>
+                                    @endfor
                                 </div>
-                                
-                                <div>
-                                    <span class="font-medium text-gray-700 dark:text-gray-300">Model/Series:</span>
-                                    <span class="ml-2 text-gray-900 dark:text-white">{{ $scannedDevice['brand_name'] }}</span>
-                                </div>
-                                
-                                <div>
-                                    <span class="font-medium text-gray-700 dark:text-gray-300">Category:</span>
-                                    <span class="ml-2 text-gray-900 dark:text-white">{{ $scannedDevice['bribox']['category']['category_name'] ?? 'N/A' }}</span>
-                                </div>
-                                
-                                <div>
-                                    <span class="font-medium text-gray-700 dark:text-gray-300">Serial Number:</span>
-                                    <span class="ml-2 text-gray-900 dark:text-white">{{ $scannedDevice['serial_number'] ?? 'N/A' }}</span>
-                                </div>
-                                
-                                <div>
-                                    <span class="font-medium text-gray-700 dark:text-gray-300">Condition:</span>
-                                    <span class="ml-2 text-gray-900 dark:text-white">{{ $scannedDevice['condition'] ?? 'N/A' }}</span>
-                                </div>
-                                
-                                <div>
-                                    <span class="font-medium text-gray-700 dark:text-gray-300">Status:</span>
-                                    @if ($scannedDevice['currentAssignment'] ?? false)
-                                        <span class="ml-2 text-green-600 dark:text-green-400 font-medium">Assigned</span>
-                                    @else
-                                        <span class="ml-2 text-yellow-600 dark:text-yellow-400 font-medium">Available</span>
-                                    @endif
-                                </div>
+
                             </div>
                         </div>
 
@@ -68,19 +81,22 @@
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                                     <div>
                                         <span class="font-medium text-blue-700 dark:text-blue-300">Assigned to:</span>
-                                        <span class="ml-2 text-blue-900 dark:text-blue-100">{{ $scannedDevice['currentAssignment']['user']['name'] ?? 'N/A' }}</span>
+                                        <span
+                                            class="ml-2 text-blue-900 dark:text-blue-100">{{ $scannedDevice['currentAssignment']['user']['name'] ?? 'N/A' }}</span>
                                     </div>
-                                    
+
                                     @if ($scannedDevice['currentAssignment']['branch'] ?? false)
                                         <div>
                                             <span class="font-medium text-blue-700 dark:text-blue-300">Branch:</span>
-                                            <span class="ml-2 text-blue-900 dark:text-blue-100">{{ $scannedDevice['currentAssignment']['branch']['branch_name'] ?? 'N/A' }}</span>
+                                            <span
+                                                class="ml-2 text-blue-900 dark:text-blue-100">{{ $scannedDevice['currentAssignment']['branch']['branch_name'] ?? 'N/A' }}</span>
                                         </div>
                                     @endif
-                                    
+
                                     <div>
                                         <span class="font-medium text-blue-700 dark:text-blue-300">Assigned Date:</span>
-                                        <span class="ml-2 text-blue-900 dark:text-blue-100">{{ $scannedDevice['currentAssignment']['assigned_date'] ?? 'N/A' }}</span>
+                                        <span
+                                            class="ml-2 text-blue-900 dark:text-blue-100">{{ $scannedDevice['currentAssignment']['assigned_date'] ?? 'N/A' }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -90,7 +106,7 @@
                     {{-- Instructions --}}
                     <div class="space-y-4">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Instructions</h3>
-                        
+
                         <div class="prose dark:prose-invert max-w-none">
                             <ol class="text-sm text-gray-600 dark:text-gray-300 space-y-2 list-decimal list-inside">
                                 <li>Click the QR scanner field above to activate the camera</li>
@@ -106,7 +122,8 @@
                                 QR Code Format
                             </h4>
                             <p class="text-sm text-blue-800 dark:text-blue-200">
-                                This scanner reads QR codes in the format: <code class="px-1 py-0.5 bg-blue-100 dark:bg-blue-800 rounded text-xs">briven-{asset_code}</code>
+                                This scanner reads QR codes in the format: <code
+                                    class="px-1 py-0.5 bg-blue-100 dark:bg-blue-800 rounded text-xs">briven-{asset_code}</code>
                             </p>
                         </div>
                     </div>
@@ -118,7 +135,7 @@
                 <x-slot name="heading">
                     How to Use QR Scanner
                 </x-slot>
-                
+
                 <div class="space-y-4">
                     <div class="prose dark:prose-invert max-w-none">
                         <ol class="text-sm text-gray-600 dark:text-gray-300 space-y-2 list-decimal list-inside">
@@ -135,7 +152,8 @@
                             QR Code Format
                         </h4>
                         <p class="text-sm text-blue-800 dark:text-blue-200">
-                            This scanner reads QR codes in the format: <code class="px-1 py-0.5 bg-blue-100 dark:bg-blue-800 rounded text-xs">briven-{asset_code}</code>
+                            This scanner reads QR codes in the format: <code
+                                class="px-1 py-0.5 bg-blue-100 dark:bg-blue-800 rounded text-xs">briven-{asset_code}</code>
                         </p>
                     </div>
                 </div>
@@ -143,4 +161,3 @@
         @endif
     </div>
 </x-filament-panels::page>
-                        
