@@ -495,11 +495,37 @@ class AdminController extends Controller
         ]);
 
         // Check if device is available
-        $device = Device::findOrFail($request->device_id);
+        $device = Device::with(['bribox.category'])->findOrFail($request->device_id);
         if ($device->currentAssignment) {
             return response()->json([
                 'message' => 'Device is already assigned to another user.',
                 'errorCode' => 'ERR_DEVICE_ALREADY_ASSIGNED'
+            ], 400);
+        }
+
+        // Check if user already has an active assignment for the same bribox and category
+        $existingAssignment = DeviceAssignment::with(['device.bribox.category'])
+            ->whereNull('returned_date')
+            ->where('user_id', $request->user_id)
+            ->whereHas('device.bribox', function ($query) use ($device) {
+                $query->where('bribox_id', $device->bribox_id)
+                      ->whereHas('category', function ($categoryQuery) use ($device) {
+                          $categoryQuery->where('category_id', $device->bribox->category_id);
+                      });
+            })
+            ->first();
+
+        if ($existingAssignment) {
+            $categoryName = $device->bribox->category->category_name ?? 'Unknown Category';
+            $briboxType = $device->bribox->type ?? 'Unknown Type';
+            return response()->json([
+                'message' => "User already has an active assignment for device type '{$briboxType}' in category '{$categoryName}'.",
+                'errorCode' => 'ERR_USER_ALREADY_HAS_DEVICE_TYPE',
+                'existingAssignment' => [
+                    'assignmentId' => $existingAssignment->assignment_id,
+                    'deviceAssetCode' => $existingAssignment->device->asset_code,
+                    'assignedDate' => $existingAssignment->assigned_date,
+                ]
             ], 400);
         }
 

@@ -139,16 +139,6 @@ class DeviceAssignmentResource extends Resource
                     ->label('Return Date')
                     ->helperText('Leave empty for active assignments'),
 
-                Select::make('status')
-                    ->label('Status')
-                    ->options([
-                        'Digunakan' => 'Digunakan (In Use)',
-                        'Tidak Digunakan' => 'Tidak Digunakan (Not Used)',
-                        'Cadangan' => 'Cadangan (Backup)',
-                    ])
-                    ->required()
-                    ->default('Digunakan'),
-
                 Textarea::make('notes')
                     ->label('Notes')
                     ->maxLength(500)
@@ -219,8 +209,8 @@ class DeviceAssignmentResource extends Resource
                     ->sortable()
                     ->toggleable(),
 
-                Tables\Columns\TextColumn::make('status')
-                    ->label('Status')
+                Tables\Columns\TextColumn::make('device.status')
+                    ->label('Device Status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'Digunakan' => 'success',
@@ -241,7 +231,9 @@ class DeviceAssignmentResource extends Resource
                     ->toggleable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('status')
+                Tables\Filters\SelectFilter::make('device.status')
+                    ->label('Device Status')
+                    ->relationship('device', 'status')
                     ->options([
                         'Digunakan' => 'Digunakan (In Use)',
                         'Tidak Digunakan' => 'Tidak Digunakan (Not Used)',

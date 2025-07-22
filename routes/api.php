@@ -17,7 +17,7 @@ use App\Http\Controllers\Api\StorageController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::get('/device-assignments', [AdminController::class, 'deviceAssignments']);
+Route::get('/test', [AdminController::class, 'devices']);
 // Public routes
 Route::prefix('v1')->group(function () {
     // Authentication routes
@@ -57,7 +57,7 @@ Route::prefix('v1')->group(function () {
             Route::post('/device-assignments', [AdminController::class, 'createDeviceAssignment']);
             Route::put('/device-assignments/{id}', [AdminController::class, 'updateDeviceAssignment']);
             Route::post('/device-assignments/{id}/return', [AdminController::class, 'returnDevice']);
-            // Route::get('/device-assignments', [AdminController::class, 'deviceAssignments']);
+            Route::get('/device-assignments', [AdminController::class, 'deviceAssignments']);
             
             // User management
             Route::get('/users', [AdminController::class, 'users']);

@@ -178,6 +178,15 @@ class DeviceResource extends Resource
                             ])
                             ->required(),
 
+                        Forms\Components\Select::make('status')
+                            ->options([
+                                'Digunakan' => 'Digunakan',
+                                'Tidak Digunakan' => 'Tidak Digunakan',
+                                'Cadangan' => 'Cadangan',
+                            ])
+                            ->default('Tidak Digunakan')
+                            ->required(),
+
                         Forms\Components\DatePicker::make('dev_date')
                             ->label('Development Date'),
                     ])
@@ -276,6 +285,16 @@ class DeviceResource extends Resource
                         'Baik' => 'success',
                         'Rusak' => 'danger',
                         'Perlu Pengecekan' => 'warning',
+                        default => 'gray',
+                    })
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'Digunakan' => 'success',
+                        'Tidak Digunakan' => 'gray',
+                        'Cadangan' => 'warning',
                         default => 'gray',
                     })
                     ->toggleable(),
