@@ -75,30 +75,42 @@
                         </div>
 
                         {{-- Assignment Information --}}
-                        @if ($scannedDevice['currentAssignment'] ?? false)
+                        @if ($scannedDevice['currentAssignment'] ?? true)
                             <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
                                 <h4 class="font-medium text-blue-900 dark:text-blue-100 mb-3">Assignment Details</h4>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                                    <div>
-                                        <span class="font-medium text-blue-700 dark:text-blue-300">Assigned to:</span>
-                                        <span
-                                            class="ml-2 text-blue-900 dark:text-blue-100">{{ $scannedDevice['currentAssignment']['user']['name'] ?? 'N/A' }}</span>
-                                    </div>
-
-                                    @if ($scannedDevice['currentAssignment']['branch'] ?? false)
-                                        <div>
-                                            <span class="font-medium text-blue-700 dark:text-blue-300">Branch:</span>
-                                            <span
-                                                class="ml-2 text-blue-900 dark:text-blue-100">{{ $scannedDevice['currentAssignment']['branch']['branch_name'] ?? 'N/A' }}</span>
-                                        </div>
-                                    @endif
-
-                                    <div>
-                                        <span class="font-medium text-blue-700 dark:text-blue-300">Assigned Date:</span>
-                                        <span
-                                            class="ml-2 text-blue-900 dark:text-blue-100">{{ $scannedDevice['currentAssignment']['assigned_date'] ?? 'N/A' }}</span>
-                                    </div>
-                                </div>
+                                <table class="w-full text-sm align-middle">
+                                    <tbody>
+                                        <tr>
+                                            <td class="pr-2 py-1 whitespace-nowrap font-medium text-blue-700 dark:text-blue-300 text-right align-top" style="width: 1%;">
+                                                Assigned to
+                                                <span class="inline-block" style="min-width: 1.5em; text-align: center;">:</span>
+                                            </td>
+                                            <td class="pl-2 py-1 text-blue-900 dark:text-blue-100">
+                                                {{ $scannedDevice['currentAssignment']['user']['name'] ?? 'N/A' }}
+                                            </td>
+                                        </tr>
+                                        @if ($scannedDevice['currentAssignment']['branch'] ?? false)
+                                            <tr>
+                                                <td class="pr-2 py-1 whitespace-nowrap font-medium text-blue-700 dark:text-blue-300 text-right align-top">
+                                                    Branch
+                                                    <span class="inline-block" style="min-width: 1.5em; text-align: center;">:</span>
+                                                </td>
+                                                <td class="pl-2 py-1 text-blue-900 dark:text-blue-100">
+                                                    {{ $scannedDevice['currentAssignment']['branch']['branch_name'] ?? 'N/A' }}
+                                                </td>
+                                            </tr>
+                                        @endif
+                                        <tr>
+                                            <td class="pr-2 py-1 whitespace-nowrap font-medium text-blue-700 dark:text-blue-300 text-right align-top">
+                                                Assigned Date
+                                                <span class="inline-block" style="min-width: 1.5em; text-align: center;">:</span>
+                                            </td>
+                                            <td class="pl-2 py-1 text-blue-900 dark:text-blue-100">
+                                                {{ $scannedDevice['currentAssignment']['assigned_date'] ?? 'N/A' }}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         @endif
                     </div>
