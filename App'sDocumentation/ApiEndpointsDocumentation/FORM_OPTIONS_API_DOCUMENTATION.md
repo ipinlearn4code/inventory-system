@@ -1,3 +1,4 @@
+
 # Form Options API Documentation
 
 ## Overview
@@ -43,13 +44,11 @@ Content-Type: application/json
         "brands": [
             {
                 "value": "Dell",
-                "label": "Dell"
             }
         ],
         "brandNames": [
             {
                 "value": "Latitude 5520",
-                "label": "Latitude 5520"
             }
         ],
         "briboxes": [
@@ -65,37 +64,23 @@ Content-Type: application/json
         "conditions": [
             {
                 "value": "Baik",
-                "label": "Baik"
             },
             {
                 "value": "Rusak", 
-                "label": "Rusak"
             },
             {
                 "value": "Perlu Pengecekan",
-                "label": "Perlu Pengecekan"
             }
         ],
         "statuses": [
             {
                 "value": "Digunakan",
-                "label": "Digunakan"
             },
             {
                 "value": "Tidak Digunakan",
-                "label": "Tidak Digunakan"
             },
             {
                 "value": "Cadangan",
-                "label": "Cadangan"
-            }
-        ],
-        "categories": [
-            {
-                "value": 1,
-                "label": "IT Equipment",
-                "category_id": 1,
-                "category_name": "IT Equipment"
             }
         ]
     }
@@ -154,46 +139,27 @@ Content-Type: application/json
     "data": {
         "devices": [
             {
-                "value": 1,
-                "label": "DEV-001 - Dell Latitude 5520 (SN123456)",
                 "device_id": 1,
+                "label": "Dell Latitude 5520 (SN123456)",
                 "asset_code": "DEV-001",
-                "brand": "Dell",
-                "brand_name": "Latitude 5520",
-                "serial_number": "SN123456",
-                "condition": "Baik",
-                "status": "Tidak Digunakan"
             }
         ],
         "users": [
             {
-                "value": 1,
-                "label": "12345 - John Doe (IT Department)",
                 "user_id": 1,
-                "pn": "12345",
-                "name": "John Doe",
-                "position": "Developer",
-                "department": "IT Department",
-                "department_id": "IT"
+                "label": "12345 - John Doe (IT Department, Jakarta Pusat)",
             }
         ],
         "branches": [
             {
-                "value": 1,
-                "label": "Jakarta Pusat (Head Office)",
                 "branch_id": 1,
-                "unit_name": "Jakarta Pusat",
-                "branch_code": "JKT-001",
-                "main_branch": "Head Office",
-                "address": "Jl. Sudirman No. 1"
+                "label": "Jakarta Pusat (Head Office)",
             }
         ],
         "departments": [
             {
-                "value": "IT",
-                "label": "IT Department",
                 "department_id": "IT",
-                "name": "IT Department"
+                "label": "IT Department",
             }
         ]
     }

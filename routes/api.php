@@ -23,7 +23,7 @@ use App\Http\Controllers\Api\v1\FormOptionsController as V1FormOptionsController
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::get('/test', [V1FormOptionsController::class, 'deviceFormOptions']);
+Route::get('/test', [V1FormOptionsController::class, 'deviceAssignmentFormOptions']);
 // Public routes
 Route::prefix('v1')->group(function () {
     // Authentication routes
