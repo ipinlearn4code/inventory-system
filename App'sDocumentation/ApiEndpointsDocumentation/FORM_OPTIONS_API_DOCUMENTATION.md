@@ -184,6 +184,59 @@ curl -X GET "http://localhost:8000/api/v1/device-assignments/form-options?field=
 
 ---
 
+
+
+
+## Route to retrieve field-specific options for form selections.
+ 
+  This endpoint allows clients to fetch dynamic options for various fields
+  used in forms. The options
+  can be filtered based on a search query when applicable.
+ 
+  URL: /form-options/fields
+  Method: GET
+  Controller: V1FormOptionsController
+  Action: getFieldOptions
+ 
+  Query Parameters:
+  - field (string): The name of the field for which options are requested.
+    Supported values include:
+    - 'brands'
+    - 'brandNames'
+    - 'briboxes'
+    - 'conditions'
+    - 'statuses'
+    - 'categories'
+    - 'devices'
+    - 'users'
+    - 'branches'
+    - 'departments'
+  - search (string, optional): A search term to filter the options for fields
+    that support filtering (e.g., 'brands', 'categories', 'devices', etc.).
+ 
+  Response:
+  - JSON object containing the requested field options in the format:
+    {
+        "data": {
+            "<field>": [<options>]
+        }
+    }
+ 
+  Example Usage:
+  GET /form-options/fields?field=brands&search=electronics
+ 
+  Example Response:
+  {
+      "data": {
+          "brands": [
+              "Brand A",
+              "Brand B",
+              "Brand C"
+          ]
+      }
+  }
+ /
+
 ### 3. Form Validation Rules
 
 #### Get Device Validation Rules

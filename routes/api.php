@@ -55,6 +55,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/dashboard/kpis', [V1DashboardController::class, 'kpis']);
             Route::get('/dashboard/charts', [V1DashboardController::class, 'charts']);
             
+            Route::get('/form-options/fields', [V1FormOptionsController::class, 'getFieldOptions']);
             // Device management
             Route::prefix('devices')->group(function () {
                 Route::get('/form-options', [V1FormOptionsController::class, 'deviceFormOptions']);
