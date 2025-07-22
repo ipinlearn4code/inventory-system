@@ -92,7 +92,7 @@ class DeviceRepository implements DeviceRepositoryInterface
 
     public function countByCondition(): Collection
     {
-        return Device::selectRaw('condition, COUNT(*) as count')
+        return Device::selectRaw('`condition`, COUNT(*) as count')
             ->groupBy('condition')
             ->get();
     }

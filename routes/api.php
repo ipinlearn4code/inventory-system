@@ -6,6 +6,12 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\StorageController;
+use App\Http\Controllers\Api\v1\DeviceController as V1DeviceController;
+use App\Http\Controllers\Api\v1\DeviceAssignmentController as V1DeviceAssignmentController;
+use App\Http\Controllers\Api\v1\DashboardController as V1DashboardController;
+use App\Http\Controllers\Api\v1\UserController as V1UserController;
+use App\Http\Controllers\Api\v1\MetadataController as V1MetadataController;
+use App\Http\Controllers\Api\v1\FormOptionsController as V1FormOptionsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,7 +23,7 @@ use App\Http\Controllers\Api\StorageController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::get('/test', [AdminController::class, 'devices']);
+Route::get('/test', [V1FormOptionsController::class, 'deviceFormOptions']);
 // Public routes
 Route::prefix('v1')->group(function () {
     // Authentication routes
@@ -33,49 +39,50 @@ Route::prefix('v1')->group(function () {
         
         // User routes
         Route::prefix('user')->middleware('role:user')->group(function () {
-            Route::get('/home/summary', [UserController::class, 'homeSummary'])->middleware('api.cache');
-            Route::get('/devices', [UserController::class, 'devices'])->middleware('api.cache');
-            Route::get('/devices/{id}', [UserController::class, 'deviceDetails']);
-            Route::post('/devices/{id}/report', [UserController::class, 'reportIssue']);
-            Route::get('/profile', [UserController::class, 'profile'])->middleware('api.cache');
-            Route::get('/history', [UserController::class, 'history']);
+            Route::get('/home/summary', [V1UserController::class, 'homeSummary'])->middleware('api.cache');
+            Route::get('/devices', [V1UserController::class, 'devices'])->middleware('api.cache');
+            Route::get('/devices/{id}', [V1UserController::class, 'deviceDetails']);
+            Route::post('/devices/{id}/report-issue', [V1UserController::class, 'reportIssue']);
+            Route::get('/profile', [V1UserController::class, 'profile'])->middleware('api.cache');
+            Route::get('/history', [V1UserController::class, 'history']);
         });
 
         // Admin routes (both admin and superadmin can access)
         Route::prefix('admin')->middleware('role:admin,superadmin')->group(function () {
-            Route::get('/dashboard/kpis', [AdminController::class, 'dashboardKpis']);
-            Route::get('/dashboard/charts', [AdminController::class, 'dashboardCharts']);
+            Route::get('/dashboard/kpis', [V1DashboardController::class, 'kpis']);
+            Route::get('/dashboard/charts', [V1DashboardController::class, 'charts']);
             
             // Device management
             Route::prefix('devices')->group(function () {
-                Route::get('/form-options', [\App\Http\Controllers\Api\FormOptionsController::class, 'deviceFormOptions']);
-                Route::get('/', [AdminController::class, 'devices']);
-                Route::get('/{id}', [AdminController::class, 'deviceDetails']);
-                Route::post('/', [AdminController::class, 'createDevice']);
-                Route::put('/{id}', [AdminController::class, 'updateDevice']);
-                Route::delete('/{id}', [AdminController::class, 'deleteDevice']);
+                Route::get('/form-options', [V1FormOptionsController::class, 'deviceFormOptions']);
+                Route::get('/', [V1DeviceController::class, 'index']);
+                Route::get('/{id}', [V1DeviceController::class, 'show']);
+                Route::post('/', [V1DeviceController::class, 'store']);
+                Route::put('/{id}', [V1DeviceController::class, 'update']);
+                Route::delete('/{id}', [V1DeviceController::class, 'destroy']);
             });
             
             // Device assignment management
             Route::prefix('device-assignments')->group(function () {
-                Route::get('/form-options', [\App\Http\Controllers\Api\FormOptionsController::class, 'deviceAssignmentFormOptions']);
-                Route::get('/', [AdminController::class, 'deviceAssignments']);
-                Route::get('/{id}', [AdminController::class, 'deviceAssignmentDetails']);
-                Route::post('/', [AdminController::class, 'createDeviceAssignment']);
-                Route::put('/{id}', [AdminController::class, 'updateDeviceAssignment']);
-                Route::post('/{id}/return', [AdminController::class, 'returnDevice']);
+                Route::get('/form-options', [V1FormOptionsController::class, 'deviceAssignmentFormOptions']);
+                Route::get('/', [V1DeviceAssignmentController::class, 'index']);
+                Route::get('/{id}', [V1DeviceAssignmentController::class, 'show']);
+                Route::post('/', [V1DeviceAssignmentController::class, 'store']);
+                Route::put('/{id}', [V1DeviceAssignmentController::class, 'update']);
+                Route::post('/{id}/return', [V1DeviceAssignmentController::class, 'returnDevice']);
             });
+            
             // User management
-            Route::get('/users', [AdminController::class, 'users']);
+            Route::get('/users', [V1MetadataController::class, 'users']);
             
             // Master data
-            Route::get('/branches', [AdminController::class, 'branches']);
-            Route::get('/categories', [AdminController::class, 'categories']);
+            Route::get('/branches', [V1MetadataController::class, 'branches']);
+            Route::get('/categories', [V1MetadataController::class, 'categories']);
             
             // Form options for external apps
             Route::prefix('form-options')->group(function () {
-                Route::get('/validation/devices', [\App\Http\Controllers\Api\FormOptionsController::class, 'deviceValidationRules']);
-                Route::get('/validation/device-assignments', [\App\Http\Controllers\Api\FormOptionsController::class, 'deviceAssignmentValidationRules']);
+                Route::get('/validation/devices', [V1FormOptionsController::class, 'deviceValidationRules']);
+                Route::get('/validation/device-assignments', [V1FormOptionsController::class, 'deviceAssignmentValidationRules']);
             });
             
             // File management (MinIO)
