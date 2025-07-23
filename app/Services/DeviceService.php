@@ -143,8 +143,7 @@ class DeviceService
     private function logDeviceAction($device, string $actionType, ?array $oldValue, ?array $newValue): void
     {
         InventoryLog::create([
-            'resource_type' => 'device',
-            'resource_id' => $device->device_id,
+            'changed_fields' => 'devices',  
             'action_type' => $actionType,
             'old_value' => $oldValue ? json_encode($oldValue) : null,
             'new_value' => $newValue ? json_encode($newValue) : null,

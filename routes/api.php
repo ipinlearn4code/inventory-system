@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\v1\FormOptionsController as V1FormOptionsController
 |
 */
 Route::prefix('test')->group(function () {
+    Route::get('/devices', [V1UserController::class, 'devices'])->middleware('api.cache');
     Route::get('/device-assignment-form-options', [V1FormOptionsController::class, 'deviceAssignmentFormOptions']);
     Route::get('/device-form-options', [V1FormOptionsController::class, 'deviceFormOptions']);
 });
@@ -102,71 +103,71 @@ Route::prefix('v1')->group(function () {
         });
     });
     
-    // Internal API routes for admin panel (no auth middleware for simplicity)
-    Route::prefix('internal')->group(function () {
-        Route::get('/devices/find-by-asset-code/{assetCode}', function ($assetCode) {
-            $device = \App\Models\Device::where('asset_code', $assetCode)
-                ->whereDoesntHave('currentAssignment') // Only available devices
-                ->first();
+//     // Internal API routes for admin panel (no auth middleware for simplicity)
+//     Route::prefix('internal')->group(function () {
+//         Route::get('/devices/find-by-asset-code/{assetCode}', function ($assetCode) {
+//             $device = \App\Models\Device::where('asset_code', $assetCode)
+//                 ->whereDoesntHave('currentAssignment') // Only available devices
+//                 ->first();
             
-            if (!$device) {
-                return response()->json(['error' => 'Device not found or not available'], 404);
-            }
+//             if (!$device) {
+//                 return response()->json(['error' => 'Device not found or not available'], 404);
+//             }
             
-            return response()->json([
-                'device' => [
-                    'id' => $device->device_id,
-                    'device_id' => $device->device_id,
-                    'asset_code' => $device->asset_code,
-                    'brand_name' => $device->brand_name,
-                    'serial_number' => $device->serial_number,
-                    'available' => true
-                ]
-            ]);
-        });
-    });
+//             return response()->json([
+//                 'device' => [
+//                     'id' => $device->device_id,
+//                     'device_id' => $device->device_id,
+//                     'asset_code' => $device->asset_code,
+//                     'brand_name' => $device->brand_name,
+//                     'serial_number' => $device->serial_number,
+//                     'available' => true
+//                 ]
+//             ]);
+//         });
+//     });
 
-    // Changelog endpoint (public)
-    Route::get('/changelog', function () {
-        return response()->json([
-            'data' => [
-                'version' => '1.1',
-                'lastUpdated' => '2025-07-10',
-                'changes' => [
-                    'Added standardized response format',
-                    'Implemented rate limiting (100 req/min)',
-                    'Added offline support for key endpoints',
-                    'Enhanced error handling with error codes'
-                ]
-            ]
-        ]);
-    });
+//     // Changelog endpoint (public)
+//     Route::get('/changelog', function () {
+//         return response()->json([
+//             'data' => [
+//                 'version' => '1.1',
+//                 'lastUpdated' => '2025-07-10',
+//                 'changes' => [
+//                     'Added standardized response format',
+//                     'Implemented rate limiting (100 req/min)',
+//                     'Added offline support for key endpoints',
+//                     'Enhanced error handling with error codes'
+//                 ]
+//             ]
+//         ]);
+//     });
 
-    // API Status endpoint (public)
-    Route::get('/status', function () {
-        return response()->json([
-            'data' => [
-                'status' => 'operational',
-                'version' => '1.1',
-                'timestamp' => now()->toISOString(),
-                'features' => [
-                    'authentication' => 'Laravel Sanctum',
-                    'rate_limiting' => '100 req/min/user',
-                    'timeout' => '30 seconds',
-                    'offline_support' => 'Available for key endpoints',
-                    'monitoring' => 'Laravel Telescope'
-                ]
-            ]
-        ]);
-    });
-});
+//     // API Status endpoint (public)
+//     Route::get('/status', function () {
+//         return response()->json([
+//             'data' => [
+//                 'status' => 'operational',
+//                 'version' => '1.1',
+//                 'timestamp' => now()->toISOString(),
+//                 'features' => [
+//                     'authentication' => 'Laravel Sanctum',
+//                     'rate_limiting' => '100 req/min/user',
+//                     'timeout' => '30 seconds',
+//                     'offline_support' => 'Available for key endpoints',
+//                     'monitoring' => 'Laravel Telescope'
+//                 ]
+//             ]
+//         ]);
+//     });
+// });
 
-// Test upload route in API (no web middleware)
-Route::post('/test-upload-api', function (Request $request) {
-    return response()->json([
-        'success' => true,
-        'message' => 'API upload test working',
-        'has_file' => $request->hasFile('test_file'),
-        'method' => $request->method()
-    ]);
+// // Test upload route in API (no web middleware)
+// Route::post('/test-upload-api', function (Request $request) {
+//     return response()->json([
+//         'success' => true,
+//         'message' => 'API upload test working',
+//         'has_file' => $request->hasFile('test_file'),
+//         'method' => $request->method()
+//     ]);
 });

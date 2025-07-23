@@ -43,8 +43,15 @@ class UserController extends Controller
         $user = $request->user();
         $page = $request->input('page', 1);
         $perPage = $request->input('perPage', 10);
-
-        $activeDevices = $this->assignmentRepository->getUserActiveDevices($user->user_id);
+        try {
+            $activeDevices = $this->assignmentRepository->getUserActiveDevices($user->user_id);
+        } catch (\Exception $e) {
+            // return response()->json([
+            //     'message' => 'Error fetching active devices.',
+            //     'errorCode' => 'ERR_FETCH_ACTIVE_DEVICES',
+            //     'details' => $e->getMessage()
+            // ], 500);
+        }
         
         // Manual pagination for collection
         $total = $activeDevices->count();
@@ -130,10 +137,11 @@ class UserController extends Controller
 
         // Log the issue report
         InventoryLog::create([
-            'changed_fields' => $id,
-            'action_type' => 'UPDATE',
+            'changed_fields' => 'devices',
+            'action_type' => 'ISSUE_REPORT',
             'old_value' => null,
             'new_value' => json_encode([
+                'device_id' => $id,
                 'type' => 'issue_report',
                 'description' => $request->description,
                 'date' => $request->date,

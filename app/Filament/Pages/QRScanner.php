@@ -8,7 +8,6 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Fadlee\FilamentQrCodeField\Forms\Components\QrCodeInput;
 use App\Models\Device;
 
 class QRScanner extends Page implements HasForms

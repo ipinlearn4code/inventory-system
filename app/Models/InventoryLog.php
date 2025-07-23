@@ -11,7 +11,7 @@ class InventoryLog extends Model
 
     protected $fillable = [
         'changed_fields',
-        'action_type',
+        'action_type', // enum: CREATE, UPDATE, DELETE
         'old_value',
         'new_value',
         'user_affected',

@@ -181,8 +181,7 @@ class DeviceAssignmentService
     private function logAssignmentAction($assignment, string $actionType, ?array $oldValue, ?array $newValue): void
     {
         InventoryLog::create([
-            'resource_type' => 'device_assignment',
-            'resource_id' => $assignment->assignment_id,
+            'changed_fields' => 'device_assignments',
             'action_type' => $actionType,
             'old_value' => $oldValue ? json_encode($oldValue) : null,
             'new_value' => $newValue ? json_encode($newValue) : null,

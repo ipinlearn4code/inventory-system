@@ -18,10 +18,12 @@ class DeviceRepository implements DeviceRepositoryInterface
     public function getAll(): Collection
     {
         return Device::with(['bribox.category', 'currentAssignment.user'])->get();
+
     }
 
     public function getPaginated(array $filters = [], int $perPage = 20): LengthAwarePaginator
     {
+        // dd('hoho');
         $query = Device::with(['bribox.category', 'currentAssignment.user']);
 
         if (!empty($filters['search'])) {

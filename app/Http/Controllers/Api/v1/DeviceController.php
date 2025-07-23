@@ -29,7 +29,7 @@ class DeviceController extends Controller
 
         $perPage = $request->input('perPage', 20);
         $devices = $this->deviceRepository->getPaginated($filters, $perPage);
-
+        // dd($devices);
         $data = collect($devices->items())->map(function ($device) {
             return [
                 'deviceId' => $device->device_id,
@@ -38,19 +38,10 @@ class DeviceController extends Controller
                 'brandName' => $device->brand_name,
                 'serialNumber' => $device->serial_number,
                 'condition' => $device->condition,
-                'category' => $device->bribox->category->name ?? null,
-                'spec1' => $device->spec1,
-                'spec2' => $device->spec2,
-                'spec3' => $device->spec3,
-                'spec4' => $device->spec4,
-                'spec5' => $device->spec5,
                 'isAssigned' => $device->currentAssignment !== null,
                 'assignedTo' => $device->currentAssignment ? $device->currentAssignment->user->name : null,
-                'assignedDate' => $device->currentAssignment ? $device->currentAssignment->assigned_date : null,
-                'createdAt' => $device->created_at,
-                'createdBy' => $device->created_by,
-                'updatedAt' => $device->updated_at,
-                'updatedBy' => $device->updated_by,
+                'category' => $device->bribox->category->name ?? null,
+                
             ];
         });
 
@@ -85,7 +76,7 @@ class DeviceController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'brand' => 'required|string|max:50',
             'brand_name' => 'required|string|max:50',
             'serial_number' => 'required|string|max:50|unique:devices,serial_number',
@@ -101,7 +92,7 @@ class DeviceController extends Controller
         ]);
 
         try {
-            $data = $this->deviceService->createDevice($request->validated());
+            $data = $this->deviceService->createDevice($validatedData);
             return response()->json(['data' => $data], 201);
         } catch (\Exception $e) {
             return response()->json([
@@ -116,7 +107,7 @@ class DeviceController extends Controller
      */
     public function update(Request $request, int $id): JsonResponse
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'brand' => 'sometimes|string|max:255',
             'brand_name' => 'sometimes|string|max:255',
             'serial_number' => 'sometimes|string|max:255|unique:devices,serial_number,' . $id . ',device_id',
@@ -132,7 +123,7 @@ class DeviceController extends Controller
         ]);
 
         try {
-            $data = $this->deviceService->updateDevice($id, $request->validated());
+            $data = $this->deviceService->updateDevice($id, $validatedData);
             return response()->json(['data' => $data]);
         } catch (\Exception $e) {
             return response()->json([
