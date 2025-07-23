@@ -34,7 +34,8 @@ class DeviceAssignmentController extends Controller
             return [
                 'assignmentId' => $assignment->assignment_id,
                 'assetCode' => $assignment->device->asset_code,
-                'brand' => $assignment->device->brand . ' ' . $assignment->device->brand_name,
+                'brand' => $assignment->device->brand,
+                'brandName' => $assignment->device->brand_name,
                 'serialNumber' => $assignment->device->serial_number,
                 'assignedTo' => $assignment->user->name,
                 'unitName' => $assignment->branch->unit_name,

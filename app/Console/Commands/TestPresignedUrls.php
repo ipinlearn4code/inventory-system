@@ -21,14 +21,14 @@ class TestPresignedUrls extends Command
      *
      * @var string
      */
-    protected $description = 'Test presigned URL generation for assignment letters';
+    protected $description = 'Test internal file URL generation for assignment letters';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $this->info('Testing presigned URL generation...');
+        $this->info('Testing internal file URL generation...');
 
         try {
             // Get an assignment letter with a file
@@ -70,24 +70,32 @@ class TestPresignedUrls extends Command
             
             if (isset($previewData['downloadUrl']) && $previewData['downloadUrl']) {
                 $this->info('✅ Download URL generated successfully');
-                $this->line('Download URL: ' . substr($previewData['downloadUrl'], 0, 100) . '...');
+                $this->line('Download URL: ' . $previewData['downloadUrl']);
                 
-                // Check if URL contains expected parameters
-                if (strpos($previewData['downloadUrl'], 'X-Amz-Expires') !== false) {
-                    $this->info('✅ URL appears to be a presigned URL (contains X-Amz-Expires)');
+                // Check if URL is internal Laravel route
+                if (strpos($previewData['downloadUrl'], route('assignment-letter.download', ['letter' => 0])) !== false) {
+                    $this->info('✅ URL is internal Laravel route');
                 } else {
-                    $this->warn('⚠️  URL does not appear to be presigned');
+                    $this->warn('⚠️  URL is not internal Laravel route');
                 }
             } else {
                 $this->error('❌ Download URL generation failed');
             }
 
-            // Test direct download URL method
-            $this->info('Testing direct download URL method...');
+            // Test preview URL
+            if (isset($previewData['previewUrl']) && $previewData['previewUrl']) {
+                $this->info('✅ Preview URL generated successfully');
+                $this->line('Preview URL: ' . $previewData['previewUrl']);
+            } else {
+                $this->error('❌ Preview URL generation failed');
+            }
+
+            // Test direct download URL method (deprecated)
+            $this->info('Testing direct download URL method (deprecated)...');
             $directDownloadUrl = $pdfService->getDownloadUrl($letter, 30);
             
             if ($directDownloadUrl) {
-                $this->info('✅ Direct download URL generated successfully');
+                $this->info('✅ Direct download URL generated successfully (fallback)');
                 $this->line('Direct URL: ' . substr($directDownloadUrl, 0, 100) . '...');
             } else {
                 $this->error('❌ Direct download URL generation failed');
@@ -99,7 +107,7 @@ class TestPresignedUrls extends Command
             
             if ($printUrl) {
                 $this->info('✅ Print URL generated successfully');
-                $this->line('Print URL: ' . substr($printUrl, 0, 100) . '...');
+                $this->line('Print URL: ' . $printUrl);
             } else {
                 $this->error('❌ Print URL generation failed');
             }

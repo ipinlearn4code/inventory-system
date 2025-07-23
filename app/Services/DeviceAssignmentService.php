@@ -151,6 +151,7 @@ class DeviceAssignmentService
     public function getAssignmentDetails(int $id): array
     {
         $assignment = $this->assignmentRepository->findById($id);
+        
         if (!$assignment) {
             throw new \Exception('Assignment not found');
         }

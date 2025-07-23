@@ -27,16 +27,16 @@ class PdfPreviewService
             ];
         }
 
-        $fileUrl = $record->getFileUrl();
         $fileName = $this->extractFileName($record->file_path);
         
-        // Generate presigned URL for secure download (30 minutes expiration)
-        $downloadUrl = $this->getDownloadUrl($record, 30);
+        // Generate internal URLs that go through Laravel application
+        $previewUrl = $this->getInternalFileUrl($record, 'preview');
+        $downloadUrl = $this->getInternalFileUrl($record, 'download');
 
         return [
             'hasFile' => true,
             'message' => 'PDF file available',
-            'previewUrl' => $fileUrl,
+            'previewUrl' => $previewUrl,
             'downloadUrl' => $downloadUrl,
             'fileName' => $fileName,
             'fileSize' => $this->getFileSize($record),
@@ -52,7 +52,19 @@ class PdfPreviewService
     }
 
     /**
-     * Get secure download URL with custom expiration
+     * Generate internal file URL that goes through Laravel application
+     */
+    private function getInternalFileUrl(AssignmentLetter $record, string $type = 'preview'): string
+    {
+        $routeName = $type === 'download' ? 'assignment-letter.download' : 'assignment-letter.preview';
+        
+        return route($routeName, [
+            'letter' => $record->letter_id
+        ]);
+    }
+
+    /**
+     * Get secure download URL with custom expiration (deprecated - kept for compatibility)
      */
     public function getDownloadUrl(AssignmentLetter $record, int $expirationMinutes = 30): ?string
     {
@@ -107,13 +119,13 @@ class PdfPreviewService
      */
     public function getPrintUrl(AssignmentLetter $record): ?string
     {
-        $downloadUrl = $this->getDownloadUrl($record, 30);
-        
-        if (!$downloadUrl) {
+        if (!$record->hasFile()) {
             return null;
         }
 
+        $previewUrl = $this->getInternalFileUrl($record, 'preview');
+        
         // Add print parameter to open PDF in print mode
-        return $downloadUrl . '#toolbar=1&navpanes=0&scrollbar=0&view=FitH&print=true';
+        return $previewUrl . '#toolbar=1&navpanes=0&scrollbar=0&view=FitH&print=true';
     }
 }

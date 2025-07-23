@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\FileUploadTestController;
 use App\Http\Controllers\SimpleTestController;
+use App\Http\Controllers\AssignmentLetterFileController;
 use Illuminate\Support\Facades\Route;
 
 // Redirect root to login
@@ -42,6 +43,12 @@ Route::prefix('qr-code')->group(function () {
 Route::prefix('qr-scanner')->group(function () {
     Route::get('/', [App\Http\Controllers\QRCodeScannerController::class, 'index'])->name('qr-scanner.index');
     Route::post('/scan', [App\Http\Controllers\QRCodeScannerController::class, 'scan'])->name('qr-scanner.scan');
+});
+
+// Assignment Letter File routes
+Route::prefix('assignment-letter')->group(function () {
+    Route::get('/{letter}/preview', [AssignmentLetterFileController::class, 'preview'])->name('assignment-letter.preview');
+    Route::get('/{letter}/download', [AssignmentLetterFileController::class, 'download'])->name('assignment-letter.download');
 });
 
 // // Simple test routes
