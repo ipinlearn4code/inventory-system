@@ -4,18 +4,19 @@ namespace App\Services;
 
 use App\Contracts\DeviceRepositoryInterface;
 use App\Contracts\DeviceAssignmentRepositoryInterface;
-use App\Models\InventoryLog;
+use App\Contracts\InventoryLogServiceInterface;
 
 class DeviceService
 {
     public function __construct(
         private DeviceRepositoryInterface $deviceRepository,
-        private DeviceAssignmentRepositoryInterface $assignmentRepository
+        private DeviceAssignmentRepositoryInterface $assignmentRepository,
+        private InventoryLogServiceInterface $inventoryLogService
     ) {}
 
     public function createDevice(array $data): array
     {
-        $currentUserPn = $this->getCurrentUserPn();
+        $currentUserPn = $this->inventoryLogService->getCurrentUserPn();
         
         $deviceData = array_merge($data, [
             'created_by' => $currentUserPn,
@@ -24,8 +25,8 @@ class DeviceService
 
         $device = $this->deviceRepository->create($deviceData);
 
-        // Log the creation
-        $this->logDeviceAction($device, 'CREATE', null, $device->toArray());
+        // Log the creation using the injected service
+        $this->inventoryLogService->logDeviceAction($device, 'CREATE', null, $device->toArray());
 
         return [
             'deviceId' => $device->device_id,
@@ -44,7 +45,7 @@ class DeviceService
             throw new \Exception('Device not found');
         }
 
-        $currentUserPn = $this->getCurrentUserPn();
+        $currentUserPn = $this->inventoryLogService->getCurrentUserPn();
         $oldData = $device->toArray();
 
         $updateData = array_merge($data, [
@@ -54,8 +55,8 @@ class DeviceService
 
         $updatedDevice = $this->deviceRepository->update($id, $updateData);
 
-        // Log the update
-        $this->logDeviceAction($updatedDevice, 'UPDATE', $oldData, $updatedDevice->toArray());
+        // Log the update using the injected service
+        $this->inventoryLogService->logDeviceAction($updatedDevice, 'UPDATE', $oldData, $updatedDevice->toArray());
 
         return [
             'deviceId' => $updatedDevice->device_id,
@@ -78,8 +79,8 @@ class DeviceService
         $result = $this->deviceRepository->delete($id);
 
         if ($result) {
-            // Log the deletion
-            $this->logDeviceAction($device, 'DELETE', $deviceData, null);
+            // Log the deletion using the injected service
+            $this->inventoryLogService->logDeviceAction($device, 'DELETE', $deviceData, null);
         }
 
         return $result;
@@ -138,22 +139,5 @@ class DeviceService
             'updatedAt' => $device->updated_at,
             'updatedBy' => $device->updated_by,
         ];
-    }
-
-    private function logDeviceAction($device, string $actionType, ?array $oldValue, ?array $newValue): void
-    {
-        InventoryLog::create([
-            'changed_fields' => 'devices',  
-            'action_type' => $actionType,
-            'old_value' => $oldValue ? json_encode($oldValue) : null,
-            'new_value' => $newValue ? json_encode($newValue) : null,
-            'created_by' => $this->getCurrentUserPn(),
-            'created_at' => now(),
-        ]);
-    }
-
-    private function getCurrentUserPn(): string
-    {
-        return auth()->user()?->pn ?? session('authenticated_user.pn') ?? 'api-system';
     }
 }

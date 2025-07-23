@@ -3,10 +3,13 @@
 namespace App\Filament\Resources\DeviceAssignmentResource\Pages;
 
 use App\Filament\Resources\DeviceAssignmentResource;
+use App\Traits\HasInventoryLogging;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateDeviceAssignment extends CreateRecord
 {
+    use HasInventoryLogging;
+    
     protected static string $resource = DeviceAssignmentResource::class;
 
     protected function getRedirectUrl(): string
@@ -26,5 +29,11 @@ class CreateDeviceAssignment extends CreateRecord
         }
         
         return $data;
+    }
+
+    protected function afterCreate(): void
+    {
+        // Log the assignment creation
+        $this->logAssignmentModelChanges($this->record, 'created');
     }
 }

@@ -11,9 +11,11 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use App\Traits\HasInventoryLogging;
 
 class DeviceResource extends Resource
 {
+    use HasInventoryLogging;
     protected static ?string $model = Device::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-computer-desktop';
@@ -221,7 +223,7 @@ class DeviceResource extends Resource
                         Forms\Components\TextInput::make('created_by')
                             ->label('Created By')
                             ->default(auth()->user()?->pn ?? session('authenticated_user.pn'))
-                            ->maxLength(7)
+                            ->maxLength(8)
                             ->disabled()
                             // ->dehydrated(fn ($state, $context) => $context === 'create'),
                             ->dehydrated(),
@@ -229,7 +231,7 @@ class DeviceResource extends Resource
                         Forms\Components\TextInput::make('updated_by')
                             ->label('Updated By')
                             ->default(auth()->user()?->pn ?? session('authenticated_user.pn'))
-                            ->maxLength(7)
+                            ->maxLength(8)
                             ->disabled()
                             ->dehydrated(),
                     ])

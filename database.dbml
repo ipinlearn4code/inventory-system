@@ -145,9 +145,9 @@ Table devices {
   spec5 varchar(100) [null, note: 'Device specification 5 (e.g., Graphics)']
   dev_date date [null, note: 'Device manufacture/purchase date']
   created_at datetime [not null, note: 'Record creation timestamp']
-  created_by varchar(7) [not null, note: 'Personnel number of creator']
+  created_by varchar(8) [not null, note: 'Personnel number of creator']
   updated_at datetime [null, note: 'Last update timestamp']
-  updated_by varchar(7) [null, note: 'Personnel number of last updater']
+  updated_by varchar(8) [null, note: 'Personnel number of last updater']
   
   indexes {
     serial_number [name: 'idx_device_serial']
@@ -174,9 +174,9 @@ Table device_assignments {
   returned_date date [null, note: 'Date when device was returned (null if still assigned)']
   notes text [null, note: 'Additional assignment notes or conditions']
   created_at datetime [not null, note: 'Record creation timestamp']
-  created_by varchar(7) [not null, note: 'Personnel number of creator']
+  created_by varchar(8) [not null, note: 'Personnel number of creator']
   updated_at datetime [null, note: 'Last update timestamp']
-  updated_by varchar(7) [null, note: 'Personnel number of last updater']
+  updated_by varchar(8) [null, note: 'Personnel number of last updater']
   
   indexes {
     device_id [name: 'idx_assignment_device']
@@ -221,9 +221,9 @@ Table inventory_logs {
   action_type enum('CREATE', 'UPDATE', 'DELETE') [not null, note: 'Type of action performed']
   old_value text [null, note: 'Previous value before change (JSON format)']
   new_value text [null, note: 'New value after change (JSON format)']
-  user_affected varchar(7) [null, note: 'Personnel number of affected user']
+  user_affected varchar(8) [null, note: 'Personnel number of affected user']
   created_at datetime [not null, note: 'When the action occurred']
-  created_by varchar(7) [not null, note: 'Personnel number who performed action']
+  created_by varchar(8) [not null, note: 'Personnel number who performed action']
   
   indexes {
     changed_fields [name: 'idx_log_changed_fields']

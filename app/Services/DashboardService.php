@@ -81,13 +81,13 @@ class DashboardService implements DashboardServiceInterface
                     $title = 'Laporan Masalah';
                     $description = $newValue['description'] ?? 'Laporan masalah perangkat';
                 }
-
+                
                 return [
                     'type' => $type,
                     'Category' => $category,
                     'title' => $title,
                     'description' => $description,
-                    'user' => $log->created_by ?? 'System',
+                    'user' => $log->created_by?->user?->name ?? 'System',
                     'date' => $log->created_at ? $log->created_at->format('Y-m-d') : date('Y-m-d'),
                     'time' => $log->created_at ? $log->created_at->format('H:i:s') : date('H:i:s')
                 ];

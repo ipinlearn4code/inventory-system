@@ -13,7 +13,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Bind InventoryLogService interface
+        $this->app->bind(
+            \App\Contracts\InventoryLogServiceInterface::class,
+            \App\Services\InventoryLogService::class
+        );
     }
 
     /**

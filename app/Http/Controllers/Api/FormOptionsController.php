@@ -1,3 +1,4 @@
+<!-- unused, Deprecated code -->
 <?php
 
 namespace App\Http\Controllers\Api;

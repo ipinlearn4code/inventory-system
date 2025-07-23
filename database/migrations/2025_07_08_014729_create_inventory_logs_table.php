@@ -17,9 +17,9 @@ return new class extends Migration
             $table->enum('action_type', ['CREATE', 'UPDATE', 'DELETE']);
             $table->text('old_value')->nullable();
             $table->text('new_value')->nullable();
-            $table->string('user_affected', 7)->nullable();
+            $table->string('user_affected', 8)->nullable();
             $table->datetime('created_at');
-            $table->string('created_by', 7);
+            $table->string('created_by', 8);
             $table->index('changed_fields');
             $table->index('created_at');
         });

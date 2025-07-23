@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use App\Models\Device;
 use App\Models\DeviceAssignment;
 use App\Models\AssignmentLetter;
+use App\Models\InventoryLog;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Carbon;
 
@@ -23,41 +24,107 @@ class ActivityLogWidget extends Widget
     {
         $activities = collect();
 
-        // Recent device additions
-        $recentDevices = Device::with('bribox.category')
-            ->latest()
-            ->limit(3)
+        // Get recent inventory logs for device operations
+        $recentDeviceLogs = InventoryLog::where('changed_fields', 'devices')
+            ->whereIn('action_type', ['CREATE', 'UPDATE', 'DELETE'])
+            ->latest('created_at')
+            ->limit(5)
             ->get()
-            ->map(function ($device) {
+            ->map(function ($log) {
+                $newValue = $log->new_value ? json_decode($log->new_value, true) : null;
+                $oldValue = $log->old_value ? json_decode($log->old_value, true) : null;
+                
+                $icon = match($log->action_type) {
+                    'CREATE' => 'heroicon-m-plus-circle',
+                    'UPDATE' => 'heroicon-m-pencil-square',
+                    'DELETE' => 'heroicon-m-trash',
+                    default => 'heroicon-m-cog'
+                };
+                
+                $color = match($log->action_type) {
+                    'CREATE' => 'success',
+                    'UPDATE' => 'warning',
+                    'DELETE' => 'danger',
+                    default => 'gray'
+                };
+                
+                $title = match($log->action_type) {
+                    'CREATE' => 'Perangkat baru ditambahkan',
+                    'UPDATE' => 'Perangkat diperbarui',
+                    'DELETE' => 'Perangkat dihapus',
+                    default => 'Perubahan perangkat'
+                };
+                
+                $description = 'Unknown device';
+                if ($newValue) {
+                    $description = ($newValue['brand'] ?? '') . ' ' . ($newValue['brand_name'] ?? '') . 
+                                 ' (' . ($newValue['asset_code'] ?? 'No code') . ')';
+                } elseif ($oldValue) {
+                    $description = ($oldValue['brand'] ?? '') . ' ' . ($oldValue['brand_name'] ?? '') . 
+                                 ' (' . ($oldValue['asset_code'] ?? 'No code') . ')';
+                }
+                
                 return [
-                    'type' => 'device_added',
-                    'icon' => 'heroicon-m-plus-circle',
-                    'color' => 'success',
-                    'title' => 'Perangkat baru ditambahkan',
-                    'description' => $device->brand . ' ' . $device->brand_name . ' (' . ($device->bribox->category->category_name ?? 'Unknown') . ')',
-                    'user' => $device->created_by->user->name ?? 'System',
-                    'time' => $device->created_at,
+                    'type' => 'device_' . strtolower($log->action_type),
+                    'icon' => $icon,
+                    'color' => $color,
+                    'title' => $title,
+                    'description' => $description,
+                    'user' => $log->created_by ?? 'System',
+                    'time' => $log->created_at,
                 ];
             });
 
-        // Recent assignments
-        $recentAssignments = DeviceAssignment::with(['device', 'user'])
-            ->latest()
+        // Get recent inventory logs for assignment operations
+        $recentAssignmentLogs = InventoryLog::where('changed_fields', 'device_assignments')
+            ->whereIn('action_type', ['CREATE', 'UPDATE', 'DELETE'])
+            ->latest('created_at')
             ->limit(3)
             ->get()
-            ->map(function ($assignment) {
+            ->map(function ($log) {
+                $newValue = $log->new_value ? json_decode($log->new_value, true) : null;
+                
+                $icon = match($log->action_type) {
+                    'CREATE' => 'heroicon-m-arrow-right-circle',
+                    'UPDATE' => 'heroicon-m-arrow-path',
+                    'DELETE' => 'heroicon-m-x-circle',
+                    default => 'heroicon-m-cog'
+                };
+                
+                $color = match($log->action_type) {
+                    'CREATE' => 'info',
+                    'UPDATE' => 'warning',
+                    'DELETE' => 'danger',
+                    default => 'gray'
+                };
+                
+                $title = match($log->action_type) {
+                    'CREATE' => 'Perangkat ditugaskan',
+                    'UPDATE' => 'Assignment diperbarui',
+                    'DELETE' => 'Assignment dihapus',
+                    default => 'Perubahan assignment'
+                };
+                
+                $description = 'Device assignment';
+                if ($newValue && isset($newValue['device_id'])) {
+                    $description = "Device ID: {$newValue['device_id']}";
+                    if ($log->user_affected) {
+                        $description .= " kepada {$log->user_affected}";
+                    }
+                }
+                
                 return [
-                    'type' => 'device_assigned',
-                    'icon' => 'heroicon-m-arrow-right-circle',
-                    'color' => 'info',
-                    'title' => 'Perangkat ditugaskan',
-                    'description' => "{$assignment->device->brand} {$assignment->device->brand_name} kepada {$assignment->user->name}",
-                    'user' => $assignment->created_by ?? 'System',
-                    'time' => $assignment->assigned_date,
+                    'type' => 'assignment_' . strtolower($log->action_type),
+                    'icon' => $icon,
+                    'color' => $color,
+                    'title' => $title,
+                    'description' => $description,
+                    'user' => $log->created_by ?? 'System',
+                    'time' => $log->created_at,
                 ];
             });
 
-        // Recent assignment letters
+        // Recent assignment letters (keeping original logic for now)
         $recentLetters = AssignmentLetter::with(['assignment.user', 'assignment.device'])
             ->latest()
             ->limit(2)
@@ -76,8 +143,8 @@ class ActivityLogWidget extends Widget
 
         // Combine and sort by time
         return $activities
-            ->merge($recentDevices)
-            ->merge($recentAssignments)
+            ->merge($recentDeviceLogs)
+            ->merge($recentAssignmentLogs)
             ->merge($recentLetters)
             ->sortByDesc('time')
             ->take(8)

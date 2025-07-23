@@ -18,9 +18,11 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Textarea;
 use App\Filament\Forms\Components\QrCodeScanner;
+use App\Traits\HasInventoryLogging;
 
 class DeviceAssignmentResource extends Resource
 {
+    use HasInventoryLogging;
     protected static ?string $model = DeviceAssignment::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
