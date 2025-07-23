@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Contracts\DeviceRepositoryInterface;
 use App\Contracts\DeviceAssignmentRepositoryInterface;
 use App\Contracts\InventoryLogServiceInterface;
+use Illuminate\Support\Facades\DB;
 
 class DeviceService
 {
@@ -16,74 +17,80 @@ class DeviceService
 
     public function createDevice(array $data): array
     {
-        $currentUserPn = $this->inventoryLogService->getCurrentUserPn();
-        
-        $deviceData = array_merge($data, [
-            'created_by' => $currentUserPn,
-            'created_at' => now(),
-        ]);
+        return DB::transaction(function () use ($data) {
+            $currentUserPn = $this->inventoryLogService->getCurrentUserPn();
+            
+            $deviceData = array_merge($data, [
+                'created_by' => $currentUserPn,
+                'created_at' => now(),
+            ]);
 
-        $device = $this->deviceRepository->create($deviceData);
+            $device = $this->deviceRepository->create($deviceData);
 
-        // Log the creation using the injected service
-        $this->inventoryLogService->logDeviceAction($device, 'CREATE', null, $device->toArray());
+            // Log the creation - if this fails, the transaction will rollback
+            $this->inventoryLogService->logDeviceAction($device, 'CREATE', null, $device->toArray());
 
-        return [
-            'deviceId' => $device->device_id,
-            'assetCode' => $device->asset_code,
-            'brand' => $device->brand,
-            'brandName' => $device->brand_name,
-            'serialNumber' => $device->serial_number,
-            'condition' => $device->condition,
-        ];
+            return [
+                'deviceId' => $device->device_id,
+                'assetCode' => $device->asset_code,
+                'brand' => $device->brand,
+                'brandName' => $device->brand_name,
+                'serialNumber' => $device->serial_number,
+                'condition' => $device->condition,
+            ];
+        });
     }
 
     public function updateDevice(int $id, array $data): array
     {
-        $device = $this->deviceRepository->findById($id);
-        if (!$device) {
-            throw new \Exception('Device not found');
-        }
+        return DB::transaction(function () use ($id, $data) {
+            $device = $this->deviceRepository->findById($id);
+            if (!$device) {
+                throw new \Exception('Device not found');
+            }
 
-        $currentUserPn = $this->inventoryLogService->getCurrentUserPn();
-        $oldData = $device->toArray();
+            $currentUserPn = $this->inventoryLogService->getCurrentUserPn();
+            $oldData = $device->toArray();
 
-        $updateData = array_merge($data, [
-            'updated_by' => $currentUserPn,
-            'updated_at' => now(),
-        ]);
+            $updateData = array_merge($data, [
+                'updated_by' => $currentUserPn,
+                'updated_at' => now(),
+            ]);
 
-        $updatedDevice = $this->deviceRepository->update($id, $updateData);
+            $updatedDevice = $this->deviceRepository->update($id, $updateData);
 
-        // Log the update using the injected service
-        $this->inventoryLogService->logDeviceAction($updatedDevice, 'UPDATE', $oldData, $updatedDevice->toArray());
+            // Log the update - if this fails, the transaction will rollback
+            $this->inventoryLogService->logDeviceAction($updatedDevice, 'UPDATE', $oldData, $updatedDevice->toArray());
 
-        return [
-            'deviceId' => $updatedDevice->device_id,
-            'assetCode' => $updatedDevice->asset_code,
-            'brand' => $updatedDevice->brand,
-            'brandName' => $updatedDevice->brand_name,
-            'serialNumber' => $updatedDevice->serial_number,
-            'condition' => $updatedDevice->condition,
-        ];
+            return [
+                'deviceId' => $updatedDevice->device_id,
+                'assetCode' => $updatedDevice->asset_code,
+                'brand' => $updatedDevice->brand,
+                'brandName' => $updatedDevice->brand_name,
+                'serialNumber' => $updatedDevice->serial_number,
+                'condition' => $updatedDevice->condition,
+            ];
+        });
     }
 
     public function deleteDevice(int $id): bool
     {
-        $device = $this->deviceRepository->findById($id);
-        if (!$device) {
-            throw new \Exception('Device not found');
-        }
+        return DB::transaction(function () use ($id) {
+            $device = $this->deviceRepository->findById($id);
+            if (!$device) {
+                throw new \Exception('Device not found');
+            }
 
-        $deviceData = $device->toArray();
-        $result = $this->deviceRepository->delete($id);
+            $deviceData = $device->toArray();
+            $result = $this->deviceRepository->delete($id);
 
-        if ($result) {
-            // Log the deletion using the injected service
-            $this->inventoryLogService->logDeviceAction($device, 'DELETE', $deviceData, null);
-        }
+            if ($result) {
+                // Log the deletion - if this fails, the transaction will rollback
+                $this->inventoryLogService->logDeviceAction($device, 'DELETE', $deviceData, null);
+            }
 
-        return $result;
+            return $result;
+        });
     }
 
     public function getDeviceDetails(int $id): array

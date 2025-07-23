@@ -6,6 +6,7 @@ use App\Filament\Resources\DeviceResource;
 use App\Traits\HasInventoryLogging;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\DB;
 
 class EditDevice extends EditRecord
 {
@@ -25,9 +26,18 @@ class EditDevice extends EditRecord
     {
         return [
             Actions\DeleteAction::make()
-                ->after(function () {
-                    // Log the device deletion
-                    $this->logDeviceModelChanges($this->record, 'deleted');
+                ->action(function () {
+                    // Wrap deletion in transaction
+                    DB::transaction(function () {
+                        // Store original data before deletion
+                        $originalData = $this->record->toArray();
+                        
+                        // Delete the record
+                        $this->record->delete();
+                        
+                        // Log the device deletion - if this fails, the transaction will rollback
+                        $this->logDeviceModelChanges($this->record, 'deleted');
+                    });
                 }),
         ];
     }
@@ -50,9 +60,15 @@ class EditDevice extends EditRecord
         return $data;
     }
 
-    protected function afterSave(): void
+    public function save(bool $shouldRedirect = true, bool $shouldSendSavedNotification = true): void
     {
-        // Log the device update
-        $this->logDeviceModelChanges($this->record, 'updated', $this->originalData);
+        // Wrap the entire save process in a transaction
+        DB::transaction(function () use ($shouldRedirect, $shouldSendSavedNotification) {
+            // Call the parent save method which will handle the actual update
+            parent::save($shouldRedirect, $shouldSendSavedNotification);
+            
+            // Log the device update - if this fails, the transaction will rollback
+            $this->logDeviceModelChanges($this->record, 'updated', $this->originalData);
+        });
     }
 }
