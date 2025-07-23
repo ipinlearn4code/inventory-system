@@ -6,6 +6,7 @@ use App\Filament\Resources\DeviceResource;
 use App\Traits\HasInventoryLogging;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\DB;
 
 class CreateDevice extends CreateRecord
 {
@@ -29,9 +30,15 @@ class CreateDevice extends CreateRecord
         return $data;
     }
 
-    protected function afterCreate(): void
+    public function create(bool $anotherIsQueued = false): void
     {
-        // Log the device creation
-        $this->logDeviceModelChanges($this->record, 'created');
+        // Wrap the entire creation process in a transaction
+        DB::transaction(function () use ($anotherIsQueued) {
+            // Call the parent create method which will handle the actual creation
+            parent::create($anotherIsQueued);
+            
+            // Log the device creation - if this fails, the transaction will rollback
+            $this->logDeviceModelChanges($this->record, 'created');
+        });
     }
 }

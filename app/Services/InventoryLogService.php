@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Contracts\InventoryLogServiceInterface;
 use App\Models\InventoryLog;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class InventoryLogService implements InventoryLogServiceInterface
 {
@@ -14,7 +15,7 @@ class InventoryLogService implements InventoryLogServiceInterface
     private ?string $cachedUserPn = null;
 
     /**
-     * Log device actions (CREATE, UPDATE, DELETE)
+     * Log device actions (CREATE, UPDATE, DELETE) with transaction safety
      */
     public function logDeviceAction(
         $device, 
@@ -34,7 +35,7 @@ class InventoryLogService implements InventoryLogServiceInterface
     }
 
     /**
-     * Log device assignment actions
+     * Log device assignment actions with transaction safety
      */
     public function logAssignmentAction(
         $assignment, 
@@ -60,7 +61,8 @@ class InventoryLogService implements InventoryLogServiceInterface
     }
 
     /**
-     * Log general inventory actions
+     * Log general inventory actions - This method throws exceptions on failure
+     * to ensure transaction rollback
      */
     public function logInventoryAction(
         string $changedFields,
@@ -70,16 +72,40 @@ class InventoryLogService implements InventoryLogServiceInterface
         ?string $userAffected = null,
         ?string $userPn = null
     ): void {
+        // This method no longer catches exceptions - let them bubble up
+        // to ensure transaction rollback in the calling service
+        InventoryLog::create([
+            'changed_fields' => $changedFields,
+            'action_type' => $actionType,
+            'old_value' => $oldValue ? json_encode($oldValue) : null,
+            'new_value' => $newValue ? json_encode($newValue) : null,
+            'user_affected' => $userAffected,
+            'created_by' => $userPn ?? $this->getCurrentUserPn(),
+            'created_at' => now(),
+        ]);
+    }
+
+    /**
+     * Safe logging method that catches exceptions and logs errors
+     * Use this for non-critical logging that shouldn't affect main operations
+     */
+    public function safeLogInventoryAction(
+        string $changedFields,
+        string $actionType,
+        ?array $oldValue = null,
+        ?array $newValue = null,
+        ?string $userAffected = null,
+        ?string $userPn = null
+    ): void {
         try {
-            InventoryLog::create([
-                'changed_fields' => $changedFields,
-                'action_type' => $actionType,
-                'old_value' => $oldValue ? json_encode($oldValue) : null,
-                'new_value' => $newValue ? json_encode($newValue) : null,
-                'user_affected' => $userAffected,
-                'created_by' => $userPn ?? $this->getCurrentUserPn(),
-                'created_at' => now(),
-            ]);
+            $this->logInventoryAction(
+                $changedFields,
+                $actionType,
+                $oldValue,
+                $newValue,
+                $userAffected,
+                $userPn
+            );
         } catch (\Exception $e) {
             // Log the error but don't fail the main operation
             \Log::error('Failed to create inventory log: ' . $e->getMessage(), [
