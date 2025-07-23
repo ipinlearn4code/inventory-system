@@ -156,6 +156,22 @@ class DeviceAssignmentService
             throw new \Exception('Assignment not found');
         }
 
+        // Get assignment letter data if exists (get the latest one)
+        $assignmentLetter = $assignment->assignmentLetters->first();
+        $assignmentLetterData = null;
+        
+        if ($assignmentLetter) {
+            $assignmentLetterData = [
+                'letterId' => $assignmentLetter->letter_id,
+                'letterType' => $assignmentLetter->letter_type,
+                'approverName' => $assignmentLetter->approver->name ?? null,
+                'creator' => $assignmentLetter->creator->name ?? null,
+                'updater' => $assignmentLetter->updater->name ?? 'N/A',
+                'createdAt' => $assignmentLetter->created_at,
+                'hasFile' => !empty($assignmentLetter->file_path),
+            ];
+        }
+
         return [
             'assignmentId' => $assignment->assignment_id,
             'deviceId' => $assignment->device->device_id,
@@ -176,6 +192,7 @@ class DeviceAssignmentService
             'returnedDate' => $assignment->returned_date,
             'status' => $assignment->status,
             'notes' => $assignment->notes,
+            'assignmentLetterData' => $assignmentLetterData,
         ];
     }
 

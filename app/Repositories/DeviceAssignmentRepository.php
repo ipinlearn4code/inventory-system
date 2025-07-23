@@ -11,7 +11,7 @@ class DeviceAssignmentRepository implements DeviceAssignmentRepositoryInterface
 {
     public function findById(int $id): ?DeviceAssignment
     {
-        return DeviceAssignment::with(['device', 'user.branch', 'branch'])
+        return DeviceAssignment::with(['device', 'user.branch', 'branch', 'assignmentLetters.approver', 'assignmentLetters.creator', 'assignmentLetters.updater'])
             ->find($id);
     }
 

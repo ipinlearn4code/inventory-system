@@ -13,7 +13,8 @@ class DeviceAssignmentController extends Controller
     public function __construct(
         private DeviceAssignmentService $assignmentService,
         private DeviceAssignmentRepositoryInterface $assignmentRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Get device assignments with pagination

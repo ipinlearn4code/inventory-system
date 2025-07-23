@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\v1\DashboardController as V1DashboardController;
 use App\Http\Controllers\Api\v1\UserController as V1UserController;
 use App\Http\Controllers\Api\v1\MetadataController as V1MetadataController;
 use App\Http\Controllers\Api\v1\FormOptionsController as V1FormOptionsController;
+use App\Http\Controllers\AssignmentLetterFileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,6 +25,7 @@ use App\Http\Controllers\Api\v1\FormOptionsController as V1FormOptionsController
 |
 */
 Route::prefix('test')->group(function () {
+    Route::get('/assignment/{id}', [V1DeviceAssignmentController::class, 'show']);
     Route::get('/dashboard', [V1DashboardController::class, 'kpis']);
     Route::get('/devices', [V1DeviceController::class, 'index'])->middleware('api.cache');
     Route::get('/device-assignment-form-options', [V1FormOptionsController::class, 'deviceAssignmentFormOptions']);
@@ -76,6 +78,12 @@ Route::prefix('v1')->group(function () {
                 Route::post('/', [V1DeviceAssignmentController::class, 'store']);
                 Route::put('/{id}', [V1DeviceAssignmentController::class, 'update']);
                 Route::post('/{id}/return', [V1DeviceAssignmentController::class, 'returnDevice']);
+            });
+            
+            // Assignment letters management
+            Route::prefix('assignment-letters')->group(function () {
+                Route::get('/', [AssignmentLetterFileController::class, 'getAssignmentLetterData']);
+                Route::get('/{id}', [AssignmentLetterFileController::class, 'getAssignmentLetterById']);
             });
             
             // User management

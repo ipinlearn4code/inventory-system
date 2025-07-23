@@ -4,15 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\AssignmentLetter;
 use App\Services\MinioStorageService;
+use App\Services\PdfPreviewService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AssignmentLetterFileController extends Controller
 {
     public function __construct(
-        private readonly MinioStorageService $minioService
+        private readonly MinioStorageService $minioService,
+        private readonly PdfPreviewService $pdfPreviewService
     ) {}
 
     /**
@@ -37,6 +40,74 @@ class AssignmentLetterFileController extends Controller
         }
 
         return $this->serveFile($letter, 'attachment');
+    }
+
+    /**
+     * Get assignment letter data for API with transformed fields
+     */
+    public function getAssignmentLetterData(int $assignmentId): JsonResponse
+    {
+        $letter = AssignmentLetter::with(['approver', 'creator', 'updater'])
+            ->where('assignment_id', $assignmentId)
+            ->first();
+
+        if (!$letter) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Assignment letter not found',
+                'data' => null
+            ], 404);
+        }
+
+        // Transform the data
+        $transformedData = [
+            'letter_id' => $letter->letter_id,
+            'assignment_id' => $letter->assignment_id,
+            'letter_type' => $letter->letter_type,
+            'letter_number' => $letter->letter_number,
+            'letter_date' => $letter->letter_date ? $letter->letter_date->format('Y-m-d') : null,
+            'approver_name' => $letter->approver ? $letter->approver->name : null,
+            'file_url' => $letter->hasFile() ? $this->pdfPreviewService->getDownloadUrl($letter, 30) : null,
+            'created_at' => $letter->created_at ? $letter->created_at->toISOString() : null,
+            'creator' => $letter->creator ? $letter->creator->name : null,
+            'updated_at' => $letter->updated_at ? $letter->updated_at->toISOString() : null,
+            'updater' => $letter->updater ? $letter->updater->name : null,
+        ];
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Assignment letter retrieved successfully',
+            'data' => $transformedData
+        ]);
+    }
+
+    /**
+     * Get assignment letter data by letter ID for API
+     */
+    public function getAssignmentLetterById(AssignmentLetter $letter): JsonResponse
+    {
+        $letter->load(['approver', 'creator', 'updater']);
+
+        // Transform the data
+        $transformedData = [
+            'letter_id' => $letter->letter_id,
+            'assignment_id' => $letter->assignment_id,
+            'letter_type' => $letter->letter_type,
+            'letter_number' => $letter->letter_number,
+            'letter_date' => $letter->letter_date ? $letter->letter_date->format('Y-m-d') : null,
+            'approver_name' => $letter->approver ? $letter->approver->name : null,
+            'file_url' => $letter->hasFile() ? $this->pdfPreviewService->getDownloadUrl($letter, 30) : null,
+            'created_at' => $letter->created_at ? $letter->created_at->toISOString() : null,
+            'creator' => $letter->creator ? $letter->creator->name : null,
+            'updated_at' => $letter->updated_at ? $letter->updated_at->toISOString() : null,
+            'updater' => $letter->updater ? $letter->updater->name : null,
+        ];
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Assignment letter retrieved successfully',
+            'data' => $transformedData
+        ]);
     }
 
     /**
