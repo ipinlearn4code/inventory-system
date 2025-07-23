@@ -31,8 +31,6 @@ A comprehensive inventory management platform built with Laravel 12, aimed at ef
 * **Spatie Permissions**
 * **Endroid QR Code**
 * **AWS S3 via Flysystem**
-* **ZXing for QR Scanning**
-
 
 ### Frontend
 
