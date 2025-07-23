@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Device;
 use App\Models\User;
+use App\Models\Branch;
 use Filament\Forms;
 
 class QuickAssignmentFormBuilder
@@ -20,10 +21,43 @@ class QuickAssignmentFormBuilder
         return [
             Forms\Components\Select::make('user_id')
                 ->label('User')
-                ->options(User::pluck('name', 'user_id'))
+                ->options(function () {
+                    return User::with('department')
+                        ->get()
+                        ->mapWithKeys(function ($user) {
+                            $deptName = isset($user->department) ? $user->department->name : 'No Dept';
+                            return [$user->user_id => $user->pn . ' - ' . $user->name . ' (' . $deptName . ')'];
+                        });
+                })
                 ->searchable()
                 ->required()
+                ->live()
+                ->afterStateUpdated(function ($state, Forms\Set $set) {
+                    if ($state) {
+                        $user = User::find($state);
+                        if ($user && $user->branch_id) {
+                            $set('branch_id', $user->branch_id);
+                            
+                            // Show notification that branch was auto-filled
+                            \Filament\Notifications\Notification::make()
+                                ->title('Branch Auto-filled')
+                                ->body("Branch automatically set based on user's branch")
+                                ->success()
+                                ->send();
+                        }
+                    }
+                })
                 ->helperText('User who will receive the device'),
+
+            Forms\Components\Select::make('branch_id')
+                ->label('Branch')
+                ->options(Branch::with('mainBranch')->get()->mapWithKeys(function ($branch) {
+                    return [$branch->branch_id => $branch->unit_name . ' (' . $branch->mainBranch->main_branch_name . ')'];
+                }))
+                ->required()
+                ->searchable()
+                ->preload()
+                ->helperText('This will be auto-filled when you select a user'),
                 
             Forms\Components\Select::make('device_id')
                 ->label('Device')

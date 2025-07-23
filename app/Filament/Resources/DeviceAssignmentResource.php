@@ -136,7 +136,23 @@ class DeviceAssignmentResource extends Resource
                     })
                     ->required()
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->live()
+                    ->afterStateUpdated(function ($state, Forms\Set $set) {
+                        if ($state) {
+                            $user = User::find($state);
+                            if ($user && $user->branch_id) {
+                                $set('branch_id', $user->branch_id);
+                                
+                                // Show notification that branch was auto-filled
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Branch Auto-filled')
+                                    ->body("Branch automatically set based on user's branch")
+                                    ->success()
+                                    ->send();
+                            }
+                        }
+                    }),
 
                 Select::make('branch_id')
                     ->label('Branch')
@@ -145,7 +161,8 @@ class DeviceAssignmentResource extends Resource
                     }))
                     ->required()
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->helperText('This will be auto-filled when you select a user'),
 
                 DatePicker::make('assigned_date')
                     ->label('Assignment Date')

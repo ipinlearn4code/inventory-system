@@ -94,7 +94,7 @@ class MinioStorageService
             throw new \Exception($errorMsg, 0, $e);
         }
     }
-    
+
     /**
      * Get a temporary URL to access a file in MinIO
      *

@@ -6,6 +6,7 @@ use App\Filament\Resources\DeviceAssignmentResource;
 use App\Traits\HasInventoryLogging;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\DB;
 
 class EditDeviceAssignment extends EditRecord
 {
@@ -20,9 +21,18 @@ class EditDeviceAssignment extends EditRecord
     {
         return [
             Actions\DeleteAction::make()
-                ->after(function () {
-                    // Log the assignment deletion
-                    $this->logAssignmentModelChanges($this->record, 'deleted');
+                ->action(function () {
+                    // Wrap deletion in transaction
+                    DB::transaction(function () {
+                        // Store original data before deletion
+                        $originalData = $this->record->toArray();
+                        
+                        // Delete the record
+                        $this->record->delete();
+                        
+                        // Log the assignment deletion - if this fails, the transaction will rollback
+                        $this->logAssignmentModelChanges($this->record, 'deleted');
+                    });
                 }),
         ];
     }
@@ -43,10 +53,16 @@ class EditDeviceAssignment extends EditRecord
         return $data;
     }
 
-    protected function afterSave(): void
+    public function save(bool $shouldRedirect = true, bool $shouldSendSavedNotification = true): void
     {
-        // Log the assignment update
-        $this->logAssignmentModelChanges($this->record, 'updated', $this->originalData);
+        // Wrap the entire save process in a transaction
+        DB::transaction(function () use ($shouldRedirect, $shouldSendSavedNotification) {
+            // Call the parent save method which will handle the actual update
+            parent::save($shouldRedirect, $shouldSendSavedNotification);
+            
+            // Log the assignment update - if this fails, the transaction will rollback
+            $this->logAssignmentModelChanges($this->record, 'updated', $this->originalData);
+        });
     }
 
     protected function getRedirectUrl(): string

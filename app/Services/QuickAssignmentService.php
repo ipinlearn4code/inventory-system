@@ -6,6 +6,7 @@ use App\Models\AssignmentLetter;
 use App\Models\Device;
 use App\Models\DeviceAssignment;
 use App\Models\User;
+use App\Contracts\InventoryLogServiceInterface;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -15,7 +16,8 @@ class QuickAssignmentService
 {
     public function __construct(
         private readonly MinioStorageService $minioStorageService,
-        private readonly AuthenticationService $authService
+        private readonly AuthenticationService $authService,
+        private readonly InventoryLogServiceInterface $inventoryLogService
     ) {}
 
     /**
@@ -34,7 +36,15 @@ class QuickAssignmentService
             if (isset($data['file_path']) && $data['file_path']) {
                 $this->handleFileUpload($assignmentLetter, $data['file_path']);
             }
-            
+
+            // 4. Log both operations - if this fails, the transaction will rollback
+            $this->inventoryLogService->logAssignmentAction(
+                $deviceAssignment, 
+                'CREATE', 
+                null, 
+                $deviceAssignment->toArray()
+            );
+
             return [
                 'device_assignment' => $deviceAssignment,
                 'assignment_letter' => $assignmentLetter,
@@ -49,10 +59,13 @@ class QuickAssignmentService
     {
         $user = User::findOrFail($data['user_id']);
         
+        // Use form's branch_id if provided, otherwise use user's branch_id
+        $branchId = $data['branch_id'] ?? $user->branch_id;
+        
         $assignment = DeviceAssignment::create([
             'device_id' => $data['device_id'],
             'user_id' => $data['user_id'],
-            'branch_id' => $user->branch_id,
+            'branch_id' => $branchId,
             'assigned_date' => $data['assigned_date'],
             'notes' => $data['assignment_notes'] ?? null,
             'created_by' => $this->authService->getCurrentUserId(),

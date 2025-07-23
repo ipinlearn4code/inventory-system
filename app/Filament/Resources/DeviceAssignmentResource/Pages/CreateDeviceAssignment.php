@@ -5,6 +5,7 @@ namespace App\Filament\Resources\DeviceAssignmentResource\Pages;
 use App\Filament\Resources\DeviceAssignmentResource;
 use App\Traits\HasInventoryLogging;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\DB;
 
 class CreateDeviceAssignment extends CreateRecord
 {
@@ -31,9 +32,15 @@ class CreateDeviceAssignment extends CreateRecord
         return $data;
     }
 
-    protected function afterCreate(): void
+    public function create(bool $anotherIsQueued = false): void
     {
-        // Log the assignment creation
-        $this->logAssignmentModelChanges($this->record, 'created');
+        // Wrap the entire creation process in a transaction
+        DB::transaction(function () use ($anotherIsQueued) {
+            // Call the parent create method which will handle the actual creation
+            parent::create($anotherIsQueued);
+            
+            // Log the assignment creation - if this fails, the transaction will rollback
+            $this->logAssignmentModelChanges($this->record, 'created');
+        });
     }
 }
