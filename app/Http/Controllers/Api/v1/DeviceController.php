@@ -31,6 +31,7 @@ class DeviceController extends Controller
         $devices = $this->deviceRepository->getPaginated($filters, $perPage);
         // dd($devices);
         $data = collect($devices->items())->map(function ($device) {
+            // dd($device);
             return [
                 'deviceId' => $device->device_id,
                 'assetCode' => $device->asset_code,
@@ -40,8 +41,7 @@ class DeviceController extends Controller
                 'condition' => $device->condition,
                 'isAssigned' => $device->currentAssignment !== null,
                 'assignedTo' => $device->currentAssignment ? $device->currentAssignment->user->name : null,
-                'category' => $device->bribox->category->name ?? null,
-                
+                'category' => $device->bribox->category->category_name ?? null,
             ];
         });
 

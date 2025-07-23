@@ -35,7 +35,7 @@ class ActivityLogWidget extends Widget
                     'color' => 'success',
                     'title' => 'Perangkat baru ditambahkan',
                     'description' => $device->brand . ' ' . $device->brand_name . ' (' . ($device->bribox->category->category_name ?? 'Unknown') . ')',
-                    'user' => $device->created_by ?? 'System',
+                    'user' => $device->created_by->user->name ?? 'System',
                     'time' => $device->created_at,
                 ];
             });

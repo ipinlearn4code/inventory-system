@@ -24,7 +24,7 @@ use App\Http\Controllers\Api\v1\FormOptionsController as V1FormOptionsController
 |
 */
 Route::prefix('test')->group(function () {
-    Route::get('/devices', [V1UserController::class, 'devices'])->middleware('api.cache');
+    Route::get('/devices', [V1DeviceController::class, 'index'])->middleware('api.cache');
     Route::get('/device-assignment-form-options', [V1FormOptionsController::class, 'deviceAssignmentFormOptions']);
     Route::get('/device-form-options', [V1FormOptionsController::class, 'deviceFormOptions']);
 });

@@ -23,19 +23,18 @@ class DeviceRepository implements DeviceRepositoryInterface
 
     public function getPaginated(array $filters = [], int $perPage = 20): LengthAwarePaginator
     {
-        // dd('hoho');
         $query = Device::with(['bribox.category', 'currentAssignment.user']);
-
+        
         if (!empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('brand', 'like', "%{$search}%")
-                    ->orWhere('brand_name', 'like', "%{$search}%")
-                    ->orWhere('serial_number', 'like', "%{$search}%")
-                    ->orWhere('asset_code', 'like', "%{$search}%");
+                ->orWhere('brand_name', 'like', "%{$search}%")
+                ->orWhere('serial_number', 'like', "%{$search}%")
+                ->orWhere('asset_code', 'like', "%{$search}%");
             });
         }
-
+        
         if (!empty($filters['condition'])) {
             $query->where('condition', $filters['condition']);
         }
@@ -43,16 +42,22 @@ class DeviceRepository implements DeviceRepositoryInterface
         if (!empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
-
+        
         if (!empty($filters['branch_id'])) {
             $query->whereHas('currentAssignment.user', function ($q) use ($filters) {
                 $q->where('branch_id', $filters['branch_id']);
             });
         }
-
+        
+        if (!empty($filters['bribox_category'])) {
+            $query->whereHas('bribox.category', function ($q) use ($filters) {
+                $q->where('category_name', 'like', "%{$filters['bribox_category']}%");
+            });
+        }
+        
         return $query->paginate($perPage);
     }
-
+    
     public function create(array $data): Device
     {
         return Device::create($data);

@@ -31,6 +31,8 @@ A comprehensive inventory management platform built with Laravel 12, aimed at ef
 * **Spatie Permissions**
 * **Endroid QR Code**
 * **AWS S3 via Flysystem**
+* **ZXing for QR Scanning**
+
 
 ### Frontend
 
@@ -39,6 +41,16 @@ A comprehensive inventory management platform built with Laravel 12, aimed at ef
 * **Alpine.js** (Reactive UI)
 * **Livewire** (Real-time components)
 * **html5-qrcode** (QR scanning)
+* **Heroicons** (Icon library)
+* **Filament Forms** (Custom components)
+
+
+### Dev Environment
+* **PHP 8.3**
+* **Node.js 18+**
+* **MySQL 8+**
+* **MinIO** (for local S3 emulation)
+* **Docker**
 
 ### Dev Tools
 
@@ -125,11 +137,15 @@ npm run build   # Production
 
 ```
 ├── app/
-│   ├── Filament/          # Admin resources
-│   ├── Http/Controllers/  # API/Web
-│   ├── Livewire/          # Components
-│   ├── Models/            # Eloquent Models
-│   └── Services/          # QR, others
+│   ├── Console/Commands          # Artisan Commands
+│   ├── Contracts/                # Interfaces and contracts
+│   ├── Filament/                 # Admin resources
+│   ├── Http/Controllers/         # API/Web
+│   ├── Livewire/                 # Components
+│   ├── Models/                   # Eloquent Models
+│   ├── Providers/                # Service Providers
+│   ├── Repositories/             # Data access
+│   └── Services/                 # QR, others
 ├── resources/
 │   ├── css/, js/, views/  # Assets + Blade
 ├── routes/
