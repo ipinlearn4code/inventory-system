@@ -29,12 +29,15 @@ class PdfPreviewService
 
         $fileUrl = $record->getFileUrl();
         $fileName = $this->extractFileName($record->file_path);
+        
+        // Generate presigned URL for secure download (30 minutes expiration)
+        $downloadUrl = $this->getDownloadUrl($record, 30);
 
         return [
             'hasFile' => true,
             'message' => 'PDF file available',
             'previewUrl' => $fileUrl,
-            'downloadUrl' => $fileUrl,
+            'downloadUrl' => $downloadUrl,
             'fileName' => $fileName,
             'fileSize' => $this->getFileSize($record),
         ];
@@ -46,6 +49,26 @@ class PdfPreviewService
     private function extractFileName(string $filePath): string
     {
         return basename($filePath);
+    }
+
+    /**
+     * Get secure download URL with custom expiration
+     */
+    public function getDownloadUrl(AssignmentLetter $record, int $expirationMinutes = 30): ?string
+    {
+        if (!$record->hasFile()) {
+            return null;
+        }
+
+        // Generate presigned URL for secure download
+        $downloadUrl = $this->minioService->getTemporaryUrl($record->file_path, $expirationMinutes);
+        
+        // Fallback to regular file URL if presigned URL generation fails
+        if (!$downloadUrl) {
+            $downloadUrl = $record->getFileUrl();
+        }
+
+        return $downloadUrl;
     }
 
     /**
@@ -84,13 +107,13 @@ class PdfPreviewService
      */
     public function getPrintUrl(AssignmentLetter $record): ?string
     {
-        $fileUrl = $record->getFileUrl();
+        $downloadUrl = $this->getDownloadUrl($record, 30);
         
-        if (!$fileUrl) {
+        if (!$downloadUrl) {
             return null;
         }
 
         // Add print parameter to open PDF in print mode
-        return $fileUrl . '#toolbar=1&navpanes=0&scrollbar=0&view=FitH&print=true';
+        return $downloadUrl . '#toolbar=1&navpanes=0&scrollbar=0&view=FitH&print=true';
     }
 }
