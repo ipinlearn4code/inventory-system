@@ -199,9 +199,9 @@ Table assignment_letters {
   approver_id smallint [not null, ref: > users.user_id, note: 'User who approved the letter']
   file_path varchar(255) [null, note: 'Path to stored letter document file']
   created_at datetime [not null, note: 'Record creation timestamp']
-  created_by varchar(7) [not null, note: 'Personnel number of creator']
+  created_by varchar(8) [not null, note: 'Personnel number of creator']
   updated_at datetime [null, note: 'Last update timestamp']
-  updated_by varchar(7) [null, note: 'Personnel number of last updater']
+  updated_by varchar(8) [null, note: 'Personnel number of last updater']
   
   indexes {
     assignment_id [name: 'idx_letter_assignment']

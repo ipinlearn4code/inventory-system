@@ -20,9 +20,9 @@ return new class extends Migration
             $table->smallInteger('approver_id')->unsigned()->notNull();
             $table->string('file_path', 255)->nullable();
             $table->datetime('created_at')->notNull();
-            $table->string('created_by', 7)->notNull();
+            $table->string('created_by', 8)->notNull();
             $table->datetime('updated_at')->nullable();
-            $table->string('updated_by', 7)->nullable();
+            $table->string('updated_by', 8)->nullable();
             
             $table->foreign('assignment_id')->references('assignment_id')->on('device_assignments')
                   ->onDelete('restrict')->onUpdate('cascade');

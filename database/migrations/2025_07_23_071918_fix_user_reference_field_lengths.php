@@ -49,30 +49,30 @@ return new class extends Migration
     {
         // Revert devices table
         Schema::table('devices', function (Blueprint $table) {
-            $table->string('created_by', 7)->change();
-            $table->string('updated_by', 7)->nullable()->change();
+            $table->string('created_by', 8)->change();
+            $table->string('updated_by', 8)->nullable()->change();
         });
 
         // Revert device_assignments table
         Schema::table('device_assignments', function (Blueprint $table) {
-            $table->string('created_by', 7)->change();
-            $table->string('updated_by', 7)->nullable()->change();
+            $table->string('created_by', 8)->change();
+            $table->string('updated_by', 8)->nullable()->change();
         });
 
         // Revert assignment_letters table
         Schema::table('assignment_letters', function (Blueprint $table) {
-            $table->string('created_by', 7)->change();
-            $table->string('updated_by', 7)->nullable()->change();
+            $table->string('created_by', 8)->change();
+            $table->string('updated_by', 8)->nullable()->change();
         });
 
         // Revert inventory_logs table if it exists
         if (Schema::hasTable('inventory_logs')) {
             Schema::table('inventory_logs', function (Blueprint $table) {
                 if (Schema::hasColumn('inventory_logs', 'created_by')) {
-                    $table->string('created_by', 7)->change();
+                    $table->string('created_by', 8)->change();
                 }
                 if (Schema::hasColumn('inventory_logs', 'user_affected')) {
-                    $table->string('user_affected', 7)->nullable()->change();
+                    $table->string('user_affected', 8)->nullable()->change();
                 }
             });
         }

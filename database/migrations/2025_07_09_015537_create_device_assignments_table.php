@@ -21,9 +21,9 @@ return new class extends Migration
             $table->enum('status', ['Digunakan', 'Tidak Digunakan', 'Cadangan'])->notNull();
             $table->text('notes')->nullable();
             $table->datetime('created_at')->notNull();
-            $table->string('created_by', 7)->notNull();
+            $table->string('created_by', 8)->notNull();
             $table->datetime('updated_at')->nullable();
-            $table->string('updated_by', 7)->nullable();
+            $table->string('updated_by', 8)->nullable();
             
             $table->foreign('device_id')->references('device_id')->on('devices')
                   ->onDelete('restrict')->onUpdate('cascade');

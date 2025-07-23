@@ -26,10 +26,10 @@ return new class extends Migration
             $table->string('spec5', 100)->nullable();
             $table->date('dev_date')->nullable();
             $table->datetime('created_at')->notNull();
-            $table->string('created_by', 7)->notNull();
+            $table->string('created_by', 8)->notNull();
             $table->datetime('updated_at')->nullable();
-            $table->string('updated_by', 7)->nullable();
-            
+            $table->string('updated_by', 8)->nullable();
+
             $table->foreign('bribox_id')->references('bribox_id')->on('briboxes')
                   ->onDelete('restrict')->onUpdate('cascade');
             

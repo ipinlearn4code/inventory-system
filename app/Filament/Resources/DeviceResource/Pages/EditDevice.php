@@ -52,6 +52,8 @@ class EditDevice extends EditRecord
 
     protected function afterSave(): void
     {
+        // Debug session data
+        // dd('Device updated successfully!', $this->record, session()->all());
         // Log the device update
         $this->logDeviceModelChanges($this->record, 'updated', $this->originalData);
     }
