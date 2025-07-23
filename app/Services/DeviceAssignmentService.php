@@ -168,7 +168,7 @@ class DeviceAssignmentService
                 'creator' => $assignmentLetter->creator->name ?? null,
                 'updater' => $assignmentLetter->updater->name ?? 'N/A',
                 'createdAt' => $assignmentLetter->created_at,
-                'hasFile' => !empty($assignmentLetter->file_path),
+                'hasFile' => !isset($assignmentLetter->file_path),
             ];
         }
 
