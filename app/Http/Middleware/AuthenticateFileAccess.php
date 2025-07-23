@@ -15,6 +15,15 @@ class AuthenticateFileAccess
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // Check if user is authenticated (either via session or Sanctum)
+        if (!auth()->check() && !auth('sanctum')->check()) {
+            // Check session-based authentication as fallback
+            $sessionUser = session('authenticated_user');
+            if (!$sessionUser) {
+                abort(403, 'Unauthorized access to file');
+            }
+        }
+
         return $next($request);
     }
 }

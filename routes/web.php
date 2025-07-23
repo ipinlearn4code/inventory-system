@@ -45,8 +45,8 @@ Route::prefix('qr-scanner')->group(function () {
     Route::post('/scan', [App\Http\Controllers\QRCodeScannerController::class, 'scan'])->name('qr-scanner.scan');
 });
 
-// Assignment Letter File routes
-Route::prefix('assignment-letter')->group(function () {
+// Assignment Letter File routes (protected)
+Route::prefix('assignment-letter')->middleware('auth.file')->group(function () {
     Route::get('/{letter}/preview', [AssignmentLetterFileController::class, 'preview'])->name('assignment-letter.preview');
     Route::get('/{letter}/download', [AssignmentLetterFileController::class, 'download'])->name('assignment-letter.download');
 });

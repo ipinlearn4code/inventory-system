@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'api.timeout' => \App\Http\Middleware\ApiTimeout::class,
             'role' => \App\Http\Middleware\CheckRole::class,
             'api.cache' => \App\Http\Middleware\ApiCacheHeaders::class,
+            'auth.file' => \App\Http\Middleware\AuthenticateFileAccess::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
