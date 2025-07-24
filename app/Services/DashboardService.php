@@ -7,6 +7,7 @@ use App\Contracts\DeviceRepositoryInterface;
 use App\Contracts\DeviceAssignmentRepositoryInterface;
 use App\Models\InventoryLog;
 use App\Models\Branch;
+use App\Models\User;
 
 class DashboardService implements DashboardServiceInterface
 {
@@ -81,13 +82,16 @@ class DashboardService implements DashboardServiceInterface
                     $title = 'Laporan Masalah';
                     $description = $newValue['description'] ?? 'Laporan masalah perangkat';
                 }
+
+                $username = User::where('pn', $log->created_by)->first()?->name ?? "System";
+
                 
                 return [
                     'type' => $type,
                     'Category' => $category,
                     'title' => $title,
                     'description' => $description,
-                    'user' => $log->created_by?->user?->name ?? 'System',
+                    'user' => $username,
                     'date' => $log->created_at ? $log->created_at->format('Y-m-d') : date('Y-m-d'),
                     'time' => $log->created_at ? $log->created_at->format('H:i:s') : date('H:i:s')
                 ];

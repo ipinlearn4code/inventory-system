@@ -8,6 +8,7 @@ use App\Models\AssignmentLetter;
 use App\Models\InventoryLog;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Carbon;
+use App\Models\User;
 
 class ActivityLogWidget extends Widget
 {
@@ -63,6 +64,8 @@ class ActivityLogWidget extends Widget
                     $description = ($oldValue['brand'] ?? '') . ' ' . ($oldValue['brand_name'] ?? '') . 
                                  ' (' . ($oldValue['asset_code'] ?? 'No code') . ')';
                 }
+
+                $username = User::where('pn', $log->created_by)->first()?->name ?? "System";
                 
                 return [
                     'type' => 'device_' . strtolower($log->action_type),
@@ -70,7 +73,7 @@ class ActivityLogWidget extends Widget
                     'color' => $color,
                     'title' => $title,
                     'description' => $description,
-                    'user' => $log->created_by ?? 'System',
+                    'user' => $username,
                     'time' => $log->created_at,
                 ];
             });

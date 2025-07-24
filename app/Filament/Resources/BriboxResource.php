@@ -95,12 +95,18 @@ class BriboxResource extends Resource
                     ->toggleable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('category')
+                Tables\Filters\SelectFilter::make('bribox_category_id')
                     ->label('Category')
                     ->options(BriboxesCategory::all()->pluck('category_name', 'bribox_category_id'))
                     ->searchable(),
-                
-           
+                Tables\Filters\SelectFilter::make('bribox_id')
+                    ->label('Bribox ID')
+                    ->options(Bribox::all()->pluck('bribox_id', 'bribox_id'))
+                    ->searchable(),
+                Tables\Filters\SelectFilter::make('type')
+                    ->label('Type')
+                    ->options(Bribox::all()->pluck('type', 'type'))
+                    ->searchable(),
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
