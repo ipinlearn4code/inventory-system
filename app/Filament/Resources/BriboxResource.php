@@ -73,7 +73,8 @@ class BriboxResource extends Resource
                     ->label('Bribox ID')
                     ->searchable()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    
+                    ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('type')
                     ->searchable()
@@ -87,14 +88,19 @@ class BriboxResource extends Resource
                     ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('devices_count')
-                    ->label('Devices')
+                    ->label('Devices Count')
                     ->counts('devices')
                     ->badge()
                     ->color('info')
                     ->toggleable(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('category')
+                    ->label('Category')
+                    ->options(BriboxesCategory::all()->pluck('category_name', 'bribox_category_id'))
+                    ->searchable(),
+                
+           
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([

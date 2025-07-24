@@ -182,6 +182,7 @@ class AssignmentLetterFormBuilder
     {
         return Forms\Components\FileUpload::make('file_path')
             ->label('PDF File')
+            ->required()
             ->disk('public')
             ->directory('assignment-letters')
             ->acceptedFileTypes(['application/pdf'])

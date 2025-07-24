@@ -9,4 +9,10 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateBribox extends CreateRecord
 {
     protected static string $resource = BriboxResource::class;
+
+    
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }
