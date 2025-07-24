@@ -12,6 +12,8 @@ use Illuminate\Contracts\View\View;
 class EditAssignmentLetter extends EditRecord
 {
     protected static string $resource = AssignmentLetterResource::class;
+    
+    protected ?string $tempFilePath = null;
 
     protected function getHeaderActions(): array
     {
@@ -62,33 +64,38 @@ class EditAssignmentLetter extends EditRecord
         // Remove the is_approver field as it's not part of the model
         unset($data['is_approver']);
         
+        // CRITICAL FIX: Handle file path for edit operations
+        if (isset($data['file_path'])) {
+            $currentRecord = $this->getRecord();
+            $originalFilePath = $currentRecord ? $currentRecord->getOriginal('file_path') : null;
+            
+            // Check if this is a new file upload (different from original)
+            if ($data['file_path'] !== $originalFilePath) {
+                // This is a new file upload - store temp path and remove from database save
+                $this->tempFilePath = $data['file_path'];
+                unset($data['file_path']); // Don't save to database yet
+            }
+        }
+        
         return $data;
     }    protected function afterSave(): void
     {
         try {
             // Handle file upload to MinIO if a new file was uploaded
             $record = $this->getRecord();
-            $filePath = $this->data['file_path'] ?? null;
+            $filePath = $this->tempFilePath; // Use the stored temp file path
             
             \Log::info("Edit afterSave debug", [
-                'file_path' => $filePath,
+                'temp_file_path' => $filePath,
                 'file_path_type' => gettype($filePath),
                 'original_file_path' => $record->getOriginal('file_path'),
                 'record_id' => $record->getKey()
             ]);
             
-            // Only process if we have a file path and it's different from the original
+            // Only process if we have a temp file path (indicating new upload)
             if ($filePath && $record) {
-                $originalFilePath = $record->getOriginal('file_path');
-                
-                // Check if this is actually a new file upload
-                if ($filePath !== $originalFilePath) {
-                    // This is a new file upload
-                    $this->handleFileUploadToMinio($record, $filePath);
-                } else {
-                    // This might be just a form re-save without new file
-                    \Log::info("No new file upload detected, skipping MinIO transfer");
-                }
+                // This is a new file upload
+                $this->handleFileUploadToMinio($record, $filePath);
             }
         } catch (\Exception $e) {
             \Log::error("File update failed", [

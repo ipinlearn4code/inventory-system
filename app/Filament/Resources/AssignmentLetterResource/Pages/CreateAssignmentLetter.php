@@ -13,6 +13,8 @@ class CreateAssignmentLetter extends CreateRecord
 {
     protected static string $resource = AssignmentLetterResource::class;
     
+    protected ?string $tempFilePath = null;
+    
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         // Set created_by from authenticated user
@@ -42,6 +44,13 @@ class CreateAssignmentLetter extends CreateRecord
             $data['created_at'] = now();
         }
         
+        // CRITICAL FIX: Don't save file_path to database yet - let our custom logic handle it
+        if (isset($data['file_path'])) {
+            // Store the temp file path for later processing but don't save to database
+            $this->tempFilePath = $data['file_path'];
+            unset($data['file_path']); // Remove from data to be saved to database
+        }
+        
         return $data;
     }
     
@@ -49,10 +58,10 @@ class CreateAssignmentLetter extends CreateRecord
     {
         try {
             $record = $this->getRecord();
-            $filePath = $this->data['file_path'] ?? null;
+            $filePath = $this->tempFilePath; // Use the stored temp file path
             
             \Log::info("Create afterCreate debug", [
-                'file_path' => $filePath,
+                'temp_file_path' => $filePath,
                 'file_path_type' => gettype($filePath),
                 'record_id' => $record->getKey()
             ]);
