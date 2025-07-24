@@ -188,7 +188,12 @@ class AssignmentLetterFormBuilder
             ->maxSize(5120)
             ->helperText($this->getStorageHelperText())
             ->hint($this->getStorageHint())
-            ->hiddenLabel(fn ($record) => filled($record) && $record->hasFile());
+            ->hiddenLabel(fn ($record) => filled($record) && $record->hasFile())
+            ->preserveFilenames() // This preserves the original filename
+            ->getUploadedFileNameForStorageUsing(function ($file) {
+                // Return the original filename without modification
+                return $file->getClientOriginalName();
+            });
     }
 
     /**

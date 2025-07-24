@@ -47,7 +47,6 @@ class MinioStorageService
 
             // Get original filename and sanitize it (preserve extension)
             $originalName = $file->getClientOriginalName();
-            dd($originalName);
             $pathInfo = pathinfo($originalName);
             $nameWithoutExt = $pathInfo['filename'];
             $extension = $pathInfo['extension'] ?? '';
