@@ -171,7 +171,7 @@ class DeviceAssignmentService
                 'hasFile' => !isset($assignmentLetter->file_path),
             ];
         }
-
+        
         return [
             'assignmentId' => $assignment->assignment_id,
             'deviceId' => $assignment->device->device_id,
@@ -192,7 +192,7 @@ class DeviceAssignmentService
             'returnedDate' => $assignment->returned_date,
             'status' => $assignment->status,
             'notes' => $assignment->notes,
-            'assignmentLetterData' => $assignmentLetterData,
+            'assignmentLetterData' => $assignmentLetterData,    
         ];
     }
 

@@ -43,7 +43,7 @@ Route::prefix('v1')->group(function () {
 
     // Protected routes
     Route::middleware(['auth:sanctum', 'api.timeout', 'throttle:100,1'])->group(function () {
-        
+
         // User routes
         Route::prefix('user')->middleware('role:user')->group(function () {
             Route::get('/home/summary', [V1UserController::class, 'homeSummary'])->middleware('api.cache');
@@ -58,7 +58,7 @@ Route::prefix('v1')->group(function () {
         Route::prefix('admin')->middleware('role:admin,superadmin')->group(function () {
             Route::get('/dashboard/kpis', [V1DashboardController::class, 'kpis']);
             Route::get('/dashboard/charts', [V1DashboardController::class, 'charts']);
-            
+
             Route::get('/form-options/fields', [V1FormOptionsController::class, 'getFieldOptions']);
             // Device management
             Route::prefix('devices')->group(function () {
@@ -69,7 +69,7 @@ Route::prefix('v1')->group(function () {
                 Route::put('/{id}', [V1DeviceController::class, 'update']);
                 Route::delete('/{id}', [V1DeviceController::class, 'destroy']);
             });
-            
+
             // Device assignment management
             Route::prefix('device-assignments')->group(function () {
                 Route::get('/form-options', [V1FormOptionsController::class, 'deviceAssignmentFormOptions']);
@@ -79,26 +79,26 @@ Route::prefix('v1')->group(function () {
                 Route::put('/{id}', [V1DeviceAssignmentController::class, 'update']);
                 Route::post('/{id}/return', [V1DeviceAssignmentController::class, 'returnDevice']);
             });
-            
+
             // Assignment letters management
             Route::prefix('assignment-letters')->group(function () {
                 Route::get('/', [AssignmentLetterFileController::class, 'getAssignmentLetterData']);
                 Route::get('/{id}', [AssignmentLetterFileController::class, 'getAssignmentLetterById']);
             });
-            
+
             // User management
             Route::get('/users', [V1MetadataController::class, 'users']);
-            
+
             // Master data
             Route::get('/branches', [V1MetadataController::class, 'branches']);
             Route::get('/categories', [V1MetadataController::class, 'categories']);
-            
+
             // Form options for external apps
             Route::prefix('form-options')->group(function () {
                 Route::get('/validation/devices', [V1FormOptionsController::class, 'deviceValidationRules']);
                 Route::get('/validation/device-assignments', [V1FormOptionsController::class, 'deviceAssignmentValidationRules']);
             });
-            
+
             // File management (MinIO)
             Route::prefix('files')->group(function () {
                 Route::post('/assignment-letters', [StorageController::class, 'uploadAssignmentLetter']);
@@ -111,19 +111,19 @@ Route::prefix('v1')->group(function () {
             });
         });
     });
-    
-//     // Internal API routes for admin panel (no auth middleware for simplicity)
+
+    //     // Internal API routes for admin panel (no auth middleware for simplicity)
 //     Route::prefix('internal')->group(function () {
 //         Route::get('/devices/find-by-asset-code/{assetCode}', function ($assetCode) {
 //             $device = \App\Models\Device::where('asset_code', $assetCode)
 //                 ->whereDoesntHave('currentAssignment') // Only available devices
 //                 ->first();
-            
-//             if (!$device) {
+
+    //             if (!$device) {
 //                 return response()->json(['error' => 'Device not found or not available'], 404);
 //             }
-            
-//             return response()->json([
+
+    //             return response()->json([
 //                 'device' => [
 //                     'id' => $device->device_id,
 //                     'device_id' => $device->device_id,
@@ -136,7 +136,7 @@ Route::prefix('v1')->group(function () {
 //         });
 //     });
 
-//     // Changelog endpoint (public)
+    //     // Changelog endpoint (public)
 //     Route::get('/changelog', function () {
 //         return response()->json([
 //             'data' => [
@@ -152,26 +152,26 @@ Route::prefix('v1')->group(function () {
 //         ]);
 //     });
 
-//     // API Status endpoint (public)
-//     Route::get('/status', function () {
-//         return response()->json([
-//             'data' => [
-//                 'status' => 'operational',
-//                 'version' => '1.1',
-//                 'timestamp' => now()->toISOString(),
-//                 'features' => [
-//                     'authentication' => 'Laravel Sanctum',
-//                     'rate_limiting' => '100 req/min/user',
-//                     'timeout' => '30 seconds',
-//                     'offline_support' => 'Available for key endpoints',
-//                     'monitoring' => 'Laravel Telescope'
-//                 ]
-//             ]
-//         ]);
-//     });
-// });
+    //     // API Status endpoint (public)
+    Route::get('/status', function () {
+        return response()->json([
+            'data' => [
+                'status' => 'operational',
+                'version' => '1.1',
+                'timestamp' => now()->toISOString(),
+                'features' => [
+                    'authentication' => 'Laravel Sanctum',
+                    'rate_limiting' => '100 req/min/user',
+                    'timeout' => '30 seconds',
+                    'offline_support' => 'Available for key endpoints',
+                    'monitoring' => 'Laravel Telescope'
+                ]
+            ]
+        ]);
+    });
+    // });
 
-// // Test upload route in API (no web middleware)
+    // // Test upload route in API (no web middleware)
 // Route::post('/test-upload-api', function (Request $request) {
 //     return response()->json([
 //         'success' => true,
