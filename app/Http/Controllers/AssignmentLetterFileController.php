@@ -59,7 +59,7 @@ class AssignmentLetterFileController extends Controller
             ], 404);
         }
 
-        // Transform the data
+        // Transform the data with proxy URLs
         $transformedData = [
             'letter_id' => $letter->letter_id,
             'assignment_id' => $letter->assignment_id,
@@ -67,7 +67,8 @@ class AssignmentLetterFileController extends Controller
             'letter_number' => $letter->letter_number,
             'letter_date' => $letter->letter_date ? $letter->letter_date->format('Y-m-d') : null,
             'approver_name' => $letter->approver ? $letter->approver->name : null,
-            'file_url' => $letter->hasFile() ? $this->pdfPreviewService->getDownloadUrl($letter, 30) : null,
+            'file_url' => $letter->hasFile() ? $letter->getFileUrl() : null, // Uses proxy URL
+            'download_url' => $letter->hasFile() ? route('assignment-letter.download', ['letter' => $letter->letter_id]) : null,
             'created_at' => $letter->created_at ? $letter->created_at->toISOString() : null,
             'creator' => $letter->creator ? $letter->creator->name : null,
             'updated_at' => $letter->updated_at ? $letter->updated_at->toISOString() : null,
@@ -88,7 +89,7 @@ class AssignmentLetterFileController extends Controller
     {
         $letter->load(['approver', 'creator', 'updater']);
 
-        // Transform the data
+        // Transform the data with proxy URLs
         $transformedData = [
             'letter_id' => $letter->letter_id,
             'assignment_id' => $letter->assignment_id,
@@ -96,7 +97,8 @@ class AssignmentLetterFileController extends Controller
             'letter_number' => $letter->letter_number,
             'letter_date' => $letter->letter_date ? $letter->letter_date->format('Y-m-d') : null,
             'approver_name' => $letter->approver ? $letter->approver->name : null,
-            'file_url' => $letter->hasFile() ? $this->pdfPreviewService->getDownloadUrl($letter, 30) : null,
+            'file_url' => $letter->hasFile() ? $letter->getFileUrl() : null, // Uses proxy URL
+            'download_url' => $letter->hasFile() ? route('assignment-letter.download', ['letter' => $letter->letter_id]) : null,
             'created_at' => $letter->created_at ? $letter->created_at->toISOString() : null,
             'creator' => $letter->creator ? $letter->creator->name : null,
             'updated_at' => $letter->updated_at ? $letter->updated_at->toISOString() : null,

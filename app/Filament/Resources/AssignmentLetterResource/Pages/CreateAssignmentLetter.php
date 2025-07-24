@@ -20,11 +20,11 @@ class CreateAssignmentLetter extends CreateRecord
         if ($auth) {
             $user = User::where('pn', $auth['pn'])->first();
             if ($user) {
-                $data['created_by'] = $user->user_id;
+                $data['created_by'] = $user->getKey();
                 
                 // Handle approver logic: if is_approver toggle is true, set current user as approver
                 if (isset($data['is_approver']) && $data['is_approver']) {
-                    $data['approver_id'] = $user->user_id;
+                    $data['approver_id'] = $user->getKey();
                 }
             }
         }
@@ -48,25 +48,12 @@ class CreateAssignmentLetter extends CreateRecord
     protected function afterCreate(): void
     {
         try {
-            // For now, just test basic file upload without MinIO
             $record = $this->getRecord();
             $filePath = $this->data['file_path'] ?? null;
             
             if ($filePath && $record) {
-                \Log::info("File uploaded successfully to local storage", [
-                    'file_path' => $filePath,
-                    'record_id' => $record->letter_id
-                ]);
-                
-                // For now, just save the local path to database
-                $record->update(['file_path' => $filePath]);
-                
-                // Show success notification
-                \Filament\Notifications\Notification::make()
-                    ->title('File Uploaded')
-                    ->body('File has been uploaded successfully to local storage.')
-                    ->success()
-                    ->send();
+                // Handle file upload to MinIO with proper structured path
+                $this->handleFileUploadToMinio($record, $filePath);
             }
         } catch (\Exception $e) {
             \Log::error("File upload failed", [
@@ -81,6 +68,91 @@ class CreateAssignmentLetter extends CreateRecord
                 ->danger()
                 ->send();
         }
+    }
+
+    /**
+     * Handle file upload to MinIO with proper structured path
+     */
+    private function handleFileUploadToMinio($record, $filePath): void
+    {
+        // Find the actual uploaded file in public storage
+        $tempFilePath = null;
+        
+        // Handle Filament's file path format - it can be a string or array
+        if (is_array($filePath)) {
+            // Get the first file if it's an array
+            $actualPath = reset($filePath);
+        } else {
+            $actualPath = $filePath;
+        }
+        
+        // Check multiple possible locations for the temporary file
+        $possiblePaths = [
+            storage_path('app/public/' . $actualPath),
+            public_path('storage/' . $actualPath),
+            storage_path('app/public/assignment-letters/' . basename($actualPath)),
+        ];
+        
+        foreach ($possiblePaths as $path) {
+            if (file_exists($path)) {
+                $tempFilePath = $path;
+                break;
+            }
+        }
+        
+        if (!$tempFilePath) {
+            throw new \Exception("Temporary file not found. Tried paths: " . implode(', ', $possiblePaths));
+        }
+
+        \Log::info("Processing uploaded file", [
+            'file_path' => $actualPath,
+            'temp_file_path' => $tempFilePath,
+            'size' => filesize($tempFilePath),
+            'mime_type' => mime_content_type($tempFilePath)
+        ]);
+
+        // Validate file type
+        $mimeType = mime_content_type($tempFilePath);
+        $validMimeTypes = ['application/pdf', 'image/jpeg', 'image/jpg'];
+        if (!in_array($mimeType, $validMimeTypes)) {
+            throw new \Exception("Invalid file type: {$mimeType}. Only PDF and JPG files are accepted.");
+        }
+
+        // Create an UploadedFile from the temporary file
+        $uploadedFile = new \Illuminate\Http\UploadedFile(
+            $tempFilePath,
+            basename($actualPath),
+            $mimeType,
+            null,
+            true
+        );
+
+        // Store the file using the model's method which will use proper MinIO structure
+        $minioPath = $record->storeFile($uploadedFile);
+
+        if (!$minioPath) {
+            throw new \Exception("Failed to upload file to MinIO storage");
+        }
+
+        \Log::info("File uploaded successfully to MinIO", [
+            'minio_path' => $minioPath,
+            'record_id' => $record->letter_id
+        ]);
+
+        // Clean up temporary file
+        @unlink($tempFilePath);
+        
+        // Also clean up from public storage if it exists
+        if (\Storage::disk('public')->exists($actualPath)) {
+            \Storage::disk('public')->delete($actualPath);
+        }
+
+        // Show success notification
+        \Filament\Notifications\Notification::make()
+            ->title('File Uploaded')
+            ->body('File has been uploaded successfully to MinIO storage.')
+            ->success()
+            ->send();
     }
 
     public function getHeader(): ?View

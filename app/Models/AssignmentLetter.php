@@ -100,11 +100,26 @@ class AssignmentLetter extends Model
     }
 
     /**
-     * Get the URL for the assignment letter file
+     * Get the URL for the assignment letter file (proxy through Laravel)
      *
      * @return string|null URL to access the file
      */
     public function getFileUrl(): ?string
+    {
+        if (!$this->file_path) {
+            return null;
+        }
+
+        // Use Laravel proxy URL instead of direct MinIO URL for security and consistency
+        return route('assignment-letter.preview', ['letter' => $this->letter_id]);
+    }
+
+    /**
+     * Get direct MinIO temporary URL (for internal use only)
+     *
+     * @return string|null Direct MinIO URL
+     */
+    public function getDirectMinioUrl(): ?string
     {
         if (!$this->file_path) {
             return null;
