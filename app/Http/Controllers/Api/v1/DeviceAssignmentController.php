@@ -5,14 +5,18 @@ namespace App\Http\Controllers\Api\v1;
 use App\Http\Controllers\Controller;
 use App\Services\DeviceAssignmentService;
 use App\Contracts\DeviceAssignmentRepositoryInterface;
+use App\Models\AssignmentLetter;
+use App\Services\PdfPreviewService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 class DeviceAssignmentController extends Controller
 {
     public function __construct(
         private DeviceAssignmentService $assignmentService,
-        private DeviceAssignmentRepositoryInterface $assignmentRepository
+        private DeviceAssignmentRepositoryInterface $assignmentRepository,
+        private PdfPreviewService $pdfPreviewService
     ) {
     }
 
@@ -63,7 +67,26 @@ class DeviceAssignmentController extends Controller
     public function show(int $id): JsonResponse
     {
         try {
+            // Get basic assignment details
             $data = $this->assignmentService->getAssignmentDetails($id);
+            
+            // Get all assignment letters
+            $letters = AssignmentLetter::where('assignment_id', $id)->get();
+            
+            if ($letters->isNotEmpty()) {
+                $lettersData = $letters->map(function ($letter) {
+                    return [
+                        'assignmentLetterId' => $letter->getKey(),
+                        'assignmentType' => $letter->getAttribute('letter_type'),
+                        'letterNumber' => $letter->getAttribute('letter_number'),
+                        'letterDate' => $letter->getAttribute('letter_date'),
+                        'fileUrl' => $letter->hasFile() ? $this->pdfPreviewService->getPreviewData($letter)['previewUrl'] : null
+                    ];
+                });
+                
+                $data['assignmentLetters'] = $lettersData;
+            }
+            
             return response()->json(['data' => $data]);
         } catch (\Exception $e) {
             return response()->json([
@@ -84,12 +107,46 @@ class DeviceAssignmentController extends Controller
             'assigned_date' => 'required|date|before_or_equal:today',
             'status' => 'sometimes|in:Digunakan,Tidak Digunakan,Cadangan',
             'notes' => 'nullable|string|max:500',
-            
+            'letter_number' => 'required|string|max:50',
+            'letter_date' => 'required|date',
+            'letter_file' => 'required|file|mimes:pdf|max:10240' // 10MB max size for PDF
         ]);
 
         try {
-            $data = $this->assignmentService->createAssignment($request->validated());
-            return response()->json(['data' => $data], 201);
+            // Create the device assignment first
+            $assignmentData = $this->assignmentService->createAssignment($request->validated());
+            
+            // Create the assignment letter
+            $letter = new AssignmentLetter([
+                'assignment_id' => $assignmentData['assignmentId'],
+                'letter_type' => 'assignment', // Default for assignment letter
+                'letter_number' => $request->input('letter_number'),
+                'letter_date' => $request->input('letter_date'),
+                'approver_id' => Auth::id(), // Get from authenticated user
+                'created_by' => Auth::id(),
+                'created_at' => now(),
+            ]);
+            
+            $letter->save();
+
+            // Handle file upload if present
+            if ($request->hasFile('letter_file') && $request->file('letter_file')->isValid()) {
+                $letter->storeFile($request->file('letter_file'));
+            }
+
+            // Get the letter data with file URL
+            $letterData = [
+                'assignmentLetterId' => $letter->getKey(),
+                'assignmentType' => $letter->getAttribute('letter_type'),
+                'letterNumber' => $letter->getAttribute('letter_number'),
+                'letterDate' => $letter->getAttribute('letter_date'),
+                'fileUrl' => $letter->hasFile() ? $this->pdfPreviewService->getPreviewData($letter)['previewUrl'] : null,
+            ];
+
+            // Return assignment data with the newly created letter in an array
+            $responseData = array_merge($assignmentData, ['assignmentLetters' => [$letterData]]);
+
+            return response()->json(['data' => $responseData], 201);
         } catch (\Exception $e) {
             $errorCode = 'ERR_ASSIGNMENT_CREATION_FAILED';
             if (str_contains($e->getMessage(), 'already assigned')) {
@@ -135,11 +192,46 @@ class DeviceAssignmentController extends Controller
         $request->validate([
             'returned_date' => 'sometimes|date|after_or_equal:assigned_date',
             'return_notes' => 'nullable|string|max:500',
+            'letter_number' => 'required|string|max:50',
+            'letter_date' => 'required|date',
+            'letter_file' => 'required|file|mimes:pdf|max:10240' // 10MB max size for PDF
         ]);
 
         try {
+            // Process the device return first
             $data = $this->assignmentService->returnDevice($id, $request->validated());
-            return response()->json(['data' => $data]);
+            
+            // Create the return letter
+            $letter = new AssignmentLetter([
+                'assignment_id' => $id,
+                'letter_type' => 'return', // Return letter type
+                'letter_number' => $request->input('letter_number'),
+                'letter_date' => $request->input('letter_date'),
+                'approver_id' => Auth::id(),
+                'created_by' => Auth::id(),
+                'created_at' => now(),
+            ]);
+            
+            $letter->save();
+
+            // Handle file upload if present
+            if ($request->hasFile('letter_file') && $request->file('letter_file')->isValid()) {
+                $letter->storeFile($request->file('letter_file'));
+            }
+
+            // Get the letter data with file URL
+            $letterData = [
+                'assignmentLetterId' => $letter->getKey(),
+                'assignmentType' => $letter->getAttribute('letter_type'),
+                'letterNumber' => $letter->getAttribute('letter_number'),
+                'letterDate' => $letter->getAttribute('letter_date'),
+                'fileUrl' => $letter->hasFile() ? $this->pdfPreviewService->getPreviewData($letter)['previewUrl'] : null,
+            ];
+
+            // Combine return data with the newly created letter
+            $responseData = array_merge($data, ['assignmentLetter' => $letterData]);
+
+            return response()->json(['data' => $responseData]);
         } catch (\Exception $e) {
             $errorCode = str_contains($e->getMessage(), 'already been returned') ? 'ERR_DEVICE_ALREADY_RETURNED' : 'ERR_RETURN_FAILED';
             return response()->json([

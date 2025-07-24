@@ -13,7 +13,8 @@ class DeviceAssignmentService
         private DeviceAssignmentRepositoryInterface $assignmentRepository,
         private DeviceRepositoryInterface $deviceRepository,
         private UserRepositoryInterface $userRepository
-    ) {}
+    ) {
+    }
 
     public function createAssignment(array $data): array
     {
@@ -36,7 +37,7 @@ class DeviceAssignmentService
         $existingAssignment = $this->assignmentRepository->getUserActiveDevices($data['user_id'])
             ->filter(function ($assignment) use ($device) {
                 return $assignment->device->bribox_id === $device->bribox_id &&
-                       $assignment->device->bribox->category_id === $device->bribox->category_id;
+                    $assignment->device->bribox->category_id === $device->bribox->category_id;
             })->first();
 
         if ($existingAssignment) {
@@ -46,7 +47,7 @@ class DeviceAssignmentService
         }
 
         $currentUserPn = $this->getCurrentUserPn();
-        
+
         $assignmentData = array_merge($data, [
             'branch_id' => $user->branch_id,
             'created_by' => $currentUserPn,
@@ -151,7 +152,7 @@ class DeviceAssignmentService
     public function getAssignmentDetails(int $id): array
     {
         $assignment = $this->assignmentRepository->findById($id);
-        
+
         if (!$assignment) {
             throw new \Exception('Assignment not found');
         }
@@ -159,40 +160,31 @@ class DeviceAssignmentService
         // Get assignment letter data if exists (get the latest one)
         $assignmentLetter = $assignment->assignmentLetters->first();
         $assignmentLetterData = null;
-        
-        if ($assignmentLetter) {
-            $assignmentLetterData = [
-                'letterId' => $assignmentLetter->letter_id,
-                'letterType' => $assignmentLetter->letter_type,
-                'approverName' => $assignmentLetter->approver->name ?? null,
-                'creator' => $assignmentLetter->creator->name ?? null,
-                'updater' => $assignmentLetter->updater->name ?? 'N/A',
-                'createdAt' => $assignmentLetter->created_at,
-                'hasFile' => !isset($assignmentLetter->file_path),
-            ];
-        }
-        
+
+        // if ($assignmentLetter) {
+        //     $assignmentLetterData = [
+        //         'letterId' => $assignmentLetter->letter_id,
+        //         'letterType' => $assignmentLetter->letter_type,
+        //         'approverName' => $assignmentLetter->approver->name ?? null,
+        //         'creator' => $assignmentLetter->creator->name ?? null,
+        //         'updater' => $assignmentLetter->updater->name ?? 'N/A',
+        //         'createdAt' => $assignmentLetter->created_at,
+        //         'hasFile' => !isset($assignmentLetter->file_path),
+        //     ];
+        // }
+
         return [
             'assignmentId' => $assignment->assignment_id,
             'deviceId' => $assignment->device->device_id,
             'assetCode' => $assignment->device->asset_code,
             'brand' => $assignment->device->brand . ' ' . $assignment->device->brand_name,
             'serialNumber' => $assignment->device->serial_number,
-            'assignedTo' => [
-                'userId' => $assignment->user->user_id,
-                'name' => $assignment->user->name,
-                'pn' => $assignment->user->pn,
-                'branch' => [
-                    'branchId' => $assignment->user->branch->branch_id,
-                    'unitName' => $assignment->user->branch->unit_name,
-                    'branchCode' => $assignment->user->branch->branch_code,
-                ],
-            ],
+            'assignedTo' => $assignment->user->name,
+            'unitName' => $assignment->user->branch->unit_name,
             'assignedDate' => $assignment->assigned_date,
             'returnedDate' => $assignment->returned_date,
             'status' => $assignment->status,
             'notes' => $assignment->notes,
-            'assignmentLetterData' => $assignmentLetterData,    
         ];
     }
 

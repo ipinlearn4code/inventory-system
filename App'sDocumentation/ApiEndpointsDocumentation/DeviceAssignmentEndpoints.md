@@ -36,7 +36,8 @@ Retrieve a paginated list of device assignments with optional filtering.
     {
       "assignmentId": 1,
       "assetCode": "BRI-001",
-      "brand": "Dell Latitude 7420",
+      "brand": "HP",
+      "brandName": "EliteBook 840",
       "serialNumber": "DL123456789",
       "assignedTo": "John Doe",
       "unitName": "Jakarta Pusat",
@@ -67,25 +68,41 @@ Retrieve detailed information about a specific device assignment.
   "data": {
     "assignmentId": 1,
     "deviceId": 1,
-    "assetCode": "BRI-001",
-    "brand": "Dell Latitude 7420",
-    "serialNumber": "DL123456789",
-    "assignedTo": {
-      "userId": 1,
-      "name": "John Doe",
-      "pn": "12345",
-      "branch": {
-        "branchId": 1,
-        "unitName": "Jakarta Pusat",
-        "branchCode": "JKT001"
-      }
-    },
-    "assignedDate": "2024-01-15",
+    "assetCode": "AST001",
+    "brand": "Dell Dell OptiPlex 7090",
+    "serialNumber": "DL001234567",
+    "assignedTo": "John Doe",
+    "unitName": "Jakarta Central",
+    "assignedDate": "2024-01-01T00:00:00.000000Z",
     "returnedDate": null,
-    "status": "Digunakan",
-    "notes": "For daily work activities"
+    "status": null,
+    "notes": "Initial assignment",
+    "assignmentLetters": [
+      {
+        "assignmentLetterId": 9,
+        "assignmentType": "assignment",
+        "letterNumber": "nkjnef8909023",
+        "letterDate": "2025-07-24T00:00:00.000000Z",
+        "fileUrl": "http://localhost:8000/assignment-letter/9/preview"
+      },
+      {
+        "assignmentLetterId": 14,
+        "assignmentType": "maintenance",
+        "letterNumber": "sssssssssssssssssssssssssss",
+        "letterDate": "2025-07-24T00:00:00.000000Z",
+        "fileUrl": "http://localhost:8000/assignment-letter/14/preview"
+      }
+    ]
   }
 }
+```
+
+**Note:** The `assignmentLetters` array contains all letters associated with the assignment. Each letter includes:
+- `assignmentLetterId`: Unique identifier of the letter
+- `assignmentType`: Type of the letter (e.g., "assignment", "maintenance")
+- `letterNumber`: The official letter number
+- `letterDate`: The date of the letter
+- `fileUrl`: URL to preview the letter file (requires authentication)
 ```
 
 ### 3. Create Device Assignment
@@ -100,7 +117,10 @@ Assign a device to a user.
   "user_id": 1,
   "assigned_date": "2024-01-15",
   "status": "Digunakan",
-  "notes": "For daily work activities"
+  "notes": "For daily work activities",
+  "letter_number": "SK-001/IT/2024",
+  "letter_date": "2024-01-15",
+  "letter_file": "<PDF_FILE>"
 }
 ```
 
@@ -110,6 +130,9 @@ Assign a device to a user.
 - `assigned_date`: required, valid date, cannot be in the future
 - `status`: optional, one of: Digunakan, Tidak Digunakan, Cadangan
 - `notes`: optional, string, max 500 characters
+- `letter_number`: required, string, max 50 characters
+- `letter_date`: required, valid date
+- `letter_file`: required, PDF file format, max 10MB
 
 **Response:**
 ```json
@@ -119,7 +142,16 @@ Assign a device to a user.
     "deviceId": 1,
     "userId": 1,
     "assignedDate": "2024-01-15",
-    "status": "Digunakan"
+    "status": "Digunakan",
+    "assignmentLetters": [
+      {
+        "assignmentLetterId": 1,
+        "assignmentType": "assignment",
+        "letterNumber": "SK-001/IT/2024",
+        "letterDate": "2024-01-15",
+        "fileUrl": "http://localhost:8000/assignment-letter/1/preview"
+      }
+    ]
   }
 }
 ```
@@ -185,13 +217,19 @@ Mark a device assignment as returned.
 ```json
 {
   "returned_date": "2024-02-15",
-  "return_notes": "Device returned in good condition"
+  "return_notes": "Device returned in good condition",
+  "letter_number": "RTN-001/IT/2024",
+  "letter_date": "2024-02-15",
+  "letter_file": "<PDF_FILE>"
 }
 ```
 
 **Validation Rules:**
 - `returned_date`: optional, valid date, must be after assigned_date (defaults to today)
 - `return_notes`: optional, string, max 500 characters
+- `letter_number`: required, string, max 50 characters
+- `letter_date`: required, valid date
+- `letter_file`: required, PDF file format, max 10MB
 
 **Response:**
 ```json
@@ -199,7 +237,14 @@ Mark a device assignment as returned.
   "data": {
     "assignmentId": 1,
     "returnedDate": "2024-02-15",
-    "message": "Device returned successfully."
+    "message": "Device returned successfully",
+    "assignmentLetter": {
+      "assignmentLetterId": 15,
+      "assignmentType": "return",
+      "letterNumber": "RTN-001/IT/2024",
+      "letterDate": "2024-02-15",
+      "fileUrl": "http://localhost:8000/assignment-letter/15/preview"
+    }
   }
 }
 ```
