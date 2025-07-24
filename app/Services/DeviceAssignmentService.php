@@ -111,7 +111,7 @@ class DeviceAssignmentService
         }
 
         if ($assignment->returned_date) {
-            throw new \Exception('Device has already been returned.');
+            throw new \Exception('Device has already been returned before.');
         }
 
         $currentUserPn = $this->getCurrentUserPn();

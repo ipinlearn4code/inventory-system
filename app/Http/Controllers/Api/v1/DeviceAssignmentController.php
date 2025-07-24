@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
+use App\Models\Device;
 use App\Services\DeviceAssignmentService;
 use App\Contracts\DeviceAssignmentRepositoryInterface;
 use App\Models\AssignmentLetter;
+use App\Services\MinioStorageService;
 use App\Services\PdfPreviewService;
 use Illuminate\Http\Request;
+use Illuminate\Http\FormRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
@@ -47,7 +50,7 @@ class DeviceAssignmentController extends Controller
                 'status' => $assignment->device->status,
                 'assignedDate' => $assignment->assigned_date,
                 'returnedDate' => $assignment->returned_date,
-                
+
             ];
         });
 
@@ -69,10 +72,10 @@ class DeviceAssignmentController extends Controller
         try {
             // Get basic assignment details
             $data = $this->assignmentService->getAssignmentDetails($id);
-            
+
             // Get all assignment letters
             $letters = AssignmentLetter::where('assignment_id', $id)->get();
-            
+
             if ($letters->isNotEmpty()) {
                 $lettersData = $letters->map(function ($letter) {
                     return [
@@ -83,10 +86,10 @@ class DeviceAssignmentController extends Controller
                         'fileUrl' => $letter->hasFile() ? $this->pdfPreviewService->getPreviewData($letter)['previewUrl'] : null
                     ];
                 });
-                
+
                 $data['assignmentLetters'] = $lettersData;
             }
-            
+
             return response()->json(['data' => $data]);
         } catch (\Exception $e) {
             return response()->json([
@@ -101,11 +104,10 @@ class DeviceAssignmentController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'device_id' => 'required|exists:devices,device_id',
             'user_id' => 'required|exists:users,user_id',
             'assigned_date' => 'required|date|before_or_equal:today',
-            'status' => 'sometimes|in:Digunakan,Tidak Digunakan,Cadangan',
             'notes' => 'nullable|string|max:500',
             'letter_number' => 'required|string|max:50',
             'letter_date' => 'required|date',
@@ -114,9 +116,20 @@ class DeviceAssignmentController extends Controller
 
         try {
             // Create the device assignment first
-            $assignmentData = $this->assignmentService->createAssignment($request->validated());
-            
-            // Create the assignment letter
+            $assignmentData = $this->assignmentService->createAssignment($validated);
+
+            // First, Store the assignment letter file in MinIO
+            $minioStorageService = app(MinioStorageService::class);
+            $minioStorageService->storeAssignmentLetterFile(
+                $request->file('letter_file'),
+                $assignmentData['assignmentId'],
+                'assignment',
+            );
+
+            Device::where('device_id', $validated['device_id'])
+                ->update(['status' => 'Digunakan']);
+
+            // Second, Create the assignment letter data on the database
             $letter = new AssignmentLetter([
                 'assignment_id' => $assignmentData['assignmentId'],
                 'letter_type' => 'assignment', // Default for assignment letter
@@ -126,13 +139,13 @@ class DeviceAssignmentController extends Controller
                 'created_by' => Auth::id(),
                 'created_at' => now(),
             ]);
-            
+
             $letter->save();
 
             // Handle file upload if present
-            if ($request->hasFile('letter_file') && $request->file('letter_file')->isValid()) {
-                $letter->storeFile($request->file('letter_file'));
-            }
+            // if ($request->hasFile('letter_file') && $request->file('letter_file')->isValid()) {
+            //     $letter->storeFile($request->file('letter_file'));
+            // }
 
             // Get the letter data with file URL
             $letterData = [
@@ -189,7 +202,7 @@ class DeviceAssignmentController extends Controller
      */
     public function returnDevice(Request $request, int $id): JsonResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'returned_date' => 'sometimes|date|after_or_equal:assigned_date',
             'return_notes' => 'nullable|string|max:500',
             'letter_number' => 'required|string|max:50',
@@ -199,9 +212,23 @@ class DeviceAssignmentController extends Controller
 
         try {
             // Process the device return first
-            $data = $this->assignmentService->returnDevice($id, $request->validated());
-            
+            $data = $this->assignmentService->returnDevice($id, $validated);
+
+            $minioStorageService = app(MinioStorageService::class);
+            $minioStorageService->storeAssignmentLetterFile(
+                $request->file('letter_file'),
+                $id,
+                'assignment',
+            );
+
+            // Update the device status to "Cadangan"
+            $deviceId = $this->assignmentRepository->find($id)?->device_id;
+
+            Device::where('device_id', $deviceId)
+                ->update(['status' => 'Cadangan']);
+
             // Create the return letter
+
             $letter = new AssignmentLetter([
                 'assignment_id' => $id,
                 'letter_type' => 'return', // Return letter type
@@ -211,7 +238,7 @@ class DeviceAssignmentController extends Controller
                 'created_by' => Auth::id(),
                 'created_at' => now(),
             ]);
-            
+
             $letter->save();
 
             // Handle file upload if present

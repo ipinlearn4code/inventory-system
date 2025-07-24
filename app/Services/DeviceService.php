@@ -13,13 +13,14 @@ class DeviceService
         private DeviceRepositoryInterface $deviceRepository,
         private DeviceAssignmentRepositoryInterface $assignmentRepository,
         private InventoryLogServiceInterface $inventoryLogService
-    ) {}
+    ) {
+    }
 
     public function createDevice(array $data): array
     {
         return DB::transaction(function () use ($data) {
             $currentUserPn = $this->inventoryLogService->getCurrentUserPn();
-            
+
             $deviceData = array_merge($data, [
                 'created_by' => $currentUserPn,
                 'created_at' => now(),
@@ -86,9 +87,14 @@ class DeviceService
 
             if ($result) {
                 // Log the deletion - if this fails, the transaction will rollback
-                $this->inventoryLogService->logDeviceAction($device, 'DELETE', $deviceData, null);
+                $this->inventoryLogService->logDeviceAction(
+                    $device,
+                    'DELETE',
+                    $deviceData,
+                    null,
+                    $this->inventoryLogService->getCurrentUserPn()
+                );
             }
-
             return $result;
         });
     }
