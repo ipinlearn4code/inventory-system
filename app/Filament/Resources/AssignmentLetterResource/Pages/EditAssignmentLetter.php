@@ -70,8 +70,25 @@ class EditAssignmentLetter extends EditRecord
             $record = $this->getRecord();
             $filePath = $this->data['file_path'] ?? null;
             
-            if ($filePath && $record && $filePath !== $record->getOriginal('file_path')) {
-                $this->handleFileUploadToMinio($record, $filePath);
+            \Log::info("Edit afterSave debug", [
+                'file_path' => $filePath,
+                'file_path_type' => gettype($filePath),
+                'original_file_path' => $record->getOriginal('file_path'),
+                'record_id' => $record->getKey()
+            ]);
+            
+            // Only process if we have a file path and it's different from the original
+            if ($filePath && $record) {
+                $originalFilePath = $record->getOriginal('file_path');
+                
+                // Check if this is actually a new file upload
+                if ($filePath !== $originalFilePath) {
+                    // This is a new file upload
+                    $this->handleFileUploadToMinio($record, $filePath);
+                } else {
+                    // This might be just a form re-save without new file
+                    \Log::info("No new file upload detected, skipping MinIO transfer");
+                }
             }
         } catch (\Exception $e) {
             \Log::error("File update failed", [
@@ -79,12 +96,16 @@ class EditAssignmentLetter extends EditRecord
                 'trace' => $e->getTraceAsString()
             ]);
             
-            // Show notification with specific error
-            \Filament\Notifications\Notification::make()
-                ->title('File Update Error')
-                ->body($e->getMessage())
-                ->danger()
-                ->send();
+            // Don't show error for cases where user just saved without uploading new file
+            if (!str_contains($e->getMessage(), 'Temporary file not found')) {
+                \Filament\Notifications\Notification::make()
+                    ->title('File Update Error')
+                    ->body($e->getMessage())
+                    ->danger()
+                    ->send();
+            } else {
+                \Log::info("Skipping error notification for missing temp file (likely no new upload)");
+            }
         }
     }
 
@@ -96,12 +117,27 @@ class EditAssignmentLetter extends EditRecord
         // Find the actual uploaded file in public storage
         $tempFilePath = null;
         
+        \Log::info("HandleFileUploadToMinio debug", [
+            'raw_file_path' => $filePath,
+            'file_path_type' => gettype($filePath),
+            'is_array' => is_array($filePath),
+            'record_id' => $record->getKey()
+        ]);
+        
         // Handle Filament's file path format - it can be a string or array
         if (is_array($filePath)) {
             // Get the first file if it's an array
             $actualPath = reset($filePath);
+            \Log::info("File path is array, extracted: " . $actualPath);
         } else {
             $actualPath = $filePath;
+            \Log::info("File path is string: " . $actualPath);
+        }
+        
+        // If the path looks like it's already a structured MinIO path, skip processing
+        if (!str_contains($actualPath, 'assignment-letters/') && !str_contains($actualPath, '{')) {
+            \Log::info("Path already looks like structured MinIO path, skipping upload");
+            return;
         }
         
         // Check multiple possible locations for the temporary file
@@ -109,16 +145,28 @@ class EditAssignmentLetter extends EditRecord
             storage_path('app/public/' . $actualPath),
             public_path('storage/' . $actualPath),
             storage_path('app/public/assignment-letters/' . basename($actualPath)),
+            storage_path('app/livewire-tmp/' . basename($actualPath)), // Livewire temp directory
+            storage_path('app/' . $actualPath), // Direct storage path
         ];
+        
+        \Log::info("Searching for temp file in paths", ['paths' => $possiblePaths]);
         
         foreach ($possiblePaths as $path) {
             if (file_exists($path)) {
                 $tempFilePath = $path;
+                \Log::info("Found temp file at: " . $path);
                 break;
             }
         }
         
         if (!$tempFilePath) {
+            // Check if file is already in MinIO (maybe it's an existing file being re-saved)
+            $disk = \Illuminate\Support\Facades\Storage::disk('minio');
+            if ($disk->exists($actualPath)) {
+                \Log::info("File already exists in MinIO, skipping upload: " . $actualPath);
+                return;
+            }
+            
             throw new \Exception("Temporary file not found. Tried paths: " . implode(', ', $possiblePaths));
         }
 

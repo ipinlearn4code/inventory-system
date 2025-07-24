@@ -51,6 +51,12 @@ class CreateAssignmentLetter extends CreateRecord
             $record = $this->getRecord();
             $filePath = $this->data['file_path'] ?? null;
             
+            \Log::info("Create afterCreate debug", [
+                'file_path' => $filePath,
+                'file_path_type' => gettype($filePath),
+                'record_id' => $record->getKey()
+            ]);
+            
             if ($filePath && $record) {
                 // Handle file upload to MinIO with proper structured path
                 $this->handleFileUploadToMinio($record, $filePath);
@@ -78,12 +84,21 @@ class CreateAssignmentLetter extends CreateRecord
         // Find the actual uploaded file in public storage
         $tempFilePath = null;
         
+        \Log::info("HandleFileUploadToMinio debug (create)", [
+            'raw_file_path' => $filePath,
+            'file_path_type' => gettype($filePath),
+            'is_array' => is_array($filePath),
+            'record_id' => $record->getKey()
+        ]);
+        
         // Handle Filament's file path format - it can be a string or array
         if (is_array($filePath)) {
             // Get the first file if it's an array
             $actualPath = reset($filePath);
+            \Log::info("File path is array, extracted: " . $actualPath);
         } else {
             $actualPath = $filePath;
+            \Log::info("File path is string: " . $actualPath);
         }
         
         // Check multiple possible locations for the temporary file
@@ -91,11 +106,16 @@ class CreateAssignmentLetter extends CreateRecord
             storage_path('app/public/' . $actualPath),
             public_path('storage/' . $actualPath),
             storage_path('app/public/assignment-letters/' . basename($actualPath)),
+            storage_path('app/livewire-tmp/' . basename($actualPath)), // Livewire temp directory
+            storage_path('app/' . $actualPath), // Direct storage path
         ];
+        
+        \Log::info("Searching for temp file in paths", ['paths' => $possiblePaths]);
         
         foreach ($possiblePaths as $path) {
             if (file_exists($path)) {
                 $tempFilePath = $path;
+                \Log::info("Found temp file at: " . $path);
                 break;
             }
         }
