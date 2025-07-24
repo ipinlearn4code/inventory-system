@@ -32,6 +32,14 @@ class AssignmentLetter extends Model
         'updated_at' => 'datetime',
     ];
 
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'letter_id';
+    }
+
     public function assignment()
     {
         return $this->belongsTo(DeviceAssignment::class, 'assignment_id', 'assignment_id');
