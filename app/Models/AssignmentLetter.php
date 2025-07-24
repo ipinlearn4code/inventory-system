@@ -60,8 +60,8 @@ class AssignmentLetter extends Model
         return $this->belongsTo(User::class, 'updated_by', 'user_id');
     }
 
-    /**
-     * Store an assignment letter file to MinIO
+        /**
+     * Store a new file for this assignment letter
      *
      * @param UploadedFile $file The uploaded file
      * @return string|null The stored file path
@@ -70,13 +70,11 @@ class AssignmentLetter extends Model
     {
         $storageService = app(MinioStorageService::class);
         
-        // Store file with the structured directory path
+        // Store file with the new simplified directory path format
         $path = $storageService->storeAssignmentLetterFile(
             $file,
-            $this->letter_type,
             $this->assignment_id,
-            $this->letter_date instanceof \DateTimeInterface ? $this->letter_date->format('Y-m-d') : (string) $this->letter_date,
-            $this->letter_number
+            $this->letter_type
         );
         
         if ($path) {
@@ -84,6 +82,134 @@ class AssignmentLetter extends Model
         }
         
         return $path;
+    }
+
+    /**
+     * Update the file for this assignment letter with rollback support
+     *
+     * @param UploadedFile $file The new uploaded file
+     * @return array Result array with status, message, and details
+     */
+    public function updateFile(UploadedFile $file): array
+    {
+        $storageService = app(MinioStorageService::class);
+        $tempBackupPath = null;
+        $oldFilePath = $this->file_path;
+        
+        try {
+            // Step 1: Download existing file to temp storage if it exists
+            if ($oldFilePath) {
+                \Log::info('Backing up existing file before update', [
+                    'letter_id' => $this->letter_id,
+                    'old_path' => $oldFilePath
+                ]);
+                
+                $tempBackupPath = $storageService->downloadToTemp($oldFilePath);
+                if (!$tempBackupPath) {
+                    return [
+                        'success' => false,
+                        'message' => 'Failed to backup existing file',
+                        'details' => 'Could not download current file to temporary storage'
+                    ];
+                }
+            }
+            
+            // Step 2: Delete old file from MinIO if it exists
+            if ($oldFilePath) {
+                $deleteResult = $storageService->deleteFile($oldFilePath);
+                if (!$deleteResult) {
+                    // Cleanup temp file and abort
+                    if ($tempBackupPath) {
+                        $storageService->cleanupTempFile($tempBackupPath);
+                    }
+                    return [
+                        'success' => false,
+                        'message' => 'Failed to delete existing file from MinIO',
+                        'details' => 'Old file could not be removed'
+                    ];
+                }
+            }
+            
+            // Step 3: Upload new file
+            $newPath = $storageService->storeAssignmentLetterFile(
+                $file,
+                $this->assignment_id,
+                $this->letter_type
+            );
+            
+            if (!$newPath) {
+                // Rollback: restore old file if we had one
+                if ($oldFilePath && $tempBackupPath) {
+                    \Log::warning('New file upload failed, attempting rollback', [
+                        'letter_id' => $this->letter_id
+                    ]);
+                    
+                    $rollbackResult = $storageService->uploadFromLocal($tempBackupPath, $oldFilePath);
+                    if (!$rollbackResult) {
+                        \Log::error('Rollback failed - data loss risk', [
+                            'letter_id' => $this->letter_id,
+                            'lost_file' => $oldFilePath
+                        ]);
+                    }
+                }
+                
+                // Cleanup temp file
+                if ($tempBackupPath) {
+                    $storageService->cleanupTempFile($tempBackupPath);
+                }
+                
+                return [
+                    'success' => false,
+                    'message' => 'Failed to upload new file',
+                    'details' => 'New file could not be stored in MinIO'
+                ];
+            }
+            
+            // Step 4: Update database with new path
+            $this->update(['file_path' => $newPath]);
+            
+            // Step 5: Cleanup temp backup file
+            if ($tempBackupPath) {
+                $storageService->cleanupTempFile($tempBackupPath);
+            }
+            
+            \Log::info('File updated successfully', [
+                'letter_id' => $this->letter_id,
+                'old_path' => $oldFilePath,
+                'new_path' => $newPath
+            ]);
+            
+            return [
+                'success' => true,
+                'message' => 'File updated successfully',
+                'details' => [
+                    'old_path' => $oldFilePath,
+                    'new_path' => $newPath
+                ]
+            ];
+            
+        } catch (\Exception $e) {
+            // Emergency rollback attempt
+            if ($oldFilePath && $tempBackupPath) {
+                \Log::error('Exception during file update, attempting emergency rollback', [
+                    'letter_id' => $this->letter_id,
+                    'error' => $e->getMessage()
+                ]);
+                
+                $storageService->uploadFromLocal($tempBackupPath, $oldFilePath);
+            }
+            
+            // Cleanup temp file
+            if ($tempBackupPath) {
+                $storageService->cleanupTempFile($tempBackupPath);
+            }
+            
+            return [
+                'success' => false,
+                'message' => 'File update failed due to exception',
+                'details' => $e->getMessage()
+            ];
+        }
     }
 
     /**
@@ -102,9 +228,32 @@ class AssignmentLetter extends Model
         
         if ($deleted) {
             $this->update(['file_path' => null]);
+            \Log::info('Assignment letter file deleted', [
+                'letter_id' => $this->letter_id,
+                'deleted_path' => $this->file_path
+            ]);
         }
         
         return $deleted;
+    }
+
+    /**
+     * Handle model deletion - also remove file from MinIO
+     */
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::deleting(function ($letter) {
+            // Delete the associated file when the letter is deleted
+            if ($letter->hasFile()) {
+                $result = $letter->deleteFile();
+                \Log::info('Assignment letter deleted, file cleanup result', [
+                    'letter_id' => $letter->letter_id,
+                    'file_deleted' => $result
+                ]);
+            }
+        });
     }
 
     /**

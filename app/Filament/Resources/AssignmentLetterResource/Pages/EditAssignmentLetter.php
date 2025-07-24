@@ -117,7 +117,7 @@ class EditAssignmentLetter extends EditRecord
     }
 
     /**
-     * Handle file upload to MinIO with proper structured path
+     * Handle file upload to MinIO with proper structured path and rollback support
      */
     private function handleFileUploadToMinio($record, $filePath): void
     {
@@ -141,12 +141,6 @@ class EditAssignmentLetter extends EditRecord
             \Log::info("File path is string: " . $actualPath);
         }
         
-        // If the path looks like it's already a structured MinIO path, skip processing
-        if (!str_contains($actualPath, 'assignment-letters/') && !str_contains($actualPath, '{')) {
-            \Log::info("Path already looks like structured MinIO path, skipping upload");
-            return;
-        }
-        
         // Check multiple possible locations for the temporary file
         $possiblePaths = [
             storage_path('app/public/' . $actualPath),
@@ -167,13 +161,6 @@ class EditAssignmentLetter extends EditRecord
         }
         
         if (!$tempFilePath) {
-            // Check if file is already in MinIO (maybe it's an existing file being re-saved)
-            $disk = \Illuminate\Support\Facades\Storage::disk('minio');
-            if ($disk->exists($actualPath)) {
-                \Log::info("File already exists in MinIO, skipping upload: " . $actualPath);
-                return;
-            }
-            
             throw new \Exception("Temporary file not found. Tried paths: " . implode(', ', $possiblePaths));
         }
 
@@ -191,9 +178,6 @@ class EditAssignmentLetter extends EditRecord
             throw new \Exception("Invalid file type: {$mimeType}. Only PDF and JPG files are accepted.");
         }
 
-        // Delete the old file if it exists
-        $record->deleteFile();
-
         // Create an UploadedFile from the temporary file
         $uploadedFile = new \Illuminate\Http\UploadedFile(
             $tempFilePath,
@@ -203,15 +187,15 @@ class EditAssignmentLetter extends EditRecord
             true
         );
 
-        // Store the file using the model's method which will use proper MinIO structure
-        $minioPath = $record->storeFile($uploadedFile);
+        // Use the new updateFile method with rollback support
+        $result = $record->updateFile($uploadedFile);
 
-        if (!$minioPath) {
-            throw new \Exception("Failed to upload file to MinIO storage");
+        if (!$result['success']) {
+            throw new \Exception($result['message'] . ': ' . $result['details']);
         }
 
         \Log::info("File updated successfully in MinIO", [
-            'minio_path' => $minioPath,
+            'details' => $result['details'],
             'record_id' => $record->letter_id
         ]);
 
@@ -223,10 +207,10 @@ class EditAssignmentLetter extends EditRecord
             \Storage::disk('public')->delete($actualPath);
         }
 
-        // Show success notification
+        // Show success notification with details
         \Filament\Notifications\Notification::make()
-            ->title('File Updated')
-            ->body('File has been successfully updated in MinIO storage.')
+            ->title('File Updated Successfully')
+            ->body('File has been updated with rollback protection.')
             ->success()
             ->send();
     }
