@@ -149,8 +149,8 @@ class ActivityLogWidget extends Widget
             ->merge($recentDeviceLogs)
             ->merge($recentAssignmentLogs)
             ->merge($recentLetters)
-            ->sortByDesc('time')
-            ->take(8)
+            ->sortByDesc('log_id')
+            ->take(5)
             ->values()
             ->toArray();
     }

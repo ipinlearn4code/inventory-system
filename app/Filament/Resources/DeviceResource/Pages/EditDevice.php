@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 class EditDevice extends EditRecord
 {
     use HasInventoryLogging;
-    
+
     protected static string $resource = DeviceResource::class;
 
     // Store original data for logging
@@ -22,25 +22,26 @@ class EditDevice extends EditRecord
         return $this->getResource()::getUrl('index');
     }
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\DeleteAction::make()
-                ->action(function () {
-                    // Wrap deletion in transaction
-                    DB::transaction(function () {
-                        // Store original data before deletion
-                        $originalData = $this->record->toArray();
-                        
-                        // Delete the record
-                        $this->record->delete();
-                        
-                        // Log the device deletion - if this fails, the transaction will rollback
-                        $this->logDeviceModelChanges($this->record, 'deleted');
-                    });
-                }),
-        ];
-    }
+    // protected function getHeaderActions(): array
+    // {
+    //     // dd('getHeaderActions called in EditDevice');
+    //     return [
+    //         Actions\DeleteAction::make()
+    //             ->action(function () {
+    //                 // Wrap deletion in transaction
+    //                 DB::transaction(function () {
+    //                     // Store original data before deletion
+    //                     $originalData = $this->record->toArray();
+
+    //                     // Delete the record
+    //                     $this->record->delete();
+
+    //                     // Log the device deletion with original data - if this fails, the transaction will rollback
+    //                     $this->logDeviceModelChanges($this->record, 'deleted', $originalData);
+    //                 });
+    //             }),
+    //     ];
+    // }
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
@@ -53,10 +54,10 @@ class EditDevice extends EditRecord
     {
         // Get the current user's PN from session or auth
         $currentUserPn = auth()->user()?->pn ?? session('authenticated_user.pn');
-        
+
         $data['updated_by'] = $currentUserPn;
         $data['updated_at'] = now();
-        
+
         return $data;
     }
 
@@ -66,7 +67,7 @@ class EditDevice extends EditRecord
         DB::transaction(function () use ($shouldRedirect, $shouldSendSavedNotification) {
             // Call the parent save method which will handle the actual update
             parent::save($shouldRedirect, $shouldSendSavedNotification);
-            
+
             // Log the device update - if this fails, the transaction will rollback
             $this->logDeviceModelChanges($this->record, 'updated', $this->originalData);
         });

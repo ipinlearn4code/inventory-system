@@ -25,6 +25,14 @@ use App\Http\Controllers\AssignmentLetterFileController;
 |
 */
 Route::prefix('test')->group(function () {
+    Route::prefix('device-assignments')->group(function () {
+        Route::get('/form-options', [V1FormOptionsController::class, 'deviceAssignmentFormOptions']);
+        Route::get('/', [V1DeviceAssignmentController::class, 'index']);
+        Route::get('/{id}', [V1DeviceAssignmentController::class, 'show']);
+        Route::post('/', [V1DeviceAssignmentController::class, 'store']);
+        Route::put('/{id}', [V1DeviceAssignmentController::class, 'update']);
+        Route::post('/{id}/return', [V1DeviceAssignmentController::class, 'returnDevice']);
+    });
     Route::get('/assignment/{id}', [V1DeviceAssignmentController::class, 'show']);
     Route::get('/dashboard', [V1DashboardController::class, 'kpis']);
     Route::get('/devices', [V1DeviceController::class, 'index'])->middleware('api.cache');

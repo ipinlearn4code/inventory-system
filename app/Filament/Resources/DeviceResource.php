@@ -484,6 +484,11 @@ class DeviceResource extends Resource
                     Tables\Actions\EditAction::make()
                         ->tooltip('Edit device information'),
                     Tables\Actions\DeleteAction::make()
+                        ->before(function () {
+                            // Get the original data before deletion
+                            $originalData = $this->record();
+                            $this->logDeviceModelChanges($this->record, 'deleted', $originalData);
+                        })
                         ->tooltip('Delete this device'),
                 ])
                     ->iconButton()

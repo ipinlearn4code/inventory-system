@@ -19,6 +19,7 @@ class EditDeviceAssignment extends EditRecord
 
     protected function getHeaderActions(): array
     {
+        
         return [
             Actions\DeleteAction::make()
                 ->action(function () {
@@ -30,8 +31,8 @@ class EditDeviceAssignment extends EditRecord
                         // Delete the record
                         $this->record->delete();
                         
-                        // Log the assignment deletion - if this fails, the transaction will rollback
-                        $this->logAssignmentModelChanges($this->record, 'deleted');
+                        // Log the assignment deletion with original data - if this fails, the transaction will rollback
+                        $this->logAssignmentModelChanges($this->record, 'deleted', $originalData);
                     });
                 }),
         ];

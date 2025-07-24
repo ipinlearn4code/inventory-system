@@ -43,6 +43,7 @@ class DeviceAssignmentController extends Controller
                 'status' => $assignment->device->status,
                 'assignedDate' => $assignment->assigned_date,
                 'returnedDate' => $assignment->returned_date,
+                
             ];
         });
 
@@ -83,6 +84,7 @@ class DeviceAssignmentController extends Controller
             'assigned_date' => 'required|date|before_or_equal:today',
             'status' => 'sometimes|in:Digunakan,Tidak Digunakan,Cadangan',
             'notes' => 'nullable|string|max:500',
+            
         ]);
 
         try {
