@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Device;
+use App\Models\InventoryLog;
 use App\Services\DeviceAssignmentService;
 use App\Contracts\DeviceAssignmentRepositoryInterface;
 use App\Models\AssignmentLetter;
-use App\Services\MinioStorageService;
+use App\Contracts\InventoryLogServiceInterface;
 use App\Services\PdfPreviewService;
 use DB;
 use Illuminate\Http\Request;
@@ -20,7 +21,8 @@ class DeviceAssignmentController extends Controller
     public function __construct(
         private DeviceAssignmentService $assignmentService,
         private DeviceAssignmentRepositoryInterface $assignmentRepository,
-        private PdfPreviewService $pdfPreviewService
+        private PdfPreviewService $pdfPreviewService,
+        private InventoryLogServiceInterface $inventoryLogService,
     ) {
     }
 
@@ -121,6 +123,13 @@ class DeviceAssignmentController extends Controller
                     // Create the device assignment first
                     $assignmentData = $this->assignmentService->createAssignment($validated);
 
+                    $this->inventoryLogService->logAssignmentAction(
+                        $assignmentData,
+                        InventoryLog::ACTION_TYPES['CREATE'],
+                        null, // old_value not needed for creation
+                        $assignmentData, // new_value is the assignment data
+                        $assignmentData['userPn'] // user_affected is the user being assigned the device
+                    );
                     // // First, Store the assignment letter file in MinIO
                     // $minioStorageService = app(MinioStorageService::class);
                     // $minioStorageService->storeAssignmentLetterFile(
@@ -131,6 +140,28 @@ class DeviceAssignmentController extends Controller
     
                     Device::where('device_id', $validated['device_id'])
                         ->update(['status' => 'Digunakan']);
+                        /**
+                         * Optionally logs the device assignment action to the inventory log.
+                         *
+                         * This logging records the update action for the specified device, marking its status as 'Digunakan'
+                         * (in use) and associating the action with the user to whom the device is assigned.
+                         *
+                         * Uncomment this block to enable logging of device assignment events.
+                         *
+                         * @param Device $assignmentData['device'] The device being assigned.
+                         * @param string InventoryLog::ACTION_TYPES['UPDATE'] The action type, indicating an update.
+                         * @param null $old_value Not required for creation.
+                         * @param array $new_value The updated device status, e.g., ['status' => 'Digunakan'].
+                         * @param string $assignmentData['userPn'] The user affected by the assignment.
+                         */
+
+                    // $this->inventoryLogService->logDeviceAction(
+                    //     $assignmentData['device'],
+                    //     InventoryLog::ACTION_TYPES['UPDATE'],
+                    //     null, // old_value not needed for creation
+                    //     ['status' => 'Digunakan'], // new_value is the updated device status
+                    //     $assignmentData['userPn'] // user_affected is the user being assigned the device
+                    // );
 
                     // Second, Create the assignment letter data on the database
                     $letter = new AssignmentLetter([
@@ -150,6 +181,9 @@ class DeviceAssignmentController extends Controller
                         $path = $letter->storeFile($request->file('letter_file'));
                         $letter->file_path = $path;
                     }
+
+                    // Log the assignment creation
+    
 
                     $letter->save();
 

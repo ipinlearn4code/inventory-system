@@ -23,6 +23,12 @@ class InventoryLog extends Model
         'created_at' => 'datetime',
     ];
 
+    public const ACTION_TYPES = [
+        'CREATE' => 'create',
+        'UPDATE' => 'update',
+        'DELETE' => 'delete',
+    ];
+    
     public function userAffected()
     {
         return $this->belongsTo(User::class, 'user_affected', 'pn');
@@ -32,4 +38,6 @@ class InventoryLog extends Model
     {
         return $this->belongsTo(User::class, 'created_by', 'pn');
     }
+
+
 }
