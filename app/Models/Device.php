@@ -59,7 +59,7 @@ class Device extends Model
     public function getAssetCodeWithTypeAttribute(): string
     {
         $type = $this->bribox ? $this->bribox->type_name : 'Unknown';
-        return "{$this->asset_code} - {$type} ({$this->brand_name})";
+        return "{$this->serial_number} - {$type} ({$this->brand} {$this->brand_name}) {$this->asset_code}";
     }
     
     /**

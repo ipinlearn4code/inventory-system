@@ -11,7 +11,7 @@ class DeviceDistributionChartWidget extends ChartWidget
     protected static ?string $heading = '🏢 Distribusi Perangkat per Cabang';    protected static ?int $sort = 7;
 
     protected int | string | array $columnSpan = [
-        'default' => 'full',  // Full width on mobile
+        'default' => 1,  // Full width on mobile
         'md' => 1,       // Full width on medium (single chart gets full space)
         'lg' => 2,            // 2 out of 4 columns on large screens (side-by-side with condition chart)
         'xl' => 2,            // Keep 2 out of 4 on XL (optimal chart size)

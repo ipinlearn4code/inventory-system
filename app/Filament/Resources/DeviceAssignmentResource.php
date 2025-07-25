@@ -32,8 +32,9 @@ class DeviceAssignmentResource extends Resource
     public static function canViewAny(): bool
     {
         $auth = session('authenticated_user');
-        if (!$auth) return false;
-        
+        if (!$auth)
+            return false;
+
         $authModel = \App\Models\Auth::where('pn', $auth['pn'])->first();
         return $authModel && ($authModel->hasRole('superadmin') || $authModel->hasRole('admin'));
     }
@@ -41,8 +42,9 @@ class DeviceAssignmentResource extends Resource
     public static function canCreate(): bool
     {
         $auth = session('authenticated_user');
-        if (!$auth) return false;
-        
+        if (!$auth)
+            return false;
+
         $authModel = \App\Models\Auth::where('pn', $auth['pn'])->first();
         return $authModel && ($authModel->hasRole('superadmin') || $authModel->hasRole('admin'));
     }
@@ -50,8 +52,9 @@ class DeviceAssignmentResource extends Resource
     public static function canEdit($record): bool
     {
         $auth = session('authenticated_user');
-        if (!$auth) return false;
-        
+        if (!$auth)
+            return false;
+
         $authModel = \App\Models\Auth::where('pn', $auth['pn'])->first();
         return $authModel && ($authModel->hasRole('superadmin') || $authModel->hasRole('admin'));
     }
@@ -59,15 +62,18 @@ class DeviceAssignmentResource extends Resource
     public static function canDelete($record): bool
     {
         $auth = session('authenticated_user');
-        if (!$auth) return false;
-        
+        if (!$auth)
+            return false;
+
         $authModel = \App\Models\Auth::where('pn', $auth['pn'])->first();
         return $authModel && $authModel->hasRole('superadmin');
     }
 
     public static function form(Form $form): Form
     {
+        // dd($form->getRecord());
         return $form
+            // ->relationship('device', 'asset_code')
             ->schema([
                 // QR Scanner for Device Selection - Custom Button
                 QrCodeScanner::make('qr_scanner')
@@ -75,6 +81,7 @@ class DeviceAssignmentResource extends Resource
                     ->asButton('📱 Scan QR Code', 'primary', 'md')
                     ->withIcon('heroicon-o-qr-code')
                     ->live()
+                    ->visibleOn(['create', 'edit'])
                     ->afterStateUpdated(function (string $state = null, Forms\Set $set) {
                         if ($state) {
                             // Extract asset code from QR data
@@ -91,7 +98,7 @@ class DeviceAssignmentResource extends Resource
 
                             if ($device) {
                                 $set('device_id', $device['device_id']);
-                                
+
                                 // Show success notification
                                 \Filament\Notifications\Notification::make()
                                     ->title('Device Found!')
@@ -112,18 +119,18 @@ class DeviceAssignmentResource extends Resource
 
                 Select::make('device_id')
                     ->label('Device')
+                    ->relationship(
+                        name: 'device',
+                        titleAttribute: 'asset_code_with_type' // pakai accessor kamu
+                    )
+                    ->getOptionLabelFromRecordUsing(fn($record) => $record->asset_code_with_type)
                     ->options(function () {
-                        return Device::available()
-                            ->get()
-                            ->mapWithKeys(function ($device) {
-                                return [$device['device_id'] => "{$device['asset_code']} - {$device['brand']} {$device['brand_name']} ({$device['serial_number']})"];
-                            });
+                        return Device::available()->get()->pluck('asset_code_with_type', 'device_id');
                     })
                     ->required()
                     ->searchable()
-                    ->preload()
+                    ->lazy()
                     ->helperText('Only available devices (not currently assigned) are shown. Use QR scanner above for quick selection.'),
-
                 Select::make('user_id')
                     ->label('Assign to User')
                     ->options(function () {
@@ -143,7 +150,7 @@ class DeviceAssignmentResource extends Resource
                             $user = User::find($state);
                             if ($user && $user->branch_id) {
                                 $set('branch_id', $user->branch_id);
-                                
+
                                 // Show notification that branch was auto-filled
                                 \Filament\Notifications\Notification::make()
                                     ->title('Branch Auto-filled')
@@ -247,7 +254,7 @@ class DeviceAssignmentResource extends Resource
                 Tables\Columns\TextColumn::make('device.status')
                     ->label('Device Status')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'Digunakan' => 'success',
                         'Tidak Digunakan' => 'warning',
                         'Cadangan' => 'info',
@@ -257,7 +264,7 @@ class DeviceAssignmentResource extends Resource
 
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Active')
-                    ->getStateUsing(fn ($record) => is_null($record->returned_date))
+                    ->getStateUsing(fn($record) => is_null($record->returned_date))
                     ->boolean()
                     ->trueIcon('heroicon-o-check-circle')
                     ->falseIcon('heroicon-o-x-circle')
@@ -277,12 +284,12 @@ class DeviceAssignmentResource extends Resource
 
                 Tables\Filters\Filter::make('active_assignments')
                     ->label('Active Assignments Only')
-                    ->query(fn (Builder $query): Builder => $query->whereNull('returned_date'))
+                    ->query(fn(Builder $query): Builder => $query->whereNull('returned_date'))
                     ->default(),
 
                 Tables\Filters\Filter::make('returned_assignments')
                     ->label('Returned Assignments Only')
-                    ->query(fn (Builder $query): Builder => $query->whereNotNull('returned_date')),
+                    ->query(fn(Builder $query): Builder => $query->whereNotNull('returned_date')),
 
                 Tables\Filters\SelectFilter::make('branch_code')
                     ->label('Branch')
@@ -295,20 +302,20 @@ class DeviceAssignmentResource extends Resource
                         ->tooltip('View assignment details'),
                     Tables\Actions\EditAction::make()
                         ->tooltip('Edit assignment information'),
-                    
+
                     Tables\Actions\DeleteAction::make()
                         ->tooltip('Delete this assignment'),
                 ])
-                ->iconButton()
-                ->icon('heroicon-o-ellipsis-horizontal')
-                ->tooltip('Assignment Actions'),
-                
+                    ->iconButton()
+                    ->icon('heroicon-o-ellipsis-horizontal')
+                    ->tooltip('Assignment Actions'),
+
                 Tables\Actions\Action::make('return_device')
                     ->label('Return Device')
                     ->icon('heroicon-o-arrow-left-on-rectangle')
                     ->color('warning')
                     ->tooltip('Mark device as returned')
-                    ->visible(fn ($record) => is_null($record->returned_date))
+                    ->visible(fn($record) => is_null($record->returned_date))
                     ->requiresConfirmation()
                     ->modalHeading('Return Device')
                     ->modalDescription('Are you sure you want to mark this device as returned?')

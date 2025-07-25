@@ -7,10 +7,11 @@ use Filament\Widgets\ChartWidget;
 
 class DeviceConditionChartWidget extends ChartWidget
 {
-    protected static ?string $heading = '📊 Komposisi Kondisi Perangkat';    protected static ?int $sort = 6;
+    protected static ?string $heading = '📊 Komposisi Kondisi Perangkat';
+    protected static ?int $sort = 6;
 
-    protected int | string | array $columnSpan = [
-        'default' => 'full',  // Full width on mobile
+    protected int|string|array $columnSpan = [
+        'default' => 1,  // Full width on mobile
         'md' => 1,       // Full width on medium (single chart gets full space)
         'lg' => 2,            // 2 out of 4 columns on large screens (side-by-side with other chart)
         'xl' => 2,            // Keep 2 out of 4 on XL (optimal chart size)
@@ -25,7 +26,7 @@ class DeviceConditionChartWidget extends ChartWidget
 
         // Base query for devices
         $deviceQuery = Device::query();
-        
+
         // Apply filters
         if ($branchId) {
             $deviceQuery->whereHas('currentAssignment', function ($query) use ($branchId) {
@@ -53,7 +54,7 @@ class DeviceConditionChartWidget extends ChartWidget
                 $data[] = $count;
                 $colors[] = match ($condition) {
                     'Baik' => '#10b981',
-                    'Perlu Pengecekan' => '#f59e0b', 
+                    'Perlu Pengecekan' => '#f59e0b',
                     'Rusak' => '#ef4444',
                     default => '#6b7280'
                 };
