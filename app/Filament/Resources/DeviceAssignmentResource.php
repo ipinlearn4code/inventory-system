@@ -193,15 +193,15 @@ class DeviceAssignmentResource extends Resource
                 Tables\Columns\TextColumn::make('assignment_id')
                     ->label('ID')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true), // disembunyikan
 
                 Tables\Columns\TextColumn::make('device.asset_code')
                     ->label('Device Asset Code')
                     ->searchable()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true), // disembunyikan
 
-                Tables\Columns\TextColumn::make('device_brand_model')
+                Tables\Columns\TextColumn::make('device.brand')
                     ->label('Brand & Model')
                     ->getStateUsing(function ($record) {
                         $brand = $record->device->brand ?? '';
@@ -209,56 +209,45 @@ class DeviceAssignmentResource extends Resource
                         return trim("{$brand} {$model}");
                     })
                     ->searchable()
-                    ->toggleable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(), // default nyala
 
                 Tables\Columns\TextColumn::make('user.name')
-                    ->label('Assigned to')
+                    ->label('Assigned To')
                     ->searchable()
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable(), // default nyala
 
                 Tables\Columns\TextColumn::make('user.pn')
                     ->label('PN')
                     ->searchable()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true), // disembunyikan
 
                 Tables\Columns\TextColumn::make('branch.unit_name')
                     ->label('Branch')
                     ->searchable()
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable(), // default nyala
 
                 Tables\Columns\TextColumn::make('branch.mainBranch.main_branch_name')
                     ->label('Main Branch')
                     ->searchable()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true), // disembunyikan
 
                 Tables\Columns\TextColumn::make('assigned_date')
                     ->label('Assigned Date')
                     ->date('d/m/Y')
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable(), // default nyala
 
                 Tables\Columns\TextColumn::make('returned_date')
                     ->label('Return Date')
                     ->date('d/m/Y')
                     ->placeholder('Active')
                     ->sortable()
-                    ->toggleable(),
-
-                Tables\Columns\TextColumn::make('device.status')
-                    ->label('Device Status')
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        'Digunakan' => 'success',
-                        'Tidak Digunakan' => 'warning',
-                        'Cadangan' => 'info',
-                        default => 'gray',
-                    })
-                    ->toggleable(),
+                    ->toggleable(), // default nyala
 
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Active')
@@ -268,19 +257,18 @@ class DeviceAssignmentResource extends Resource
                     ->falseIcon('heroicon-o-x-circle')
                     ->trueColor('success')
                     ->falseColor('danger')
-                    ->toggleable(),
-            ]
+                    ->toggleable(), // default nyala
+            ])
+            ->modifyQueryUsing(
+                fn($query) =>
+                $query->with([
+                    'device',
+                    'user',
+                    'branch',
+                    'branch.mainBranch',
+                ])
             )
             ->filters([
-                Tables\Filters\SelectFilter::make('device.status')
-                    ->label('Device Status')
-                    ->relationship('device', 'status')
-                    ->options([
-                        'Digunakan' => 'Digunakan (In Use)',
-                        'Tidak Digunakan' => 'Tidak Digunakan (Not Used)',
-                        'Cadangan' => 'Cadangan (Backup)',
-                    ]),
-
                 Tables\Filters\Filter::make('active_assignments')
                     ->label('Active Assignments Only')
                     ->query(fn(Builder $query): Builder => $query->whereNull('returned_date'))
@@ -290,9 +278,15 @@ class DeviceAssignmentResource extends Resource
                     ->label('Returned Assignments Only')
                     ->query(fn(Builder $query): Builder => $query->whereNotNull('returned_date')),
 
-                Tables\Filters\SelectFilter::make('branch_code')
+                Tables\Filters\SelectFilter::make('branch_id')
                     ->label('Branch')
-                    ->options(Branch::all()->pluck('unit_name', 'branch_code')),
+                    ->options(
+                        Branch::all()->mapWithKeys(function ($branch) {
+                            return [
+                                $branch->branch_id => "{$branch->unit_name} ({$branch->branch_code})"
+                            ];
+                        })
+                    ),
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
