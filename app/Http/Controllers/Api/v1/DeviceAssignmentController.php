@@ -80,6 +80,19 @@ class DeviceAssignmentController extends Controller
             // Get all assignment letters
             $letters = AssignmentLetter::where('assignment_id', $id)->get();
 
+            /**
+             * Processes a collection of assignment letters and maps each letter to an array containing relevant details.
+             *
+             * If the collection of letters is not empty, it transforms each letter into an associative array with the following keys:
+             * - 'assignmentLetterId': The unique identifier of the assignment letter.
+             * - 'assignmentType': The type of the assignment letter.
+             * - 'letterNumber': The number associated with the assignment letter.
+             * - 'letterDate': The date of the assignment letter.
+             * - 'fileUrl': The preview URL of the letter's file if available, otherwise null.
+             *
+             * The resulting mapped data is assigned to the 'assignmentLetters' key in the $data array.
+             */
+
             if ($letters->isNotEmpty()) {
                 $lettersData = $letters->map(function ($letter) {
                     return [
@@ -87,6 +100,7 @@ class DeviceAssignmentController extends Controller
                         'assignmentType' => $letter->getAttribute('letter_type'),
                         'letterNumber' => $letter->getAttribute('letter_number'),
                         'letterDate' => $letter->getAttribute('letter_date'),
+                        // 'fileUrl' => $letter->hasFile() ? $this->pdfPreviewService->getPreviewData($letter)['downloadUrl'] : null
                         'fileUrl' => $letter->hasFile() ? $this->pdfPreviewService->getPreviewData($letter)['previewUrl'] : null
                     ];
                 });

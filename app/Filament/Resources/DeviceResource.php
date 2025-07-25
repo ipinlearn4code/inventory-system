@@ -63,6 +63,17 @@ class DeviceResource extends Resource
         return $authModel && ($authModel->hasRole('superadmin') || $authModel->hasRole('admin'));
     }
 
+    public static function getHeaderActions(): array
+    {
+        return [
+            Forms\Components\Actions\Action::make('create')
+                ->label('Add Device')
+                ->icon('heroicon-o-plus')
+                ->url(static::getUrl('create'))
+                ->visible(fn() => static::canCreate())
+                ->color('primary'),
+        ];
+    }
     public static function form(Form $form): Form
     {
         return $form
@@ -244,6 +255,7 @@ class DeviceResource extends Resource
     {
 
         return $table
+            // ->persistTableColumnToggleState(false)   
             ->columns([
                 Tables\Columns\TextColumn::make('device_id')
                     ->label('ID')
@@ -253,23 +265,23 @@ class DeviceResource extends Resource
                 Tables\Columns\TextColumn::make('brand')
                     ->searchable()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
 
                 Tables\Columns\TextColumn::make('brand_name')
                     ->label('Model/Series')
                     ->searchable()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
 
                 Tables\Columns\TextColumn::make('serial_number')
                     ->searchable()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
 
                 Tables\Columns\TextColumn::make('asset_code')
                     ->searchable()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
 
                 Tables\Columns\TextColumn::make('bribox.type')
                     ->label('Type')
@@ -279,7 +291,7 @@ class DeviceResource extends Resource
                 Tables\Columns\TextColumn::make('bribox.category.category_name')
                     ->label('Category')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
 
                 Tables\Columns\TextColumn::make('condition')
                     ->badge()
@@ -289,7 +301,7 @@ class DeviceResource extends Resource
                         'Perlu Pengecekan' => 'warning',
                         default => 'gray',
                     })
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
 
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
@@ -304,7 +316,7 @@ class DeviceResource extends Resource
                 Tables\Columns\TextColumn::make('currentAssignment.user.name')
                     ->label('Assigned To')
                     ->default('Unassigned')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
