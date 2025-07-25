@@ -5,7 +5,7 @@ export default defineConfig({
     server: {
         host: '0.0.0.0',
         port: 5173,
-        hmr: { host: 'localhost' }
+        hmr: { host: '192.168.2.254' }
     },
     plugins: [
         laravel({

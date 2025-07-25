@@ -41,13 +41,14 @@
                     </div>
                 </div>
                 <div class="flex-shrink-0">
+                    <!--  -->
                     <button 
                         wire:click="refreshStatus"
                         class="inline-flex items-center px-3 py-1.5 sm:border border-gray-300 dark:border-gray-600 rounded-md text-xs text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
                         title="Refresh Status"
                     >
                         <x-filament::icon icon="heroicon-o-arrow-path" class="w-4 h-4 sm:w-3 sm:h-3 sm:mr-1" />
-                        <span class="hidden sm:inline">Refresh</span>
+                        <span class="hidden sm:inline ml-2">Refresh</span>
                     </button>
                 </div>
             </div>

@@ -12,7 +12,7 @@ class InventoryOverviewWidget extends BaseWidget
     protected static ?int $sort = 3;
     
     protected int | string | array $columnSpan = [
-        'default' => 'full',  // Full width on mobile for better readability
+        'default' => 2,  // Full width on mobile for better readability
         'sm' => 'full',       // Full width on small tablets
         'md' => 'full',       // Full width on medium screens (key metrics need space) 
         'lg' => 'full',       // Full width on large screens (stats cards need room)
@@ -102,6 +102,7 @@ class InventoryOverviewWidget extends BaseWidget
 
     protected function getColumns(): int
     {
-        return 4;
+        // Return the number of columns for the widget (Filament expects an integer)
+        return 4; // 4 columns for medium and up, adjust as needed
     }
 }

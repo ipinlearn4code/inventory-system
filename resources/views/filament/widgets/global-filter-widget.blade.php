@@ -5,7 +5,7 @@
                 <div class="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center shadow-sm">
                     <x-filament::icon icon="heroicon-m-funnel" class="w-5 h-5 text-primary-600" />
                 </div>
-                <span class="text-lg font-bold text-primary-800 dark:text-primary-200">BRI Global Filter</span>
+                <span class="text-lg font-bold text-primary-800 dark:text-primary-200">Global Inventory Filter</span>
             </div>
         </x-slot>
         

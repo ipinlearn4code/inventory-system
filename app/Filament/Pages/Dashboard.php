@@ -11,7 +11,7 @@ class Dashboard extends BaseDashboard
     public function getColumns(): int|string|array
     {
         return [
-            'default' => 1,    // Mobile: Single column for optimal readability
+            'default' => 2,    // Mobile: Single column for optimal readability
             'sm' => 2,         // Small tablets: 2 columns 
             'md' => 3,         // Medium screens: 3 columns (768px+)
             'lg' => 4,         // Large screens: 4 columns (1024px+) 

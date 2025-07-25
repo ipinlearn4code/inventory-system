@@ -12,10 +12,10 @@ class DeviceDistributionChartWidget extends ChartWidget
 
     protected int | string | array $columnSpan = [
         'default' => 'full',  // Full width on mobile
-        'md' => 'full',       // Full width on medium (single chart gets full space)
+        'md' => 1,       // Full width on medium (single chart gets full space)
         'lg' => 2,            // 2 out of 4 columns on large screens (side-by-side with condition chart)
         'xl' => 2,            // Keep 2 out of 4 on XL (optimal chart size)
-        '2xl' => 3,           // 3 out of 6 on ultra-wide (more breathing room)
+        '2xl' => 2,           // 3 out of 6 on ultra-wide (more breathing room)
     ];
 
     protected function getData(): array
