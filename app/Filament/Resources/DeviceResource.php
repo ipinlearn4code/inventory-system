@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use App\Traits\HasInventoryLogging;
+use App\Filament\Forms\Components\QrCodeScanner;
 
 class DeviceResource extends Resource
 {
@@ -61,18 +62,6 @@ class DeviceResource extends Resource
 
         $authModel = \App\Models\Auth::where('pn', $auth['pn'])->first();
         return $authModel && ($authModel->hasRole('superadmin') || $authModel->hasRole('admin'));
-    }
-
-    public static function getHeaderActions(): array
-    {
-        return [
-            Forms\Components\Actions\Action::make('create')
-                ->label('Add Device')
-                ->icon('heroicon-o-plus')
-                ->url(static::getUrl('create'))
-                ->visible(fn() => static::canCreate())
-                ->color('primary'),
-        ];
     }
     public static function form(Form $form): Form
     {
@@ -540,7 +529,15 @@ class DeviceResource extends Resource
                 ]),
 
             ])
-        ;
+            // ->heading('Devices')
+            
+            ->deferLoading()            
+            ->emptyStateActions([
+                Tables\Actions\CreateAction::make()
+                    ->label('Add Device')
+                    ->icon('heroicon-o-plus')
+                    ->tooltip('Add a new device to the inventory'),
+            ]);
     }
 
     public static function getRelations(): array
