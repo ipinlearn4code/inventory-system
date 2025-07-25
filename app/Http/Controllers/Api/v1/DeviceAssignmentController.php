@@ -116,61 +116,62 @@ class DeviceAssignmentController extends Controller
         ]);
 
         try {
-            $responseData = DB::transaction(function () use ($request, $validated) {
-                // Create the device assignment first
-                $assignmentData = $this->assignmentService->createAssignment($validated);
+            $responseData = DB::transaction(
+                function () use ($request, $validated) {
+                    // Create the device assignment first
+                    $assignmentData = $this->assignmentService->createAssignment($validated);
 
-                // // First, Store the assignment letter file in MinIO
-                // $minioStorageService = app(MinioStorageService::class);
-                // $minioStorageService->storeAssignmentLetterFile(
-                //     $request->file('letter_file'),
-                //     $assignmentData['assignmentId'],
-                //     'assignment',
-                // );
+                    // // First, Store the assignment letter file in MinIO
+                    // $minioStorageService = app(MinioStorageService::class);
+                    // $minioStorageService->storeAssignmentLetterFile(
+                    //     $request->file('letter_file'),
+                    //     $assignmentData['assignmentId'],
+                    //     'assignment',
+                    // );
+    
+                    Device::where('device_id', $validated['device_id'])
+                        ->update(['status' => 'Digunakan']);
 
-                Device::where('device_id', $validated['device_id'])
-                    ->update(['status' => 'Digunakan']);
+                    // Second, Create the assignment letter data on the database
+                    $letter = new AssignmentLetter([
+                        'assignment_id' => $assignmentData['assignmentId'],
+                        'letter_type' => 'assignment', // Default for assignment letter
+                        'letter_number' => $request->input('letter_number'),
+                        'letter_date' => $request->input('letter_date'),
+                        'file_path' => null, // Will be set after file upload
+                        'approver_id' => Auth::id(), // Get from authenticated user
+                        'created_by' => Auth::id(),
+                        'created_at' => now(),
+                    ]);
 
-                // Second, Create the assignment letter data on the database
-                $letter = new AssignmentLetter([
-                    'assignment_id' => $assignmentData['assignmentId'],
-                    'letter_type' => 'assignment', // Default for assignment letter
-                    'letter_number' => $request->input('letter_number'),
-                    'letter_date' => $request->input('letter_date'),
-                    'file_path' => null, // Will be set after file upload
-                    'approver_id' => Auth::id(), // Get from authenticated user
-                    'created_by' => Auth::id(),
-                    'created_at' => now(),
-                ]);
+                    // Store the letter file if present
+                    $path = null;
+                    if ($request->hasFile('letter_file') && $request->file('letter_file')->isValid()) {
+                        $path = $letter->storeFile($request->file('letter_file'));
+                        $letter->file_path = $path;
+                    }
 
-                // Store the letter file if present
-                $path = null;
-                if ($request->hasFile('letter_file') && $request->file('letter_file')->isValid()) {
-                    $path = $letter->storeFile($request->file('letter_file'));
-                    $letter->file_path = $path;
+                    $letter->save();
+
+                    // Handle file upload if present
+                    // if ($request->hasFile('letter_file') && $request->file('letter_file')->isValid()) {
+                    //     $letter->storeFile($request->file('letter_file'));
+                    // }
+    
+                    // Get the letter data with file URL
+                    $letterData = [
+                        'assignmentLetterId' => $letter->getKey(),
+                        'assignmentType' => $letter->getAttribute('letter_type'),
+                        'letterNumber' => $letter->getAttribute('letter_number'),
+                        'letterDate' => $letter->getAttribute('letter_date'),
+                        'fileUrl' => $letter->hasFile() ? $this->pdfPreviewService->getPreviewData($letter)['previewUrl'] : null,
+                    ];
+
+                    // Return assignment data with the newly created letter in an array
+                    $responseData = array_merge($assignmentData, ['assignmentLetters' => [$letterData]]);
+                    return $responseData;
                 }
-
-                $letter->save();
-
-                // Handle file upload if present
-                // if ($request->hasFile('letter_file') && $request->file('letter_file')->isValid()) {
-                //     $letter->storeFile($request->file('letter_file'));
-                // }
-
-                // Get the letter data with file URL
-                $letterData = [
-                    'assignmentLetterId' => $letter->getKey(),
-                    'assignmentType' => $letter->getAttribute('letter_type'),
-                    'letterNumber' => $letter->getAttribute('letter_number'),
-                    'letterDate' => $letter->getAttribute('letter_date'),
-                    'fileUrl' => $letter->hasFile() ? $this->pdfPreviewService->getPreviewData($letter)['previewUrl'] : null,
-                ];
-
-                // Return assignment data with the newly created letter in an array
-                $responseData = array_merge($assignmentData, ['assignmentLetters' => [$letterData]]);
-                return $responseData;
-            }
-        );
+            );
 
             return response()->json(['data' => $responseData], 201);
         } catch (\Exception $e) {
@@ -234,54 +235,50 @@ class DeviceAssignmentController extends Controller
         ]);
 
         try {
-            // Process the device return first
-            $data = $this->assignmentService->returnDevice($id, $validated);
+            $responseData = DB::transaction(
+                function () use ($request, $id, $validated) {
+                    // Process the device return first
+                    $data = $this->assignmentService->returnDevice($id, $validated);
 
-            $minioStorageService = app(MinioStorageService::class);
-            $minioStorageService->storeAssignmentLetterFile(
-                $request->file('letter_file'),
-                $id,
-                'assignment',
+                    // Update the device status to "Cadangan"
+                    $deviceId = $this->assignmentRepository->findById($id)?->device_id;
+                    Device::where('device_id', $deviceId)
+                        ->update(['status' => 'Cadangan']);
+
+                    // Create the return letter
+                    $letter = new AssignmentLetter([
+                        'assignment_id' => $id,
+                        'letter_type' => 'return', // Return letter type
+                        'letter_number' => $request->input('letter_number'),
+                        'letter_date' => $request->input('letter_date'),
+                        'approver_id' => Auth::id(),
+                        'file_path' => null, // Will be set after file upload
+                        'created_by' => Auth::id(),
+                        'created_at' => now(),
+                    ]);
+
+                    // Handle file upload if present
+                    $path = null;
+                    if ($request->hasFile('letter_file') && $request->file('letter_file')->isValid()) {
+                        $path = $letter->storeFile($request->file('letter_file'));
+                        $letter->file_path = $path;
+                    }
+
+                    $letter->save();
+
+                    // Get the letter data with file URL
+                    $letterData = [
+                        'assignmentLetterId' => $letter->getKey(),
+                        'assignmentType' => $letter->getAttribute('letter_type'),
+                        'letterNumber' => $letter->getAttribute('letter_number'),
+                        'letterDate' => $letter->getAttribute('letter_date'),
+                        'fileUrl' => $letter->hasFile() ? $this->pdfPreviewService->getPreviewData($letter)['previewUrl'] : null,
+                    ];
+
+                    // Combine return data with the newly created letter
+                    return array_merge($data, ['assignmentLetter' => $letterData]);
+                }
             );
-
-            // Update the device status to "Cadangan"
-            $deviceId = $this->assignmentRepository->find($id)?->device_id;
-
-            Device::where('device_id', $deviceId)
-                ->update(['status' => 'Cadangan']);
-
-            // Create the return letter
-
-            $letter = new AssignmentLetter([
-                'assignment_id' => $id,
-                'letter_type' => 'return', // Return letter type
-                'letter_number' => $request->input('letter_number'),
-                'letter_date' => $request->input('letter_date'),
-                'approver_id' => Auth::id(),
-                'file_path' => null, // Will be set after file upload
-                'created_by' => Auth::id(),
-                'created_at' => now(),
-            ]);
-
-
-            // Handle file upload if present
-            if ($request->hasFile('letter_file') && $request->file('letter_file')->isValid()) {
-                $path = $letter->storeFile($request->file('letter_file'));
-            }
-
-            $letter->save();
-
-            // Get the letter data with file URL
-            $letterData = [
-                'assignmentLetterId' => $letter->getKey(),
-                'assignmentType' => $letter->getAttribute('letter_type'),
-                'letterNumber' => $letter->getAttribute('letter_number'),
-                'letterDate' => $letter->getAttribute('letter_date'),
-                'fileUrl' => $letter->hasFile() ? $this->pdfPreviewService->getPreviewData($letter)['previewUrl'] : null,
-            ];
-
-            // Combine return data with the newly created letter
-            $responseData = array_merge($data, ['assignmentLetter' => $letterData]);
 
             return response()->json(['data' => $responseData]);
         } catch (\Exception $e) {
