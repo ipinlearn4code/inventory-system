@@ -81,6 +81,7 @@ class DeviceAssignmentResource extends Resource
                     ->asButton('📱 Scan QR Code', 'primary', 'md')
                     ->withIcon('heroicon-o-qr-code')
                     ->live()
+                    ->lazy()
                     ->visibleOn(['create', 'edit'])
                     ->afterStateUpdated(function (string $state = null, Forms\Set $set) {
                         if ($state) {
@@ -129,7 +130,6 @@ class DeviceAssignmentResource extends Resource
                     })
                     ->required()
                     ->searchable()
-                    ->lazy()
                     ->helperText('Only available devices (not currently assigned) are shown. Use QR scanner above for quick selection.'),
                 Select::make('user_id')
                     ->label('Assign to User')
@@ -143,7 +143,6 @@ class DeviceAssignmentResource extends Resource
                     })
                     ->required()
                     ->searchable()
-                    ->preload()
                     ->live()
                     ->afterStateUpdated(function ($state, Forms\Set $set) {
                         if ($state) {
@@ -168,7 +167,6 @@ class DeviceAssignmentResource extends Resource
                     }))
                     ->required()
                     ->searchable()
-                    ->preload()
                     ->helperText('This will be auto-filled when you select a user'),
 
                 DatePicker::make('assigned_date')
@@ -201,18 +199,18 @@ class DeviceAssignmentResource extends Resource
                     ->label('Device Asset Code')
                     ->searchable()
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('device.brand')
-                    ->label('Brand')
+                Tables\Columns\TextColumn::make('device_brand_model')
+                    ->label('Brand & Model')
+                    ->getStateUsing(function ($record) {
+                        $brand = $record->device->brand ?? '';
+                        $model = $record->device->brand_name ?? '';
+                        return trim("{$brand} {$model}");
+                    })
                     ->searchable()
+                    ->toggleable()
                     ->sortable(),
-
-                Tables\Columns\TextColumn::make('device.brand_name')
-                    ->label('Model/Series')
-                    ->searchable()
-                    ->sortable()
-                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Assigned to')
@@ -271,7 +269,8 @@ class DeviceAssignmentResource extends Resource
                     ->trueColor('success')
                     ->falseColor('danger')
                     ->toggleable(),
-            ])
+            ]
+            )
             ->filters([
                 Tables\Filters\SelectFilter::make('device.status')
                     ->label('Device Status')
