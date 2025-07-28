@@ -6,6 +6,15 @@ use App\Models\Device;
 use App\Models\User;
 use App\Models\Branch;
 use Filament\Forms;
+use App\Filament\Forms\Components\QrCodeScanner;
+use Filament\Forms\Components\Actions\Action;
+use App\Filament\Components\QrScannerAction;
+
+use Filament\Pages\Page;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+
 
 class QuickAssignmentFormBuilder
 {
@@ -70,6 +79,17 @@ class QuickAssignmentFormBuilder
                 })
                 ->searchable()
                 ->required()
+                // ->suffixAction(
+                //     Action::make('scan_qr')
+                //         ->icon('heroicon-o-qr-code')
+                //         ->tooltip('Scan QR to select device')
+                //         ->action(function (callable $set) {
+                //             // Logika scan QR bisa di sini atau buka modal khusus
+                //             // Contoh: isi otomatis device_id dari QR
+                //             $scannedDeviceId = ''; // hasil dari QR scan (dummy)
+                //             $set('device_id', $scannedDeviceId);
+                //         })
+                // )
                 ->helperText('Only available devices in good condition are shown'),
 
             Forms\Components\DatePicker::make('assigned_date')
@@ -117,7 +137,7 @@ class QuickAssignmentFormBuilder
             ->default(true)
             ->live()
             ->dehydrated(true)
-            ->visible(fn () => session('authenticated_user.role') === 'superadmin')
+            ->visible(fn() => session('authenticated_user.role') === 'superadmin')
             ->afterStateHydrated(function ($get, $set, $state) {
                 if ($state) {
                     $currentUser = $this->authService->getCurrentUser();
