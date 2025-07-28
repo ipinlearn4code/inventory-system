@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\BaseApiController;
 use App\Contracts\DashboardServiceInterface;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
-class DashboardController extends Controller
+class DashboardController extends BaseApiController
 {
     public function __construct(
         private DashboardServiceInterface $dashboardService

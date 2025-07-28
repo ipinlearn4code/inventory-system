@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\BaseApiController;
 use App\Contracts\UserRepositoryInterface;
 use App\Contracts\DeviceAssignmentRepositoryInterface;
 use App\Http\Requests\Api\ReportIssueRequest;
@@ -10,7 +10,7 @@ use App\Models\InventoryLog;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
-class UserController extends Controller
+class UserController extends BaseApiController
 {
     public function __construct(
         private UserRepositoryInterface $userRepository,

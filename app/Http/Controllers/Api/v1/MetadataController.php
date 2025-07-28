@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\BaseApiController;
 use App\Contracts\UserRepositoryInterface;
 use App\Models\Branch;
 use App\Models\Bribox;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
-class MetadataController extends Controller
+class MetadataController extends BaseApiController
 {
     public function __construct(
         private UserRepositoryInterface $userRepository

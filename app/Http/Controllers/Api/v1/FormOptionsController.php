@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\BaseApiController;
 use App\Contracts\FormOptionsServiceInterface;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
-class FormOptionsController extends Controller
+class FormOptionsController extends BaseApiController
 {
     private FormOptionsServiceInterface $formOptionsService;
 

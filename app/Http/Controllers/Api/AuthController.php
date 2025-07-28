@@ -2,56 +2,38 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
+use App\Contracts\AuthServiceInterface;
 use App\Http\Requests\Api\LoginRequest;
-use App\Models\User;
-use App\Models\Auth;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Http\JsonResponse;
 
-class AuthController extends Controller
+class AuthController extends BaseApiController
 {
+    public function __construct(
+        private readonly AuthServiceInterface $authService
+    ) {}
+
     /**
      * Login user and create token
      */
-    public function login(LoginRequest $request)
+    public function login(LoginRequest $request): JsonResponse
     {
-        // Find user by PN
-        $user = User::where('pn', $request->pn)->first();
+        $user = $this->authService->authenticate($request->pn, $request->password);
         
         if (!$user) {
-            return response()->json([
-                'message' => 'Invalid credentials.',
-                'errorCode' => 'ERR_INVALID_CREDENTIALS'
-            ], 401);
+            return $this->errorResponse('Invalid credentials.', 'ERR_INVALID_CREDENTIALS', 401);
         }
 
-        // Check auth record
-        $auth = Auth::where('pn', $request->pn)->first();
-        
-        if (!$auth || !Hash::check($request->password, $auth->password)) {
-            return response()->json([
-                'message' => 'Invalid credentials.',
-                'errorCode' => 'ERR_INVALID_CREDENTIALS'
-            ], 401);
-        }
+        $tokenData = $this->authService->createToken($user, $request->device_name);
+        $role = $this->authService->transformRoleForMobile($user->auth->role);
 
-        // Create token
-        $token = $user->createToken($request->device_name);
-
-        // Determine role for mobile (superadmin becomes admin)
-        $role = $auth->role === 'superadmin' ? 'admin' : $auth->role;
-
-        return response()->json([
-            'data' => [
-                'token' => $token->plainTextToken,
-                'user' => [
-                    'userId' => $user->user_id,
-                    'name' => $user->name,
-                    'pn' => $user->pn,
-                    'role' => $role
-                ]
+        return $this->successResponse([
+            'token' => $tokenData['token'],
+            'user' => [
+                'userId' => $user->user_id,
+                'name' => $user->name,
+                'pn' => $user->pn,
+                'role' => $role
             ]
         ]);
     }
@@ -59,37 +41,27 @@ class AuthController extends Controller
     /**
      * Refresh token
      */
-    public function refresh(Request $request)
+    public function refresh(Request $request): JsonResponse
     {
         $request->validate([
             'device_name' => 'required|string'
         ]);
 
         $user = $request->user();
-        
-        // Revoke current token
-        $request->user()->currentAccessToken()->delete();
-        
-        // Create new token
-        $token = $user->createToken($request->device_name);
+        $tokenData = $this->authService->refreshToken($user, $request->device_name);
 
-        return response()->json([
-            'data' => [
-                'token' => $token->plainTextToken,
-                'expiresIn' => 86400 // 24 hours
-            ]
-        ]);
+        return $this->successResponse($tokenData);
     }
 
     /**
      * Logout user
      */
-    public function logout(Request $request)
+    public function logout(Request $request): JsonResponse
     {
-        // Revoke current token
-        $request->user()->currentAccessToken()->delete();
+        $user = $request->user();
+        $this->authService->revokeCurrentToken($user);
 
-        return response()->json([
+        return $this->successResponse([
             'message' => 'Logout successful.',
             'errorCode' => null
         ]);
@@ -98,17 +70,21 @@ class AuthController extends Controller
     /**
      * Register for push notifications
      */
-    public function registerPush(Request $request)
+    public function registerPush(Request $request): JsonResponse
     {
         $request->validate([
             'device_token' => 'required|string',
             'platform' => 'required|string|in:ios,android'
         ]);
 
-        // In a real implementation, you would store the push token
-        // For now, we'll just acknowledge the registration
-        
-        return response()->json([
+        $user = $request->user();
+        $success = $this->authService->registerPushNotification($user, $request->validated());
+
+        if (!$success) {
+            return $this->errorResponse('Failed to register push notification.', 'ERR_PUSH_REGISTRATION_FAILED', 500);
+        }
+
+        return $this->successResponse([
             'message' => 'Push notification registration successful.',
             'errorCode' => null
         ]);

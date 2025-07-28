@@ -18,6 +18,12 @@ class AppServiceProvider extends ServiceProvider
             \App\Contracts\InventoryLogServiceInterface::class,
             \App\Services\InventoryLogService::class
         );
+
+        // Bind AuthService interface
+        $this->app->bind(
+            \App\Contracts\AuthServiceInterface::class,
+            \App\Services\AuthService::class
+        );
     }
 
     /**

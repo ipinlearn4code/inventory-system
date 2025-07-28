@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\BaseApiController;
 use App\Models\Device;
 use App\Models\InventoryLog;
 use App\Models\User;
@@ -17,7 +17,7 @@ use Illuminate\Http\FormRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
-class DeviceAssignmentController extends Controller
+class DeviceAssignmentController extends BaseApiController
 {
     public function __construct(
         private DeviceAssignmentService $assignmentService,

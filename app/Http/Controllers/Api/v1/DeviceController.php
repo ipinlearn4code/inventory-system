@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\BaseApiController;
 use App\Services\DeviceService;
 use App\Contracts\DeviceRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
-class DeviceController extends Controller
+class DeviceController extends BaseApiController
 {
     public function __construct(
         private DeviceService $deviceService,
