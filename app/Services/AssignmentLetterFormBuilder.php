@@ -18,7 +18,8 @@ class AssignmentLetterFormBuilder
         private readonly AuthenticationService $authService,
         private readonly StorageHealthService $storageHealthService,
         private readonly PdfPreviewService $pdfPreviewService
-    ) {}
+    ) {
+    }
 
     /**
      * Build the complete form schema
@@ -26,14 +27,38 @@ class AssignmentLetterFormBuilder
     public function buildFormSchema(): array
     {
         return [
-            $this->buildDeviceAssignmentSelect(),
             $this->buildLetterTypeSelect(),
+            $this->buildDeviceAssignmentSelect(),
             $this->buildLetterNumberInput(),
             $this->buildLetterDatePicker(),
             $this->buildApproverSection(),
             $this->buildFileUploadSection(),
             ...$this->buildHiddenFields(),
         ];
+    }
+    /**
+     * Build letter type select field
+     */
+
+    private function buildLetterTypeSelect(): Forms\Components\Select
+    {
+        return Forms\Components\Select::make('letter_type')
+            ->label('Letter Type')
+            
+            ->options([
+                'assignment' => 'Assignment Letter',
+                'return' => 'Return Letter',
+                'transfer' => 'Transfer Letter',
+                'maintenance' => 'Maintenance Letter',
+            ])
+            ->required()
+            ->native(false)
+            ->placeholder('Select a letter type')
+            ->selectablePlaceholder(false)
+            ->validationAttribute('letter type')
+            ->default(function ($livewire, $record) {
+                return $record ? $record->letter_type : null;
+            });
     }
 
     /**
@@ -57,28 +82,6 @@ class AssignmentLetterFormBuilder
             ->required();
     }
 
-    /**
-     * Build letter type select field
-     */
-    private function buildLetterTypeSelect(): Forms\Components\Select
-    {
-        return Forms\Components\Select::make('letter_type')
-            ->label('Letter Type')
-            ->options([
-                'assignment' => 'Assignment Letter',
-                'return' => 'Return Letter',
-                'transfer' => 'Transfer Letter',
-                'maintenance' => 'Maintenance Letter',
-            ])
-            ->required()
-            ->native(false)
-            ->placeholder('Select a letter type')
-            ->selectablePlaceholder(false)
-            ->validationAttribute('letter type')
-            ->default(function ($livewire, $record) {
-                return $record ? $record->letter_type : null;
-            });
-    }
 
     /**
      * Build letter number input field
@@ -126,8 +129,8 @@ class AssignmentLetterFormBuilder
             ->default(true)
             ->live()
             ->dehydrated(false)
-            ->disabled(fn ($record) => filled($record))
-            ->hint(fn ($record) => filled($record) ? 'Cannot change approver in edit mode.' : null)
+            ->disabled(fn($record) => filled($record))
+            ->hint(fn($record) => filled($record) ? 'Cannot change approver in edit mode.' : null)
             ->afterStateUpdated(function ($set, $state) {
                 if ($state) {
                     $currentUser = $this->authService->getCurrentUser();
@@ -148,7 +151,7 @@ class AssignmentLetterFormBuilder
             ->options(function () {
                 return User::pluck('name', 'user_id')->toArray();
             })
-            ->disabled(fn ($get) => $get('is_approver'))
+            ->disabled(fn($get) => $get('is_approver'))
             ->native(false)
             ->placeholder('Select an approver')
             ->required()
@@ -189,7 +192,7 @@ class AssignmentLetterFormBuilder
             ->maxSize(5120)
             ->helperText($this->getStorageHelperText())
             ->hint($this->getStorageHint())
-            ->hiddenLabel(fn ($record) => filled($record) && $record->hasFile())
+            ->hiddenLabel(fn($record) => filled($record) && $record->hasFile())
             ->preserveFilenames() // This preserves the original filename
             ->getUploadedFileNameForStorageUsing(function ($file) {
                 // Return the original filename without modification
@@ -209,13 +212,13 @@ class AssignmentLetterFormBuilder
                 if (!$record instanceof AssignmentLetter) {
                     return ['previewData' => ['hasFile' => false]];
                 }
-                
+
                 return [
                     'previewData' => $this->pdfPreviewService->getPreviewData($record),
                     'record' => $record,
                 ];
             })
-            ->visible(fn ($record) => filled($record) && $record instanceof AssignmentLetter && $record->hasFile());
+            ->visible(fn($record) => filled($record) && $record instanceof AssignmentLetter && $record->hasFile());
     }
 
     /**
@@ -239,7 +242,7 @@ class AssignmentLetterFormBuilder
     private function getStorageHelperText(): string
     {
         $storageStatus = $this->storageHealthService->checkMinioHealth();
-        
+
         return match ($storageStatus['status']) {
             'healthy' => '✅ Storage is healthy. Files will be uploaded to MinIO.',
             'warning' => '⚠️ Storage warning: ' . $storageStatus['message'] . '. Files will be uploaded to local storage as backup.',
@@ -253,11 +256,11 @@ class AssignmentLetterFormBuilder
     private function getStorageHint(): ?string
     {
         $storageStatus = $this->storageHealthService->checkMinioHealth();
-        
+
         if ($storageStatus['status'] !== 'healthy') {
             return 'Note: There are storage connectivity issues. Please verify file uploads after submission.';
         }
-        
+
         return null;
     }
 }

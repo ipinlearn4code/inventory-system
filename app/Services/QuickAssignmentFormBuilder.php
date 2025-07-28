@@ -11,7 +11,8 @@ class QuickAssignmentFormBuilder
 {
     public function __construct(
         private readonly AuthenticationService $authService
-    ) {}
+    ) {
+    }
 
     /**
      * Build the device assignment form fields
@@ -37,7 +38,7 @@ class QuickAssignmentFormBuilder
                         $user = User::find($state);
                         if ($user && $user->branch_id) {
                             $set('branch_id', $user->branch_id);
-                            
+
                             // Show notification that branch was auto-filled
                             \Filament\Notifications\Notification::make()
                                 ->title('Branch Auto-filled')
@@ -58,10 +59,10 @@ class QuickAssignmentFormBuilder
                 ->searchable()
                 ->preload()
                 ->helperText('This will be auto-filled when you select a user'),
-                
+
             Forms\Components\Select::make('device_id')
                 ->label('Device')
-                ->options(function() {
+                ->options(function () {
                     return Device::available()
                         ->where('condition', 'Baik')
                         ->get()
@@ -70,12 +71,12 @@ class QuickAssignmentFormBuilder
                 ->searchable()
                 ->required()
                 ->helperText('Only available devices in good condition are shown'),
-                
+
             Forms\Components\DatePicker::make('assigned_date')
                 ->label('Assignment Date')
                 ->required()
                 ->default(now()),
-                
+
             Forms\Components\Textarea::make('assignment_notes')
                 ->label('Notes')
                 ->rows(3)
@@ -94,12 +95,12 @@ class QuickAssignmentFormBuilder
                 ->placeholder('Input Letter Number')
                 ->required()
                 ->maxLength(50),
-                
+
             Forms\Components\DatePicker::make('letter_date')
                 ->label('Letter Date')
                 ->required()
                 ->default(now()),
-                
+
             $this->buildApproverToggle(),
             $this->buildApproverSelect(),
             $this->buildFileUpload(),
@@ -116,14 +117,13 @@ class QuickAssignmentFormBuilder
             ->default(true)
             ->live()
             ->dehydrated(true)
-            ->afterStateUpdated(function ($set, $state) {
+            ->visible(fn () => session('authenticated_user.role') === 'superadmin')
+            ->afterStateHydrated(function ($get, $set, $state) {
                 if ($state) {
                     $currentUser = $this->authService->getCurrentUser();
                     if ($currentUser) {
                         $set('approver_id', $currentUser->user_id);
                     }
-                } else {
-                    $set('approver_id', null);
                 }
             });
     }
@@ -138,7 +138,18 @@ class QuickAssignmentFormBuilder
             ->options(function () {
                 return User::pluck('name', 'user_id')->toArray();
             })
-            ->disabled(fn ($get) => $get('is_approver'))
+            ->afterStateHydrated(function ($set, $state) {
+                // dd(!$state);
+                if (!$state) {
+                    $currentUser = $this->authService->getCurrentUser();
+                    // dd(session('authenticated_user'));
+                    if ($currentUser) {
+                        // dd($currentUser->user_id);
+                        $set('approver_id', $currentUser->user_id);
+                    }
+                }
+            })
+            ->disabled(fn($get) => $get('is_approver'))
             ->dehydrated(true)
             ->native(false)
             ->placeholder('Select an approver')
