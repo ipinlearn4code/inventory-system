@@ -252,22 +252,98 @@ class DeviceAssignmentController extends Controller
 
     /**
      * Update a device assignment
+     * 
+     * This endpoint updates both the assignment details and its associated letter.
+     * It supports updating assignment notes, status, and optional file uploads.
+     *
+     * @param Request $request The incoming request with update data
+     * @param int $id The ID of the assignment to update
+     * @return JsonResponse
      */
     public function update(Request $request, int $id): JsonResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'status' => 'sometimes|in:Digunakan,Tidak Digunakan,Cadangan',
             'notes' => 'nullable|string|max:500',
             'returned_date' => 'nullable|date|after_or_equal:assigned_date',
+            'letter_number' => 'sometimes|string|max:50',
+            'letter_date' => 'sometimes|date',
+            'letter_file' => 'sometimes|file|mimes:pdf|max:10240' // 10MB max size for PDF
         ]);
 
         try {
-            $data = $this->assignmentService->updateAssignment($id, $request->validated());
-            return response()->json(['data' => $data]);
+            $responseData = DB::transaction(function () use ($request, $validated, $id) {
+                // Update the device assignment first
+                $assignmentData = $this->assignmentService->updateAssignment($id, $validated);
+
+                // Update or create the assignment letter if letter-related data is provided
+                if ($request->hasAny(['letter_number', 'letter_date', 'letter_file'])) {
+                    // Get existing letter or create new one
+                    $letter = AssignmentLetter::where('assignment_id', $id)->first() ?? 
+                             new AssignmentLetter(['assignment_id' => $id]);
+                    
+                    // Update letter details if provided
+                    if ($request->has('letter_number')) {
+                        $letter->letter_number = $request->input('letter_number');
+                    }
+                    if ($request->has('letter_date')) {
+                        $letter->letter_date = $request->input('letter_date');
+                    }
+                    $letter->letter_type = 'assignment'; // Default for update
+                    $letter->approver_id = Auth::id();
+                    $letter->updated_by = Auth::id();
+                    $letter->updated_at = now();
+
+                    // Handle file upload with rollback protection if present
+                    if ($request->hasFile('letter_file') && $request->file('letter_file')->isValid()) {
+                        $uploadResult = $letter->updateFile($request->file('letter_file'));
+                        
+                        if (!$uploadResult['success']) {
+                            throw new \Exception('Failed to update letter file: ' . $uploadResult['message']);
+                        }
+                    }
+
+                    $letter->save();
+
+                    // Transform letter data for response
+                    $letterData = [
+                        'assignmentLetterId' => $letter->getKey(),
+                        'assignmentType' => $letter->getAttribute('letter_type'),
+                        'letterNumber' => $letter->getAttribute('letter_number'),
+                        'letterDate' => $letter->getAttribute('letter_date'),
+                        'fileUrl' => $letter->hasFile() ? $this->pdfPreviewService->getPreviewData($letter)['previewUrl'] : null,
+                    ];
+
+                    // Log the assignment update with letter changes
+                    $this->inventoryLogService->logAssignmentAction(
+                        $assignmentData,
+                        InventoryLog::ACTION_TYPES['UPDATE'],
+                        ['status' => $assignmentData['oldStatus']], 
+                        ['status' => $assignmentData['status'], 'letter' => $letterData],
+                        $assignmentData['userId']
+                    );
+
+                    // Combine response data
+                    return array_merge($assignmentData, ['assignmentLetter' => $letterData]);
+                }
+
+                return $assignmentData;
+            });
+
+            return response()->json(['data' => $responseData]);
         } catch (\Exception $e) {
+            $errorCode = 'ERR_ASSIGNMENT_UPDATE_FAILED';
+            $message = $e->getMessage();
+
+            // Handle specific error cases
+            if (str_contains($message, 'letter_number_unique')) {
+                $errorCode = 'ERR_DUPLICATE_LETTER_NUMBER';
+                $message = 'Letter number already exists. Please use a different number.';
+            }
+
             return response()->json([
-                'message' => $e->getMessage(),
-                'errorCode' => 'ERR_ASSIGNMENT_UPDATE_FAILED'
+                'message' => $message,
+                'errorCode' => $errorCode
             ], 400);
         }
     }

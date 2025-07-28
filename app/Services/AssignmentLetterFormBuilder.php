@@ -44,7 +44,8 @@ class AssignmentLetterFormBuilder
     {
         return Forms\Components\Select::make('letter_type')
             ->label('Letter Type')
-            
+            ->helperText('Select a device assignment to prevent duplicate letters.')
+            ->reactive()
             ->options([
                 'assignment' => 'Assignment Letter',
                 'return' => 'Return Letter',
@@ -68,8 +69,22 @@ class AssignmentLetterFormBuilder
     {
         return Forms\Components\Select::make('assignment_id')
             ->label('Device Assignment')
-            ->options(function () {
+            ->placeholder('Select a device assignment')
+            ->hint(fn($get) => !$get('letter_type')
+                ? 'Select a letter type first'
+                : null)
+            ->disabled(fn($get) => !$get('letter_type'))
+            ->options(function (callable $get) {
+                $selectedType = $get('letter_type');
+
+                if (!$selectedType) {
+                    return [];
+                }
+
                 return DeviceAssignment::with(['user', 'device'])
+                    ->whereDoesntHave('assignmentLetters', function ($query) use ($selectedType) {
+                        $query->where('letter_type', $selectedType);
+                    })
                     ->get()
                     ->mapWithKeys(function ($assignment) {
                         return [
@@ -79,6 +94,7 @@ class AssignmentLetterFormBuilder
                     });
             })
             ->searchable()
+            ->reactive()
             ->required();
     }
 
@@ -129,7 +145,15 @@ class AssignmentLetterFormBuilder
             ->default(true)
             ->live()
             ->dehydrated(false)
-            ->disabled(fn($record) => filled($record))
+            ->disabled(function ($record) {
+                // Disable if editing (record is filled) and the authenticated user is not superadmin
+                $role = session('authenticated_user.role');
+                return match (true) {
+                    $role === 'superadmin' => false,
+                    $role === 'admin' && !filled($record) => false,
+                    default => true,
+                };
+            })
             ->hint(fn($record) => filled($record) ? 'Cannot change approver in edit mode.' : null)
             ->afterStateUpdated(function ($set, $state) {
                 if ($state) {
@@ -148,6 +172,7 @@ class AssignmentLetterFormBuilder
     {
         return Forms\Components\Select::make('approver_id')
             ->label('Approver')
+            ->dehydrated(fn($record) => !filled($record))
             ->options(function () {
                 return User::pluck('name', 'user_id')->toArray();
             })

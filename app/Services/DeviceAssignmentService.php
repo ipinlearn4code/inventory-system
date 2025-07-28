@@ -84,6 +84,12 @@ class DeviceAssignmentService
 
         $currentUserPn = $this->getCurrentUserPn();
         $oldData = $assignment->toArray();
+        // Get device status before update for comparison and logging
+        $device = $this->deviceRepository->findById($assignment->device_id);
+        if (!$device) {
+            throw new \Exception('Associated device not found');
+        }
+        $oldStatus = $device->status;
 
         $updateData = array_merge($data, [
             'updated_by' => $currentUserPn,
@@ -91,6 +97,15 @@ class DeviceAssignmentService
         ]);
 
         $updatedAssignment = $this->assignmentRepository->update($id, $updateData);
+
+        // Update device status if it's changing
+        if (isset($data['status']) && $data['status'] !== $oldStatus) {
+            $this->deviceRepository->update($assignment->device_id, [
+                'status' => $data['status'],
+                'updated_by' => $currentUserPn,
+                'updated_at' => now(),
+            ]);
+        }
 
         // Log the update
         $this->logAssignmentAction($updatedAssignment, 'UPDATE', $oldData, $updatedAssignment->toArray());
@@ -100,6 +115,8 @@ class DeviceAssignmentService
             'status' => $updatedAssignment->device->status,
             'returnedDate' => $updatedAssignment->returned_date,
             'notes' => $updatedAssignment->notes,
+            'userId' => $updatedAssignment->user_id,
+            'oldStatus' => $oldStatus, // Include old status for logging
         ];
     }
 
