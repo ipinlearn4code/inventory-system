@@ -118,8 +118,8 @@ class QuickAssignmentService
         // Store file in MinIO
         $path = $this->minioStorageService->storeAssignmentLetterFile(
             $uploadedFile,
-            $assignmentLetter->letter_type,
             $assignmentLetter->assignment_id,
+            $assignmentLetter->letter_type,
             $this->formatLetterDate($assignmentLetter->letter_date),
             $assignmentLetter->letter_number
         );
