@@ -12,10 +12,6 @@ use Illuminate\Support\Facades\Route;
 | directory for better maintainability.
 |
 */
-// Test routes (non-production only)
-if (!app()->environment('production')) {
-    require __DIR__ . '/api/test.php';
-}
 
 Route::prefix('v1')->group(function () {
     // Public routes
@@ -33,7 +29,7 @@ Route::prefix('v1')->group(function () {
             require __DIR__ . '/api/user.php';
         });
 
-        // Admin routes
+        // Admin routes  
         Route::prefix('admin')->middleware('role:admin,superadmin')->group(function () {
             require __DIR__ . '/api/admin.php';
         });

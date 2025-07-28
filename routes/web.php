@@ -1,9 +1,9 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\FileUploadTestController;
-use App\Http\Controllers\SimpleTestController;
 use App\Http\Controllers\AssignmentLetterFileController;
+use App\Http\Controllers\QRCodeController;
+use App\Http\Controllers\QRCodeScannerController;
 use Illuminate\Support\Facades\Route;
 
 // Redirect root to login
@@ -17,32 +17,18 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout.get');
 
-// // File upload testing routes
-// Route::get('/test-upload', function () {
-//     return view('file-upload-test');
-// });
-// Route::get('/simple-test', function () {
-//     return view('simple-file-test');
-// });
-
-// // Test routes without any middleware
-// Route::withoutMiddleware(['web'])->group(function () {
-//     Route::post('/test-upload/basic', [FileUploadTestController::class, 'testBasicUpload']);
-//     Route::post('/test-upload/minio', [FileUploadTestController::class, 'testMinioUpload']);
-// });
-
 // QR Code routes
 Route::prefix('qr-code')->group(function () {
-    Route::get('/generate/{assetCode}', [App\Http\Controllers\QRCodeController::class, 'generateQRCode'])->name('qr-code.generate');
-    Route::get('/sticker/{deviceId}', [App\Http\Controllers\QRCodeController::class, 'showSticker'])->name('qr-code.sticker');
-    Route::get('/sticker/asset/{assetCode}', [App\Http\Controllers\QRCodeController::class, 'showStickerByAssetCode'])->name('qr-code.sticker.asset');
-    Route::get('/stickers/bulk', [App\Http\Controllers\QRCodeController::class, 'showBulkStickers'])->name('qr-code.stickers.bulk');
+    Route::get('/generate/{assetCode}', [QRCodeController::class, 'generateQRCode'])->name('qr-code.generate');
+    Route::get('/sticker/{deviceId}', [QRCodeController::class, 'showSticker'])->name('qr-code.sticker');
+    Route::get('/sticker/asset/{assetCode}', [QRCodeController::class, 'showStickerByAssetCode'])->name('qr-code.sticker.asset');
+    Route::get('/stickers/bulk', [QRCodeController::class, 'showBulkStickers'])->name('qr-code.stickers.bulk');
 });
 
 // QR Code Scanner routes
 Route::prefix('qr-scanner')->group(function () {
-    Route::get('/', [App\Http\Controllers\QRCodeScannerController::class, 'index'])->name('qr-scanner.index');
-    Route::post('/scan', [App\Http\Controllers\QRCodeScannerController::class, 'scan'])->name('qr-scanner.scan');
+    Route::get('/', [QRCodeScannerController::class, 'index'])->name('qr-scanner.index');
+    Route::post('/scan', [QRCodeScannerController::class, 'scan'])->name('qr-scanner.scan');
 });
 
 // Assignment Letter File routes (protected)
@@ -50,10 +36,6 @@ Route::prefix('assignment-letter')->group(function () {
     Route::get('/{letter}/preview', [AssignmentLetterFileController::class, 'preview'])->name('assignment-letter.preview');
     Route::get('/{letter}/download', [AssignmentLetterFileController::class, 'download'])->name('assignment-letter.download');
 });
-
-// // Simple test routes
-// Route::get('/simple-test-route', [SimpleTestController::class, 'test']);
-// Route::post('/simple-upload-test', [SimpleTestController::class, 'upload']);
 
 // Include debug routes
 include __DIR__ . '/test-debug.php';
