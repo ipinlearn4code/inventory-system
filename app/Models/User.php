@@ -43,6 +43,12 @@ class User extends Authenticatable
         return $this->hasMany(DeviceAssignment::class, 'user_id', 'user_id');
     }
 
+    public function currentDeviceAssignment()
+    {
+        return $this->hasMany(DeviceAssignment::class, 'user_id', 'user_id')
+                    ->whereNull('returned_date');
+    }
+
     public function assignmentLetters()
     {
         return $this->hasMany(AssignmentLetter::class, 'approver_id', 'user_id');

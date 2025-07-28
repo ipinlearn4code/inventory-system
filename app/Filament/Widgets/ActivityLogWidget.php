@@ -15,10 +15,18 @@ class ActivityLogWidget extends Widget
     protected static string $view = 'filament.widgets.activity-log-widget';
     protected static ?int $sort = 8;
 
-    protected int | string | array $columnSpan = [
-        'default' => 'full',
-        'md' => 'full',
-        'lg' => 'full',
+    // protected int | string | array $columnSpan = [
+    //     'default' => 'full',
+    //     'md' => 'full',
+    //     'lg' => 'full',
+    // ];
+
+    protected int|string|array $columnSpan = [
+        'default' => 1,  // Full width on mobile
+        'md' => 1,       // Full width on medium (single chart gets full space)
+        'lg' => 2,            // 2 out of 4 columns on large screens (side-by-side with other chart)
+        'xl' => 2,            // Keep 2 out of 4 on XL (optimal chart size)
+        '2xl' => 2,           // 2 out of 6 on ultra-wide (more breathing room)
     ];
 
     public function getRecentActivities(): array
@@ -34,39 +42,39 @@ class ActivityLogWidget extends Widget
             ->map(function ($log) {
                 $newValue = $log->new_value ? json_decode($log->new_value, true) : null;
                 $oldValue = $log->old_value ? json_decode($log->old_value, true) : null;
-                
-                $icon = match($log->action_type) {
+
+                $icon = match ($log->action_type) {
                     'CREATE' => 'heroicon-m-plus-circle',
                     'UPDATE' => 'heroicon-m-pencil-square',
                     'DELETE' => 'heroicon-m-trash',
                     default => 'heroicon-m-cog'
                 };
-                
-                $color = match($log->action_type) {
+
+                $color = match ($log->action_type) {
                     'CREATE' => 'success',
                     'UPDATE' => 'warning',
                     'DELETE' => 'danger',
                     default => 'gray'
                 };
-                
-                $title = match($log->action_type) {
+
+                $title = match ($log->action_type) {
                     'CREATE' => 'Perangkat baru ditambahkan',
                     'UPDATE' => 'Perangkat diperbarui',
                     'DELETE' => 'Perangkat dihapus',
                     default => 'Perubahan perangkat'
                 };
-                
+
                 $description = 'Unknown device';
                 if ($newValue) {
-                    $description = ($newValue['brand'] ?? '') . ' ' . ($newValue['brand_name'] ?? '') . 
-                                 ' (' . ($newValue['asset_code'] ?? 'No code') . ')';
+                    $description = ($newValue['brand'] ?? '') . ' ' . ($newValue['brand_name'] ?? '') .
+                        ' (' . ($newValue['asset_code'] ?? 'No code') . ')';
                 } elseif ($oldValue) {
-                    $description = ($oldValue['brand'] ?? '') . ' ' . ($oldValue['brand_name'] ?? '') . 
-                                 ' (' . ($oldValue['asset_code'] ?? 'No code') . ')';
+                    $description = ($oldValue['brand'] ?? '') . ' ' . ($oldValue['brand_name'] ?? '') .
+                        ' (' . ($oldValue['asset_code'] ?? 'No code') . ')';
                 }
 
                 $username = User::where('pn', $log->created_by)->first()?->name ?? "System";
-                
+
                 return [
                     'type' => 'device_' . strtolower($log->action_type),
                     'icon' => $icon,
@@ -86,28 +94,28 @@ class ActivityLogWidget extends Widget
             ->get()
             ->map(function ($log) {
                 $newValue = $log->new_value ? json_decode($log->new_value, true) : null;
-                
-                $icon = match($log->action_type) {
+
+                $icon = match ($log->action_type) {
                     'CREATE' => 'heroicon-m-arrow-right-circle',
                     'UPDATE' => 'heroicon-m-arrow-path',
                     'DELETE' => 'heroicon-m-x-circle',
                     default => 'heroicon-m-cog'
                 };
-                
-                $color = match($log->action_type) {
+
+                $color = match ($log->action_type) {
                     'CREATE' => 'info',
                     'UPDATE' => 'warning',
                     'DELETE' => 'danger',
                     default => 'gray'
                 };
-                
-                $title = match($log->action_type) {
+
+                $title = match ($log->action_type) {
                     'CREATE' => 'Perangkat ditugaskan',
                     'UPDATE' => 'Assignment diperbarui',
                     'DELETE' => 'Assignment dihapus',
                     default => 'Perubahan assignment'
                 };
-                
+
                 $description = 'Device assignment';
                 if ($newValue && isset($newValue['device_id'])) {
                     $description = "Device ID: {$newValue['device_id']}";
@@ -115,7 +123,7 @@ class ActivityLogWidget extends Widget
                         $description .= " kepada {$log->user_affected}";
                     }
                 }
-                
+
                 return [
                     'type' => 'assignment_' . strtolower($log->action_type),
                     'icon' => $icon,

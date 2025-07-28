@@ -5,7 +5,7 @@
                 <div class="w-10 h-10 bg-primary-700 rounded-lg flex items-center justify-center shadow-sm">
                     <x-filament::icon icon="heroicon-m-clock" class="w-5 h-5 text-white" />
                 </div>
-                <span class="text-lg font-bold text-primary-800 dark:text-primary-200">BRI System Activity Log</span>
+                <span class="text-lg font-bold text-primary-800 dark:text-primary-200">Inventory System Activity Log</span>
             </div>
         </x-slot>
         

@@ -23,26 +23,61 @@ class DeviceDistributionChartWidget extends ChartWidget
 
     protected function getData(): array
     {
-        // Get filter values from session
         $mainBranchId = session('dashboard_main_branch_filter');
         $branchId = session('dashboard_branch_filter');
 
         $branchQuery = Branch::query()->with('mainBranch');
 
-        // Apply main branch filter
         if ($mainBranchId) {
             $branchQuery->where('main_branch_id', $mainBranchId);
         }
 
-        // If specific branch is selected, show only that branch
         if ($branchId) {
             $branchQuery->where('branch_id', $branchId);
         }
 
         $branches = $branchQuery->get();
 
-        $labels = [];
-        $data = [];
+        $branchNames = [];
+        $branchIds = [];
+
+        foreach ($branches as $branch) {
+            $branchNames[$branch->branch_id] = $branch->unit_name;
+            $branchIds[] = $branch->branch_id;
+        }
+
+        // Ambil semua device yang sedang aktif dan berada di branch yang disaring
+        $devices = Device::with([
+            'bribox.category',
+            'currentAssignment' => fn($q) => $q->select('device_id', 'branch_id')
+        ])
+            ->whereHas('currentAssignment', fn($q) => $q->whereIn('branch_id', $branchIds))
+            ->get();
+
+        // Inisialisasi array hasil
+        $categories = [];
+        $branchCategoryCounts = [];
+
+        foreach ($devices as $device) {
+            $branchId = $device->currentAssignment?->branch_id;
+            $categoryName = $device->bribox->category?->category_name ?? 'Tidak Diketahui';
+            // dd($categoryName);
+            if (!$branchId)
+                continue;
+
+            // Tambahkan nama category
+            $categories[$categoryName] = true;
+
+            // Hitung jumlah per kategori di setiap branch
+            $branchCategoryCounts[$categoryName][$branchId] =
+                ($branchCategoryCounts[$categoryName][$branchId] ?? 0) + 1;
+        }
+
+        // Finalisasi labels (branch names)
+        $labels = array_values($branchNames);
+
+        // Susun dataset per kategori
+        $datasets = [];
         $backgroundColors = [
             '#3b82f6',
             '#ef4444',
@@ -58,34 +93,37 @@ class DeviceDistributionChartWidget extends ChartWidget
             '#f43f5e'
         ];
 
-        foreach ($branches as $index => $branch) {
-            $deviceCount = Device::whereHas('currentAssignment', function ($query) use ($branch) {
-                $query->where('branch_id', $branch->branch_id);
-            })->count();
+        $colorIndex = 0;
 
-            if ($deviceCount > 0) {
-                $labels[] = $branch->unit_name;
-                $data[] = $deviceCount;
+        foreach (array_keys($categories) as $categoryName) {
+            $data = [];
+
+            foreach ($branchIds as $branchId) {
+                $data[] = $branchCategoryCounts[$categoryName][$branchId] ?? 0;
             }
+
+            $datasets[] = [
+                'label' => $categoryName,
+                'data' => $data,
+                'backgroundColor' => $backgroundColors[$colorIndex % count($backgroundColors)],
+                'borderColor' => '#ffffff',
+                'borderWidth' => 2,
+            ];
+
+            $colorIndex++;
         }
 
+        // dd($datasets, $labels);
+
         return [
-            'datasets' => [
-                [
-                    'label' => 'Jumlah Perangkat',
-                    'data' => $data,
-                    'backgroundColor' => array_slice($backgroundColors, 0, count($data)),
-                    'borderColor' => '#ffffff',
-                    'borderWidth' => 2,
-                ],
-            ],
+            'datasets' => $datasets,
             'labels' => $labels,
         ];
     }
 
     protected function getType(): string
     {
-        return 'bar';
+        return 'radar';
     }
 
     protected function getOptions(): array

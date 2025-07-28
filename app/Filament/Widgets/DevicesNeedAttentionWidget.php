@@ -10,7 +10,7 @@ use Filament\Widgets\TableWidget as BaseWidget;
 class DevicesNeedAttentionWidget extends BaseWidget
 {
     protected static ?string $heading = '🚨 Devices Needing Attention';    
-    protected static ?int $sort = 5;
+    protected static ?int $sort = 4;
 
     protected int | string | array $columnSpan = [
         'default' => 'full',  // Full width on mobile

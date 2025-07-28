@@ -13,7 +13,7 @@ class DeviceSeeder extends Seeder
         $devices = [
             [
                 'brand' => 'Dell',
-                'brand_name' => 'Dell OptiPlex 7090',
+                'brand_name' => 'OptiPlex 7090',
                 'serial_number' => 'DL001234567',
                 'asset_code' => 'AST001',
                 'bribox_id' => 'A1',
@@ -28,7 +28,7 @@ class DeviceSeeder extends Seeder
             ],
             [
                 'brand' => 'HP',
-                'brand_name' => 'HP EliteBook 840',
+                'brand_name' => 'EliteBook 840',
                 'serial_number' => 'HP001234567',
                 'asset_code' => 'AST002',
                 'bribox_id' => 'A1',

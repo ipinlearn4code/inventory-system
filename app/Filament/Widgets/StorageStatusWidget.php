@@ -19,7 +19,7 @@ class StorageStatusWidget extends Widget
         '2xl' => 2,           // 3 out of 6 columns on ultra-wide screens
     ];
 
-    protected static ?int $sort = 4;
+    protected static ?int $sort = 3;
 
     public function getViewData(): array
     {
