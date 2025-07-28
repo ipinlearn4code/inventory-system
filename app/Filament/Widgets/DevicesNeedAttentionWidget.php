@@ -21,6 +21,8 @@ class DevicesNeedAttentionWidget extends BaseWidget
         '2xl' => 4,           // 3 out of 6 columns on ultra-wide screens
     ];
 
+    protected static ?string $maxHeight = '100px';
+
     public function table(Table $table): Table
     {
         return $table

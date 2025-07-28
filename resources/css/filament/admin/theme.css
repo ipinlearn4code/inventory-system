@@ -212,11 +212,18 @@
     border: 1px solid rgb(229 231 235) !important;
 }
 
+/* Make .fi-section-content full width and add padding */
+.fi-section.rounded-xl.bg-white.shadow-sm.ring-1.ring-gray-950\/5.dark\:bg-gray-900.dark\:ring-white\/10 {
+    width: 100% !important;
+    padding: 1.5rem !important; /* p-6 */
+    box-sizing: border-box;
+}
+
 /* Content backgrounds for charts and modals */
 .fi-wi-chart,
 .fi-modal,
 .fi-modal-content {
-    background-color: var(--clean-white) !important;
+    background-color: transparent !important;
 }
 
 /* ================================================
@@ -1051,6 +1058,8 @@ a:not(.fi-btn):hover {
 .storage-widget-clickable {
     position: relative;
     transition: all 0.2s ease-in-out;
+    background-color: var(--clean-white) !important;
+    color: var(--deep-gray-text) !important;
 }
 
 .storage-widget-clickable:hover {
@@ -1058,7 +1067,10 @@ a:not(.fi-btn):hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+.dark .storage-widget-clickable,
 .dark .storage-widget-clickable:hover {
+    background-color: var(--clean-white) !important;
+    color: var(--deep-gray-text) !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
@@ -1073,22 +1085,24 @@ a:not(.fi-btn):hover {
 }
 
 .fi-widget .storage-widget-clickable:hover::after {
-    border-color: var(--primary-500);
+    border-color: var(--clean-white);
 }
 
 .dark .fi-widget .storage-widget-clickable:hover::after {
-    border-color: var(--primary-400);
+    border-color: var(--clean-white);
 }
 
 /* === STORAGE STATUS COMPACT LAYOUT === */
 .storage-status-compact {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(139, 92, 246, 0.05));
-    border: 1px solid rgba(59, 130, 246, 0.1);
+    background-color: var(--clean-white) !important;
+    color: var(--deep-gray-text) !important;
+    border: 1px solid var(--clean-white) !important;
 }
 
 .dark .storage-status-compact {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
-    border: 1px solid rgba(59, 130, 246, 0.2);
+    background-color: var(--clean-white) !important;
+    color: var(--deep-gray-text) !important;
+    border: 1px solid var(--clean-white) !important;
 }
 
 /* === CHEVRON ANIMATION === */

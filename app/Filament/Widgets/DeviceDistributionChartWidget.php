@@ -8,15 +8,18 @@ use Filament\Widgets\ChartWidget;
 
 class DeviceDistributionChartWidget extends ChartWidget
 {
-    protected static ?string $heading = '🏢 Distribusi Perangkat per Cabang';    protected static ?int $sort = 7;
+    protected static ?string $heading = '🏢 Distribusi Perangkat per Cabang';
+    protected static ?int $sort = 7;
 
-    protected int | string | array $columnSpan = [
+    protected int|string|array $columnSpan = [
         'default' => 1,  // Full width on mobile
         'md' => 1,       // Full width on medium (single chart gets full space)
         'lg' => 2,            // 2 out of 4 columns on large screens (side-by-side with condition chart)
         'xl' => 2,            // Keep 2 out of 4 on XL (optimal chart size)
         '2xl' => 2,           // 3 out of 6 on ultra-wide (more breathing room)
     ];
+
+    protected static ?string $maxHeight = '300px';
 
     protected function getData(): array
     {
@@ -25,32 +28,41 @@ class DeviceDistributionChartWidget extends ChartWidget
         $branchId = session('dashboard_branch_filter');
 
         $branchQuery = Branch::query()->with('mainBranch');
-        
+
         // Apply main branch filter
         if ($mainBranchId) {
             $branchQuery->where('main_branch_id', $mainBranchId);
         }
-        
+
         // If specific branch is selected, show only that branch
         if ($branchId) {
             $branchQuery->where('branch_id', $branchId);
         }
 
         $branches = $branchQuery->get();
-        
+
         $labels = [];
         $data = [];
         $backgroundColors = [
-            '#3b82f6', '#ef4444', '#10b981', '#f59e0b', 
-            '#8b5cf6', '#06b6d4', '#f97316', '#84cc16',
-            '#ec4899', '#6366f1', '#14b8a6', '#f43f5e'
+            '#3b82f6',
+            '#ef4444',
+            '#10b981',
+            '#f59e0b',
+            '#8b5cf6',
+            '#06b6d4',
+            '#f97316',
+            '#84cc16',
+            '#ec4899',
+            '#6366f1',
+            '#14b8a6',
+            '#f43f5e'
         ];
 
         foreach ($branches as $index => $branch) {
             $deviceCount = Device::whereHas('currentAssignment', function ($query) use ($branch) {
                 $query->where('branch_id', $branch->branch_id);
             })->count();
-            
+
             if ($deviceCount > 0) {
                 $labels[] = $branch->unit_name;
                 $data[] = $deviceCount;

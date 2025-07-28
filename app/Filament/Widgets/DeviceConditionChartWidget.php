@@ -18,6 +18,9 @@ class DeviceConditionChartWidget extends ChartWidget
         '2xl' => 2,           // 2 out of 6 on ultra-wide (more breathing room)
     ];
 
+    protected static ?string $maxHeight = '300px';
+    
+
     protected function getData(): array
     {
         // Get filter values from session
