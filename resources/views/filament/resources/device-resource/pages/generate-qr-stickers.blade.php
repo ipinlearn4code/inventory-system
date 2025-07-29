@@ -82,7 +82,7 @@
                                 color="success"
                                 icon="heroicon-o-printer"
                                 tag="a"
-                                :href="route('qr-code.stickers.bulk', ['device_ids' => collect($data['devices'] ?? [])->toArray()])"
+                                :href="route('qr-code.stickers.pdf', ['device_ids' => collect($data['devices'] ?? [])->toArray()])"
                                 target="_blank"
                                 :disabled="empty($data['devices'] ?? [])"
                             >

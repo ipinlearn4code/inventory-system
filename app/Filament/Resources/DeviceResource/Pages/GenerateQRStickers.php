@@ -113,7 +113,7 @@ class GenerateQRStickers extends Page implements HasForms
                     if (empty($this->data['devices'] ?? [])) {
                         return null;
                     }
-                    return route('qr-code.stickers.bulk', ['device_ids' => $this->data['devices']]);
+                    return route('qr-code.stickers.pdf', ['device_ids' => $this->data['devices']]);
                 })
                 ->openUrlInNewTab()
                 ->disabled(fn () => empty($this->data['devices'] ?? [])),
@@ -169,10 +169,10 @@ class GenerateQRStickers extends Page implements HasForms
         $this->showPreview = false;
     }
 
-    public function printIndividualSticker($deviceId): void
-    {
-        $this->redirect(route('qr-code.sticker', $deviceId), navigate: false);
-    }
+    // public function printIndividualSticker($deviceId): void
+    // {
+    //     $this->redirect(route('qr-code.sticker', $deviceId), navigate: false);
+    // }
 
     public function getTitle(): string
     {

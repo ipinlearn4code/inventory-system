@@ -6,6 +6,11 @@ use App\Http\Controllers\QRCodeController;
 use App\Http\Controllers\QRCodeScannerController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/test-pdf', function () {
+    $pdf = PDF::loadHTML('<h1>Hello PDF</h1><p>This is a test.</p>');
+    return $pdf->download('test.pdf');
+});
+
 // Redirect root to login
 Route::get('/', function () {
     return redirect('/login');
@@ -23,6 +28,7 @@ Route::prefix('qr-code')->group(function () {
     Route::get('/sticker/{deviceId}', [QRCodeController::class, 'showSticker'])->name('qr-code.sticker');
     Route::get('/sticker/asset/{assetCode}', [QRCodeController::class, 'showStickerByAssetCode'])->name('qr-code.sticker.asset');
     Route::get('/stickers/bulk', [QRCodeController::class, 'showBulkStickers'])->name('qr-code.stickers.bulk');
+    Route::get('/stickers/pdf', [QRCodeController::class, 'generateStickersPDF'])->name('qr-code.stickers.pdf');
 });
 
 // QR Code Scanner routes
