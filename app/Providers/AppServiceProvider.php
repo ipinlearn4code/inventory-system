@@ -2,9 +2,9 @@
 
 namespace App\Providers;
 
-use Filament\Support\Assets\Js;
-use Filament\Support\Facades\FilamentAsset;
-use Illuminate\Support\Facades\Vite;
+// use Filament\Support\Assets\Js;
+// use Filament\Support\Facades\FilamentAsset;
+// use Illuminate\Support\Facades\Vite;
 use Filament\Facades\Filament;
 use Filament\Navigation\NavigationGroup;
 use Illuminate\Support\ServiceProvider;
@@ -17,9 +17,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        FilamentAsset::register([
-            Js::make('chart-js-plugins', Vite::asset('resources/js/filament-chart-js-plugins.js'))->module(),
-        ]);
+        // FilamentAsset::register([
+        //     Js::make('chart-js-plugins', Vite::asset('resources/js/filament-chart-js-plugins.js'))->module(),
+        // ]);
 
         // Bind InventoryLogService interface
         $this->app->bind(
