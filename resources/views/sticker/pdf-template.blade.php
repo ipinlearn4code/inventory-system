@@ -1,113 +1,94 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <meta charset="utf-8">
-    <title>QR Code Stickers</title>
+    <meta charset="UTF-8">
+    <title>Stiker QR Code</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: white;
+        @page {
+            margin: 1cm;
         }
-        
+
+        body {
+            margin: 0;
+            padding: 1cm;
+            background: #f9f9f9;
+            font-family: Arial, sans-serif;
+        }
+
         .stickers-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            page-break-inside: avoid;
+            grid-template-columns: repeat(3, 4cm);
+            gap: 1cm;
+            justify-content: center;
         }
-        
+
         .sticker {
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 16px;
-            text-align: center;
+            width: 4cm;
+            height: 6cm;
             background: white;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-            page-break-inside: avoid;
-            min-height: 280px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 0.4cm;
+            box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            align-items: center;
+            justify-content: start;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+            page-break-inside: avoid;
         }
-        
+
         .qr-code-container {
-            margin-bottom: 12px;
-        }
-        
-        .qr-code {
-            width: 120px;
-            height: 120px;
-            border: 1px solid #d1d5db;
-            border-radius: 4px;
-            margin: 0 auto;
-        }
-        
-        .error-icon {
-            width: 60px;
-            height: 60px;
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            border-radius: 4px;
-            margin: 0 auto;
+            width: 100%;
             display: flex;
             align-items: center;
-            justify-content: center;
-            color: #dc2626;
-            font-size: 24px;
+            margin-bottom: 0.3cm;
         }
-        
+
+        .qr-code {
+            width: 2.8cm;
+            height: 2.8cm;
+            object-fit: contain;
+        }
+
         .asset-code {
-            font-size: 16px;
             font-weight: bold;
-            color: #111827;
-            margin-bottom: 8px;
+            text-align: center;
+            margin-bottom: 0.3cm;
+            font-size: 12pt;
         }
-        
+
         .device-info {
-            font-size: 11px;
-            color: #4b5563;
-            line-height: 1.4;
-            text-align: left;
+            font-size: 9pt;
+            width: 100%;
         }
-        
+
         .info-row {
-            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.1cm;
         }
-        
+
         .info-label {
             font-weight: 600;
-            display: inline-block;
-            width: 70px;
+            color: #333;
         }
-        
+
         .info-value {
-            word-break: break-word;
+            text-align: right;
+            color: #444;
         }
-        
+
+        .error-icon {
+            font-size: 24pt;
+            color: red;
+            text-align: center;
+        }
+
         .error-message {
-            color: #dc2626;
-            font-size: 10px;
-            margin-top: 8px;
-        }
-        
-        /* Page break handling */
-        @media print {
-            .stickers-grid {
-                page-break-inside: avoid;
-            }
-            
-            .sticker {
-                page-break-inside: avoid;
-                break-inside: avoid;
-            }
-        }
-        
-        /* Ensure 3 stickers per row on standard paper */
-        @page {
-            size: A4;
-            margin: 15mm;
+            font-size: 9pt;
+            color: red;
+            text-align: center;
         }
     </style>
 </head>
@@ -117,43 +98,43 @@
             <div class="sticker">
                 @if ($stickerData['error'])
                     <div class="qr-code-container">
-                        <div class="error-icon">
-                            ⚠
-                        </div>
-                        <div class="error-message">
-                            Error generating QR code: {{ $stickerData['error'] }}
-                        </div>
+                        <div class="error-icon">⚠</div>
+                    </div>
+                    <div class="error-message">
+                        Error generating QR code: {{ $stickerData['error'] }}
                     </div>
                 @else
-                    <div class="qr-code-container">
-                        <img src="{{ $stickerData['qrCodeDataUrl'] }}" 
+                    <div class="text-center">
+                        <img src="{{ $stickerData['qrCodeDataUrl'] }}"
                              alt="QR Code for {{ $stickerData['device']->asset_code }}"
                              class="qr-code">
                     </div>
                 @endif
 
-                <div>
-                    <div class="asset-code">
-                        {{ $stickerData['device']->asset_code }}
+                <div class="asset-code">
+                    {{ $stickerData['device']->asset_code }}
+                </div>
+
+                <div class="device-info">
+                    <div class="info-row">
+                        <span class="info-label">Asset Code:</span>
+                        <span class="info-value">{{ $stickerData['device']->asset_code }}</span>
                     </div>
-                    
-                    <div class="device-info">
-                        <div class="info-row">
-                            <span class="info-label">Asset Code:</span>
-                            <span class="info-value">{{ $stickerData['device']->asset_code }}</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Category:</span>
-                            <span class="info-value">{{ $stickerData['device']->bribox->category->category_name ?? 'N/A' }}</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Device:</span>
-                            <span class="info-value">{{ $stickerData['device']->brand }} {{ $stickerData['device']->brand_name }}</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">SN:</span>
-                            <span class="info-value">{{ $stickerData['device']->serial_number }}</span>
-                        </div>
+                    <div class="info-row">
+                        <span class="info-label">Category:</span>
+                        <span class="info-value">
+                            {{ $stickerData['device']->bribox->category->category_name ?? 'N/A' }}
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Device:</span>
+                        <span class="info-value">
+                            {{ $stickerData['device']->brand }} {{ $stickerData['device']->brand_name }}
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">SN:</span>
+                        <span class="info-value">{{ $stickerData['device']->serial_number }}</span>
                     </div>
                 </div>
             </div>
