@@ -1,144 +1,140 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <title>Stiker QR Code</title>
-    <style>
-        @page {
-            margin: 1cm;
-        }
+  <meta charset="UTF-8">
+  <title>Stiker QR Code</title>
+  <style>
+    @page {
+      size: A4 landscape;
+      margin: 1cm;
+    }
 
-        body {
-            margin: 0;
-            padding: 1cm;
-            background: #f9f9f9;
-            font-family: Arial, sans-serif;
-        }
+    .sticker-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 4cm);
+      gap: 0.5cm;
+      justify-content: center;
+    }
 
-        .stickers-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 4cm);
-            gap: 1cm;
-            justify-content: center;
-        }
+    .sticker-item {
+      width: 4cm;
+      height: 6cm;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 0.4cm;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: start;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+      page-break-inside: avoid;
+    }
 
-        .sticker {
-            width: 4cm;
-            height: 6cm;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 0.4cm;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: start;
-            box-shadow: 0 0 5px rgba(0,0,0,0.1);
-            page-break-inside: avoid;
-        }
+    .sticker-qr-container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 0.3cm;
+    }
 
-        .qr-code-container {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            margin-bottom: 0.3cm;
-        }
+    .sticker-qr {
+      width: 2cm;
+      height: 2cm;
+      object-fit: contain;
+    }
 
-        .qr-code {
-            width: 2.8cm;
-            height: 2.8cm;
-            object-fit: contain;
-        }
+    .sticker-code {
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 0.3cm;
+      font-size: 10pt;
+    }
 
-        .asset-code {
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 0.3cm;
-            font-size: 12pt;
-        }
+    .sticker-info {
+      font-size: 8pt;
+      width: 100%;
+    }
 
-        .device-info {
-            font-size: 9pt;
-            width: 100%;
-        }
+    .sticker-info-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.1cm;
+    }
 
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.1cm;
-        }
+    .sticker-label {
+      font-weight: 600;
+      color: #333;
+    }
 
-        .info-label {
-            font-weight: 600;
-            color: #333;
-        }
+    .sticker-value {
+      text-align: right;
+      color: #333;
+      white-space: nowrap;
+      /* overflow: hidden; */
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
 
-        .info-value {
-            text-align: right;
-            color: #444;
-        }
+    .sticker-error-icon {
+      font-size: 16pt;
+      color: red;
+    }
 
-        .error-icon {
-            font-size: 24pt;
-            color: red;
-            text-align: center;
-        }
-
-        .error-message {
-            font-size: 9pt;
-            color: red;
-            text-align: center;
-        }
-    </style>
+    .sticker-error-message {
+      font-size: 8pt;
+      color: red;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-    <div class="stickers-grid">
-        @foreach ($stickers as $stickerData)
-            <div class="sticker">
-                @if ($stickerData['error'])
-                    <div class="qr-code-container">
-                        <div class="error-icon">⚠</div>
-                    </div>
-                    <div class="error-message">
-                        Error generating QR code: {{ $stickerData['error'] }}
-                    </div>
-                @else
-                    <div class="text-center">
-                        <img src="{{ $stickerData['qrCodeDataUrl'] }}"
-                             alt="QR Code for {{ $stickerData['device']->asset_code }}"
-                             class="qr-code">
-                    </div>
-                @endif
+  <div class="sticker-grid">
+    @foreach ($stickers as $stickerData)
+      <div class="sticker-item">
+        @if ($stickerData['error'])
+          <div class="sticker-qr-container">
+            <div class="sticker-error-icon">⚠</div>
+          </div>
+          <div class="sticker-error-message">
+            Error generating QR code: {{ $stickerData['error'] }}
+          </div>
+        @else
+          <div class="sticker-qr-container">
+            <img src="{{ $stickerData['qrCodeDataUrl'] }}"
+              alt="QR Code for {{ $stickerData['device']->asset_code }}" class="sticker-qr">
+          </div>
+        @endif
 
-                <div class="asset-code">
-                    {{ $stickerData['device']->asset_code }}
-                </div>
+        <div class="sticker-code">
+          {{ $stickerData['device']->asset_code }}
+        </div>
 
-                <div class="device-info">
-                    <div class="info-row">
-                        <span class="info-label">Asset Code:</span>
-                        <span class="info-value">{{ $stickerData['device']->asset_code }}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Category:</span>
-                        <span class="info-value">
-                            {{ $stickerData['device']->bribox->category->category_name ?? 'N/A' }}
-                        </span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Device:</span>
-                        <span class="info-value">
-                            {{ $stickerData['device']->brand }} {{ $stickerData['device']->brand_name }}
-                        </span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">SN:</span>
-                        <span class="info-value">{{ $stickerData['device']->serial_number }}</span>
-                    </div>
-                </div>
-            </div>
-        @endforeach
-    </div>
+        <div class="sticker-info">
+          <div class="sticker-info-row">
+            <span class="sticker-label">Asset Code:</span>
+            <span class="sticker-value">{{ $stickerData['device']->asset_code }}</span>
+          </div>
+          <div class="sticker-info-row">
+            <span class="sticker-label">Category:</span>
+            <span class="sticker-value">
+              {{ $stickerData['device']->bribox->category->category_name ?? 'N/A' }}
+            </span>
+          </div>
+          <div class="sticker-info-row">
+            <span class="sticker-label">Device:</span>
+            <span class="sticker-value">
+              {{ $stickerData['device']->brand }} {{ $stickerData['device']->brand_name }}
+            </span>
+          </div>
+          <div class="sticker-info-row">
+            <span class="sticker-label">SN:</span>
+            <span class="sticker-value">{{ $stickerData['device']->serial_number }}</span>
+          </div>
+        </div>
+      </div>
+    @endforeach
+  </div>
 </body>
 </html>
