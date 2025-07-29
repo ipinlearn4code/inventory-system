@@ -28,12 +28,12 @@ class DeviceAssignmentRepository implements DeviceAssignmentRepositoryInterface
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->whereHas('device', function ($deviceQuery) use ($search) {
-                    $deviceQuery->where('asset_code', 'like', "%{$search}%")
-                        ->orWhere('brand', 'like', "%{$search}%")
-                        ->orWhere('serial_number', 'like', "%{$search}%");
+                    $deviceQuery->where('asset_code', 'like', '%' . addcslashes($search, '%_') . '%')
+                        ->orWhere('brand', 'like', '%' . addcslashes($search, '%_') . '%')
+                        ->orWhere('serial_number', 'like', '%' . addcslashes($search, '%_') . '%');
                 })->orWhereHas('user', function ($userQuery) use ($search) {
-                    $userQuery->where('name', 'like', "%{$search}%")
-                        ->orWhere('pn', 'like', "%{$search}%");
+                    $userQuery->where('name', 'like', '%' . addcslashes($search, '%_') . '%')
+                        ->orWhere('pn', 'like', '%' . addcslashes($search, '%_') . '%');
                 });
             });
         }
@@ -104,11 +104,11 @@ class DeviceAssignmentRepository implements DeviceAssignmentRepositoryInterface
     public function returnDevice(int $assignmentId, array $data): DeviceAssignment
     {
         $assignment = DeviceAssignment::findOrFail($assignmentId);
-        
+
         if ($assignment->returned_date) {
             throw new \Exception('Device has already been returned.');
         }
-        
+
         $assignment->update($data);
         return $assignment->fresh();
     }

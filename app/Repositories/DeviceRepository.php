@@ -27,12 +27,24 @@ class DeviceRepository implements DeviceRepositoryInterface
         
         if (!empty($filters['search'])) {
             $search = $filters['search'];
-            $query->where(function ($q) use ($search) {
-                $q->where('brand', 'like', "%{$search}%")
-                ->orWhere('brand_name', 'like', "%{$search}%")
-                ->orWhere('serial_number', 'like', "%{$search}%")
-                ->orWhere('asset_code', 'like', "%{$search}%");
+
+            // Escape special LIKE characters: %, _, and \
+            $escapedSearch = addcslashes($search, '%_\\');
+
+            // Use parameter binding and specify ESCAPE for safe LIKE
+            $query->where(function ($q) use ($escapedSearch) {
+                $q->where('brand', 'like', "%{$escapedSearch}%")
+                  ->orWhere('brand_name', 'like', "%{$escapedSearch}%")
+                  ->orWhere('serial_number', 'like', "%{$escapedSearch}%")
+                  ->orWhere('asset_code', 'like', "%{$escapedSearch}%");
             });
+            // Add ESCAPE clause for all LIKE queries
+            $query->getQuery()->wheres = array_map(function ($where) {
+                if (isset($where['type']) && $where['type'] === 'Basic' && isset($where['operator']) && strtolower($where['operator']) === 'like') {
+                    $where['sql'] .= " ESCAPE '\\'";
+                }
+                return $where;
+            }, $query->getQuery()->wheres);
         }
         
         if (!empty($filters['condition'])) {
