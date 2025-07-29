@@ -55,7 +55,7 @@
                                         <span class="font-medium">Device Name:</span> 
                                         <span class="truncate block">{{ $stickerData['device']->brand }} {{ $stickerData['device']->brand_name }} </span>
                                     </div>
-                                    <div><span class="font-medium">SN:</span> {{ $stickerData['device']->serial_number }}</div>
+                                    <div><span class="font-medium text-justify">SN:</span> {{ $stickerData['device']->serial_number }}</div>
                                     
                                 </div>
                             </div>

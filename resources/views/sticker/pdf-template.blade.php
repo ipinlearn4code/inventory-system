@@ -13,12 +13,13 @@
             margin: 0;
             padding: 0cm;
             /* background: #ffffffff; */
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', Arial, sans-serif;
         }
 
         table.sticker-table {
-            border-collapse: separate;
+            /* border-collapse: separate; */
             /* border-spacing: 0.5cm 0.5cm; */
+            border: 0px;
             width: 100%;
         }
 
@@ -28,7 +29,7 @@
             background: white;
             border: 1px solid black;
             border-radius: 8px;
-            padding: 0.4cm;
+            padding: 8px;
             vertical-align: top;
             box-sizing: border-box;
             page-break-inside: avoid;
@@ -36,7 +37,7 @@
 
         .sticker-qr-container {
             text-align: center;
-            margin-bottom: 0.3cm;
+            /* margin-bottom: 10px; */
         }
 
         .sticker-qr {
@@ -49,26 +50,28 @@
             font-weight: bold;
             text-align: center;
             margin-bottom: 0.3cm;
-            font-size: 10pt;
+            font-size: 8pt;
         }
 
         .sticker-info {
             font-size: 8pt;
             width: 100%;
+            /* padding: 5px */
         }
 
         .sticker-info-table {
             width: 100%;
-            /* border-collapse: collapse; */
+            border-collapse: collapse;
         }
 
         .sticker-info-row {
             display: flex;
-            justify-content: space-between;
-            align-items: baseline;
+            padding: 0px;
+            /* justify-content: space-between; */
+            /* align-items: baseline; */
             /* atau 'center' jika mau rata tengah vertikal */
             font-size: 8pt;
-            margin-bottom: 0.1cm;
+            /* margin-bottom: 0.1cm; */
             width: 100%;
         }
 
@@ -78,15 +81,15 @@
             text-align: left;
             white-space: nowrap;
             width: fit-content;
+            margin-bottom: 5pt;
         }
 
         .sticker-pdf-value {
-            display: inline-block;
-            width: 2cm;
-            /* atau 100px dsb */
-            overflow: hidden;
-            /* text-overflow: ellipsis; */
-            white-space: nowrap;
+            display: block;
+            font-size: 6pt;
+            width: 100%;
+            word-wrap: break-word;
+            white-space: normal;
             text-align: right;
         }
 
@@ -103,13 +106,6 @@
             text-align: center;
         }
 
-
-
-        /* Ukuran font */
-        /* .text-xs { font-size: 7pt; }
-        .text-sm { font-size: 8pt; }
-        .text-md { font-size: 10pt; }
-        .text-lg { font-size: 12pt; } */
 
         /* Warna teks */
         .text-dark {
@@ -203,6 +199,7 @@
                     @if ($index < $total)
                         @php $stickerData = $stickers[$index]; @endphp
                         <td class="sticker-cell">
+                            <p class="sticker-pdf-label text-center text-gray">Scan to view device details</p>
                             @if ($stickerData['error'])
                                 <div class="sticker-qr-container">
                                     <div class="sticker-error-icon">⚠</div>
@@ -220,12 +217,16 @@
                             <div class="sticker-code">
                                 {{ $stickerData['device']->asset_code }}
                             </div>
-
+                            <hr>
+                            <!-- disini mau saya kasih garis -->
                             <div class="sticker-info">
                                 <table class="sticker-info-table">
                                     <tr>
                                         <td class="sticker-pdf-label">Asset Code:</td>
-                                        <td class="sticker-pdf-value">{{ $stickerData['device']->asset_code }}</td>
+                                        <td class="sticker-pdf-value">
+                                            <!-- AAAAAQQQQQBBBBBGGGGG -->
+                                            {{ $stickerData['device']->asset_code }}
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td class="sticker-pdf-label">Category:</td>
@@ -250,7 +251,7 @@
 
                         </td>
                     @else
-                        <td class="sticker-cell"></td> <!-- Kosongkan jika tidak ada data -->
+                        <!-- <td class="sticker-cell"></td> Kosongkan jika tidak ada data -->
                     @endif
                 @endfor
             </tr>
