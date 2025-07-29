@@ -81,18 +81,14 @@ class FormOptionsService implements FormOptionsServiceInterface
      */
     public function getBrandOptions(?string $search = null): array
     {
-        $query = Device::distinct()->select('brand');
-        
+        $query = Device::query()->distinct()->select('brand');
+
         if ($search) {
-            $query->where('brand', 'like', '%' . addcslashes($search, '%_') . '%');
+            $query->where('brand', 'like', '%' . addslashes($search) . '%');
         }
 
         return $query->pluck('brand', 'brand')
-            ->map(function ($brand, $key) {
-                return [
-                    'value' => $key,
-                ];
-            })
+            ->map(fn($brand, $key) => ['value' => $key])
             ->values()
             ->toArray();
     }
@@ -102,18 +98,14 @@ class FormOptionsService implements FormOptionsServiceInterface
      */
     public function getBrandNameOptions(?string $search = null): array
     {
-        $query = Device::distinct()->select('brand_name');
-        
+        $query = Device::query()->distinct()->select('brand_name');
+
         if ($search) {
-            $query->where('brand_name', 'like', '%' . $search . '%');
+            $query->where('brand_name', 'like', '%' . addslashes($search) . '%');
         }
 
         return $query->pluck('brand_name', 'brand_name')
-            ->map(function ($brandName, $key) {
-                return [
-                    'value' => $key,
-                ];
-            })
+            ->map(fn($brandName, $key) => ['value' => $key])
             ->values()
             ->toArray();
     }
@@ -123,26 +115,24 @@ class FormOptionsService implements FormOptionsServiceInterface
      */
     public function getBriboxOptions(?string $search = null): array
     {
-        $query = Bribox::with('category');
-        
+        $query = Bribox::query()->with('category');
+
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('type', 'like', '%' . addcslashes($search, '%_') . '%')
-                  ->orWhere('bribox_id', 'like', '%' . addcslashes($search, '%_') . '%')
-                  ->orWhereHas('category', function ($categoryQuery) use ($search) {
-                      $categoryQuery->where('category_name', 'like', '%' . addcslashes($search, '%_') . '%');
-                  });
+                $escapedSearch = addslashes($search);
+                $q->where('type', 'like', '%' . $escapedSearch . '%')
+                  ->orWhere('bribox_id', 'like', '%' . $escapedSearch . '%')
+                  ->orWhereHas('category', fn($categoryQuery) => 
+                      $categoryQuery->where('category_name', 'like', '%' . $escapedSearch . '%')
+                  );
             });
         }
 
         return $query->get()
-            ->map(function ($bribox) {
-                $categoryName = $bribox->category ? $bribox->category->category_name : 'No Category';
-                return [
-                    'value' => $bribox->bribox_id,
-                    'label' => "{$bribox->type} ({$categoryName})",
-                ];
-            })
+            ->map(fn($bribox) => [
+                'value' => $bribox->bribox_id,
+                'label' => "{$bribox->type} (" . ($bribox->category->category_name ?? 'No Category') . ")",
+            ])
             ->toArray();
     }
 
@@ -151,11 +141,9 @@ class FormOptionsService implements FormOptionsServiceInterface
      */
     public function getConditionOptions(): array
     {
-        return [
-            ['value' => 'Baik'],
-            ['value' => 'Rusak'],
-            ['value' => 'Perlu Pengecekan'],
-        ];
+        return collect(['Baik', 'Rusak', 'Perlu Pengecekan'])
+            ->map(fn($condition) => ['value' => $condition])
+            ->toArray();
     }
 
     /**
@@ -163,11 +151,9 @@ class FormOptionsService implements FormOptionsServiceInterface
      */
     public function getStatusOptions(): array
     {
-        return [
-            ['value' => 'Digunakan'],
-            ['value' => 'Tidak Digunakan'],
-            ['value' => 'Cadangan'],
-        ];
+        return collect(['Digunakan', 'Tidak Digunakan', 'Cadangan'])
+            ->map(fn($status) => ['value' => $status])
+            ->toArray();
     }
 
     /**
@@ -176,18 +162,16 @@ class FormOptionsService implements FormOptionsServiceInterface
     public function getCategoryOptions(?string $search = null): array
     {
         $query = BriboxesCategory::query();
-        
+
         if ($search) {
-            $query->where('category_name', 'like', '%' . $search . '%');
+            $query->where('category_name', 'like', '%' . addslashes($search) . '%');
         }
 
         return $query->get()
-            ->map(function ($category) {
-                return [
-                    'category_id' => $category->getKey(),
-                    'label' => $category->category_name
-                ];
-            })
+            ->map(fn($category) => [
+                'category_id' => $category->getKey(),
+                'label' => $category->category_name,
+            ])
             ->toArray();
     }
 
@@ -196,28 +180,26 @@ class FormOptionsService implements FormOptionsServiceInterface
      */
     public function getAvailableDeviceOptions(?string $search = null): array
     {
-        $query = Device::available();
-        
+        $query = Device::query()->available();
+
         if ($search) {
-            $query->where(function ($q) use ($search) {
-                $like = '%' . addcslashes($search, '%_') . '%';
-                $q->where('asset_code', 'like', $like)
-                  ->orWhere('brand', 'like', $like)
-                  ->orWhere('brand_name', 'like', $like)
-                  ->orWhere('serial_number', 'like', $like);
+            $escapedSearch = addslashes($search);
+            $query->where(function ($q) use ($escapedSearch) {
+                $q->where('asset_code', 'like', '%' . $escapedSearch . '%')
+                  ->orWhere('brand', 'like', '%' . $escapedSearch . '%')
+                  ->orWhere('brand_name', 'like', '%' . $escapedSearch . '%')
+                  ->orWhere('serial_number', 'like', '%' . $escapedSearch . '%');
             });
         }
 
         return $query->get()
-            ->map(function ($device) {
-                return [
-                    'device_id' => $device->getKey(),
-                    'label' => "{$device->brand} {$device->brand_name} ({$device->serial_number})",
-                    'asset_code' => $device->asset_code,
-                    'condition' => $device->condition,
-                    'status' => $device->status,
-                ];
-            })
+            ->map(fn($device) => [
+                'device_id' => $device->getKey(),
+                'label' => "{$device->brand} {$device->brand_name} ({$device->serial_number})",
+                'asset_code' => $device->asset_code,
+                'condition' => $device->condition,
+                'status' => $device->status,
+            ])
             ->toArray();
     }
 
@@ -226,26 +208,23 @@ class FormOptionsService implements FormOptionsServiceInterface
      */
     public function getUserOptions(?string $search = null): array
     {
-        $query = User::with('department');
-        
+        $query = User::query()->with('department');
+
         if ($search) {
-            $query->where(function ($q) use ($search) {
-                $like = '%' . addcslashes($search, '%_') . '%';
-                $q->where('name', 'like', $like)
-                  ->orWhere('pn', 'like', $like)
-                  ->orWhere('position', 'like', $like);
+            $escapedSearch = addslashes($search);
+            $query->where(function ($q) use ($escapedSearch) {
+                $q->where('name', 'like', '%' . $escapedSearch . '%')
+                  ->orWhere('pn', 'like', '%' . $escapedSearch . '%')
+                  ->orWhere('position', 'like', '%' . $escapedSearch . '%');
             });
         }
 
         return $query->get()
-            ->map(function ($user) {
-                $deptName = isset($user->department) ? $user->department->name : 'No Dept';
-                return [
-                    'user_id' => $user->getKey(),
-                    'label' => $user->pn . ' - ' . $user->name . ' (' . $deptName . ')',
-                    'position' => $user->position,
-                ];
-            })
+            ->map(fn($user) => [
+                'user_id' => $user->getKey(),
+                'label' => "{$user->pn} - {$user->name} (" . ($user->department->name ?? 'No Dept') . ")",
+                'position' => $user->position,
+            ])
             ->toArray();
     }
 
@@ -254,28 +233,24 @@ class FormOptionsService implements FormOptionsServiceInterface
      */
     public function getBranchOptions(?string $search = null): array
     {
-        $query = Branch::with('mainBranch');
-        
+        $query = Branch::query()->with('mainBranch');
+
         if ($search) {
-            $query->where(function ($q) use ($search) {
-                $escapedSearch = addcslashes($search, '%_');
-                $like = '%' . $escapedSearch . '%';
-                $q->where('unit_name', 'like', $like)
-                  ->orWhere('branch_code', 'like', $like)
-                  ->orWhereHas('mainBranch', function ($mainQuery) use ($like) {
-                      $mainQuery->where('main_branch_name', 'like', $like);
-                  });
+            $escapedSearch = addslashes($search);
+            $query->where(function ($q) use ($escapedSearch) {
+                $q->where('unit_name', 'like', '%' . $escapedSearch . '%')
+                  ->orWhere('branch_code', 'like', '%' . $escapedSearch . '%')
+                  ->orWhereHas('mainBranch', fn($mainQuery) => 
+                      $mainQuery->where('main_branch_name', 'like', '%' . $escapedSearch . '%')
+                  );
             });
         }
 
         return $query->get()
-            ->map(function ($branch) {
-                $mainBranchName = $branch->mainBranch ? $branch->mainBranch->main_branch_name : 'No Main Branch';
-                return [
-                    'branch_id' => $branch->getKey(),
-                    'label' => $branch->unit_name . ' (' . $mainBranchName . ')',
-                ];
-            })
+            ->map(fn($branch) => [
+                'branch_id' => $branch->getKey(),
+                'label' => "{$branch->unit_name} (" . ($branch->mainBranch->main_branch_name ?? 'No Main Branch') . ")",
+            ])
             ->toArray();
     }
 
@@ -285,20 +260,16 @@ class FormOptionsService implements FormOptionsServiceInterface
     public function getDepartmentOptions(?string $search = null): array
     {
         $query = Department::query();
-        
+
         if ($search) {
-            $query->where('name', 'like', '%' . addcslashes($search, '%_') . '%');
+            $query->where('name', 'like', '%' . addslashes($search) . '%');
         }
 
         return $query->get()
-            ->map(function ($department) {
-                return [
-                    'value' => $department->getKey(),
-                    'label' => $department->name,
-                    'department_id' => $department->getKey(),
-                    'name' => $department->name,
-                ];
-            })
+            ->map(fn($department) => [
+                'value' => $department->getKey(),
+                'label' => $department->name,
+            ])
             ->toArray();
     }
 
