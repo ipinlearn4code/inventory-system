@@ -11,22 +11,22 @@
 
         body {
             margin: 0;
-            padding: 1cm;
-            background: #f9f9f9;
+            padding: 0cm;
+            /* background: #ffffffff; */
             font-family: Arial, sans-serif;
         }
 
         table.sticker-table {
             border-collapse: separate;
-            border-spacing: 0.5cm 0.5cm;
+            /* border-spacing: 0.5cm 0.5cm; */
             width: 100%;
         }
 
         td.sticker-cell {
-            width: 4cm;
-            height: 6cm;
+            width: 3.5cm;
+            height: 5.9cm;
             background: white;
-            border: 1px solid #ddd;
+            border: 1px solid black;
             border-radius: 8px;
             padding: 0.4cm;
             vertical-align: top;
@@ -40,8 +40,8 @@
         }
 
         .sticker-qr {
-            width: 2cm;
-            height: 2cm;
+            width: 2.8cm;
+            height: 2.8cm;
             object-fit: contain;
         }
 
@@ -53,7 +53,6 @@
         }
 
         .sticker-info {
-            text-align: justify;
             font-size: 8pt;
             width: 100%;
         }
@@ -61,21 +60,28 @@
         .sticker-info-row {
             display: flex;
             justify-content: space-between;
+            align-items: baseline;
+            /* atau 'center' jika mau rata tengah vertikal */
+            font-size: 8pt;
             margin-bottom: 0.1cm;
+            width: 100%;
         }
 
-        .sticker-label {
-            font-weight: 600;
+        .label {
+            text-align: left;
+            font-weight: bold;
             color: #333;
+            flex: 1;
+            white-space: nowrap;
         }
 
-        .sticker-value {
-            /* text-align: right; */
+        .value {
+            text-align: right;
             color: #333;
-            /* white-space: nowrap; */
-            text-overflow: ellipsis;
-            max-width: 100%;
+            flex: 1;
+            white-space: nowrap;
         }
+
 
         .sticker-error-icon {
             font-size: 16pt;
@@ -88,13 +94,95 @@
             color: red;
             text-align: center;
         }
+
+
+
+        /* Ukuran font */
+        /* .text-xs { font-size: 7pt; }
+        .text-sm { font-size: 8pt; }
+        .text-md { font-size: 10pt; }
+        .text-lg { font-size: 12pt; } */
+
+        /* Warna teks */
+        .text-dark {
+            color: #333;
+        }
+
+        .text-gray {
+            color: #777;
+        }
+
+        .text-red {
+            color: red;
+        }
+
+        /* Gaya huruf */
+        .text-bold {
+            font-weight: bold;
+        }
+
+        .text-normal {
+            font-weight: normal;
+        }
+
+        .text-uppercase {
+            text-transform: uppercase;
+        }
+
+        /* Perataan */
+        .text-left {
+            text-align: left;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-justify {
+            text-align: justify;
+        }
+
+        /* Display */
+        .inline {
+            display: inline;
+        }
+
+        .block {
+            display: block;
+        }
+
+        /* Margin dan spacing dasar */
+        .mb-1 {
+            margin-bottom: 0.1cm;
+        }
+
+        .mb-2 {
+            margin-bottom: 0.2cm;
+        }
+
+        .mt-1 {
+            margin-top: 0.1cm;
+        }
+
+        .p-1 {
+            padding: 0.1cm;
+        }
+
+        .p-2 {
+            padding: 0.2cm;
+        }
     </style>
+
 </head>
 
 <body>
     <table class="sticker-table">
         @php
-            $columnsPerRow = 3; // jumlah kolom per baris
+            $columnsPerRow = 4; // jumlah kolom per baris
             $total = count($stickers);
         @endphp
 
@@ -126,26 +214,28 @@
                             </div>
 
                             <div class="sticker-info">
-                                <div class="sticker-info-row">
-                                    <span class="sticker-label">Asset Code:</span>
-                                    <span class="sticker-value">{{ $stickerData['device']->asset_code }}</span>
-                                </div>
-                                <div class="sticker-info-row">
-                                    <span class="sticker-label">Category:</span>
-                                    <span class="sticker-value">
-                                        {{ $stickerData['device']->bribox->category->category_name ?? 'N/A' }}
-                                    </span>
-                                </div>
-                                <div class="sticker-info-row">
-                                    <span class="sticker-label">Device:</span>
-                                    <span class="sticker-value">
-                                        {{ $stickerData['device']->brand }} {{ $stickerData['device']->brand_name }}
-                                    </span>
-                                </div>
-                                <div class="sticker-info-row">
-                                    <span class="sticker-label">SN:</span>
-                                    <span class="sticker-value">{{ $stickerData['device']->serial_number }}</span>
-                                </div>
+                                <table width="100%" style="font-size:8pt; border-collapse: collapse;">
+                                    <tr>
+                                        <td style="font-weight:bold; text-align:left;">Asset Code:</td>
+                                        <td style="text-align:right;">{{ $stickerData['device']->asset_code }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:bold; text-align:left;">Category:</td>
+                                        <td style="text-align:right; overflow:hidden; text-overflow: ellipsis;">
+                                            {{ $stickerData['device']->bribox->category->category_name ?? 'N/A' }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:bold; text-align:left;">Device:</td>
+                                        <td style="text-align:right;">
+                                            {{ $stickerData['device']->brand }} {{ $stickerData['device']->brand_name }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:bold; text-align:left;">SN:</td>
+                                        <td style="text-align:right;">{{ $stickerData['device']->serial_number }}</td>
+                                    </tr>
+                                </table>
                             </div>
                         </td>
                     @else
