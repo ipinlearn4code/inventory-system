@@ -58,21 +58,6 @@
                                     <div><span class="font-medium">SN:</span> {{ $stickerData['device']->serial_number }}</div>
                                     
                                 </div>
-
-                                @if (!$stickerData['error'])
-                                    <div class="pt-2">
-                                        <x-filament::button
-                                            size="xs"
-                                            color="primary"
-                                            outlined
-                                            icon="heroicon-o-printer"
-                                            wire:click="printIndividualSticker({{ $stickerData['device']->device_id }})"
-                                            class="w-full"
-                                        >
-                                            Print Individual
-                                        </x-filament::button>
-                                    </div>
-                                @endif
                             </div>
                         </div>
                     @endforeach
