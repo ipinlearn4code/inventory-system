@@ -84,7 +84,7 @@ class FormOptionsService implements FormOptionsServiceInterface
         $query = Device::distinct()->select('brand');
         
         if ($search) {
-            $query->where('brand', 'like', "%{$search}%");
+            $query->where('brand', 'like', '%' . addcslashes($search, '%_') . '%');
         }
 
         return $query->pluck('brand', 'brand')
@@ -105,7 +105,7 @@ class FormOptionsService implements FormOptionsServiceInterface
         $query = Device::distinct()->select('brand_name');
         
         if ($search) {
-            $query->where('brand_name', 'like', "%{$search}%");
+            $query->where('brand_name', 'like', '%' . $search . '%');
         }
 
         return $query->pluck('brand_name', 'brand_name')
@@ -127,10 +127,10 @@ class FormOptionsService implements FormOptionsServiceInterface
         
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('type', 'like', "%{$search}%")
-                  ->orWhere('bribox_id', 'like', "%{$search}%")
+                $q->where('type', 'like', '%' . addcslashes($search, '%_') . '%')
+                  ->orWhere('bribox_id', 'like', '%' . addcslashes($search, '%_') . '%')
                   ->orWhereHas('category', function ($categoryQuery) use ($search) {
-                      $categoryQuery->where('category_name', 'like', "%{$search}%");
+                      $categoryQuery->where('category_name', 'like', '%' . addcslashes($search, '%_') . '%');
                   });
             });
         }
@@ -178,7 +178,7 @@ class FormOptionsService implements FormOptionsServiceInterface
         $query = BriboxesCategory::query();
         
         if ($search) {
-            $query->where('category_name', 'like', "%{$search}%");
+            $query->where('category_name', 'like', '%' . $search . '%');
         }
 
         return $query->get()
@@ -200,10 +200,11 @@ class FormOptionsService implements FormOptionsServiceInterface
         
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('asset_code', 'like', "%{$search}%")
-                  ->orWhere('brand', 'like', "%{$search}%")
-                  ->orWhere('brand_name', 'like', "%{$search}%")
-                  ->orWhere('serial_number', 'like', "%{$search}%");
+                $like = '%' . addcslashes($search, '%_') . '%';
+                $q->where('asset_code', 'like', $like)
+                  ->orWhere('brand', 'like', $like)
+                  ->orWhere('brand_name', 'like', $like)
+                  ->orWhere('serial_number', 'like', $like);
             });
         }
 
@@ -229,9 +230,10 @@ class FormOptionsService implements FormOptionsServiceInterface
         
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('pn', 'like', "%{$search}%")
-                  ->orWhere('position', 'like', "%{$search}%");
+                $like = '%' . addcslashes($search, '%_') . '%';
+                $q->where('name', 'like', $like)
+                  ->orWhere('pn', 'like', $like)
+                  ->orWhere('position', 'like', $like);
             });
         }
 
@@ -256,10 +258,12 @@ class FormOptionsService implements FormOptionsServiceInterface
         
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('unit_name', 'like', "%{$search}%")
-                  ->orWhere('branch_code', 'like', "%{$search}%")
-                  ->orWhereHas('mainBranch', function ($mainQuery) use ($search) {
-                      $mainQuery->where('main_branch_name', 'like', "%{$search}%");
+                $escapedSearch = addcslashes($search, '%_');
+                $like = '%' . $escapedSearch . '%';
+                $q->where('unit_name', 'like', $like)
+                  ->orWhere('branch_code', 'like', $like)
+                  ->orWhereHas('mainBranch', function ($mainQuery) use ($like) {
+                      $mainQuery->where('main_branch_name', 'like', $like);
                   });
             });
         }
@@ -283,7 +287,7 @@ class FormOptionsService implements FormOptionsServiceInterface
         $query = Department::query();
         
         if ($search) {
-            $query->where('name', 'like', "%{$search}%");
+            $query->where('name', 'like', '%' . addcslashes($search, '%_') . '%');
         }
 
         return $query->get()
