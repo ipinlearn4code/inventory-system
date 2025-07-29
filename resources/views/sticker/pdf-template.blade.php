@@ -40,8 +40,8 @@
         }
 
         .sticker-qr {
-            width: 2.8cm;
-            height: 2.8cm;
+            width: 70%;
+            height: auto;
             object-fit: contain;
         }
 
@@ -57,6 +57,11 @@
             width: 100%;
         }
 
+        .sticker-info-table {
+            width: 100%;
+            /* border-collapse: collapse; */
+        }
+
         .sticker-info-row {
             display: flex;
             justify-content: space-between;
@@ -67,19 +72,22 @@
             width: 100%;
         }
 
-        .label {
-            text-align: left;
+        .sticker-pdf-label {
+            font-size: 6pt;
             font-weight: bold;
-            color: #333;
-            flex: 1;
+            text-align: left;
             white-space: nowrap;
+            width: fit-content;
         }
 
-        .value {
-            text-align: right;
-            color: #333;
-            flex: 1;
+        .sticker-pdf-value {
+            display: inline-block;
+            width: 2cm;
+            /* atau 100px dsb */
+            overflow: hidden;
+            /* text-overflow: ellipsis; */
             white-space: nowrap;
+            text-align: right;
         }
 
 
@@ -214,29 +222,32 @@
                             </div>
 
                             <div class="sticker-info">
-                                <table width="100%" style="font-size:8pt; border-collapse: collapse;">
+                                <table class="sticker-info-table">
                                     <tr>
-                                        <td style="font-weight:bold; text-align:left;">Asset Code:</td>
-                                        <td style="text-align:right;">{{ $stickerData['device']->asset_code }}</td>
+                                        <td class="sticker-pdf-label">Asset Code:</td>
+                                        <td class="sticker-pdf-value">{{ $stickerData['device']->asset_code }}</td>
                                     </tr>
                                     <tr>
-                                        <td style="font-weight:bold; text-align:left;">Category:</td>
-                                        <td style="text-align:right; overflow:hidden; text-overflow: ellipsis;">
+                                        <td class="sticker-pdf-label">Category:</td>
+                                        <td class="sticker-pdf-value">
                                             {{ $stickerData['device']->bribox->category->category_name ?? 'N/A' }}
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td style="font-weight:bold; text-align:left;">Device:</td>
-                                        <td style="text-align:right;">
+                                        <td class="sticker-pdf-label">Device:</td>
+                                        <td class="sticker-pdf-value">
                                             {{ $stickerData['device']->brand }} {{ $stickerData['device']->brand_name }}
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td style="font-weight:bold; text-align:left;">SN:</td>
-                                        <td style="text-align:right;">{{ $stickerData['device']->serial_number }}</td>
+                                        <td class="sticker-pdf-label">SN:</td>
+                                        <td class="sticker-pdf-value">
+                                            {{ $stickerData['device']->serial_number }}
+                                        </td>
                                     </tr>
                                 </table>
                             </div>
+
                         </td>
                     @else
                         <td class="sticker-cell"></td> <!-- Kosongkan jika tidak ada data -->
