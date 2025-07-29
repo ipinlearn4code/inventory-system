@@ -17,11 +17,13 @@ class UserRepository implements UserRepositoryInterface
 
     public function findByPn(string $pn): ?User
     {
+        if (empty($pn)) return null;
         return User::where('pn', $pn)->first();
     }
 
     public function getAll(): Collection
     {
+
         return User::with(['department', 'branch'])->get();
     }
 
@@ -37,10 +39,13 @@ class UserRepository implements UserRepositoryInterface
 
         if (!empty($filters['search'])) {
             $search = $filters['search'];
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('pn', 'like', "%{$search}%")
-                    ->orWhere('position', 'like', "%{$search}%");
+            // Escape % and _ for LIKE, and use parameter binding
+            $escaped = addcslashes($search, '%_\\');
+            $like = '%' . $escaped . '%';
+            $query->where(function ($q) use ($like) {
+                $q->where('name', 'like', $like, 'and', false)
+                    ->orWhere('pn', 'like', $like, 'and', false)
+                    ->orWhere('position', 'like', $like, 'and', false);
             });
         }
 
@@ -73,9 +78,12 @@ class UserRepository implements UserRepositoryInterface
     {
         return User::with(['department', 'branch'])
             ->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('pn', 'like', "%{$search}%")
-                    ->orWhere('position', 'like', "%{$search}%");
+                // Escape % and _ for LIKE
+                $escaped = addcslashes($search, '%_\\');
+                $like = "%{$escaped}%";
+                $q->where('name', 'like', $like, 'and', false)
+                    ->orWhere('pn', 'like', $like, 'and', false)
+                    ->orWhere('position', 'like', $like, 'and', false);
             })
             ->get();
     }
