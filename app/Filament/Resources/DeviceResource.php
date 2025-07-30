@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\DeviceResource\Pages;
 use App\Models\Device;
 use App\Models\Bribox;
+use App\Services\DropdownOptionsService;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -73,7 +74,7 @@ class DeviceResource extends Resource
                         Forms\Components\Select::make('brand')
                             ->label('Brand')
                             ->required()
-                            ->options(Device::distinct()->pluck('brand', 'brand')->toArray())
+                            ->options(DropdownOptionsService::getDeviceBrands())
                             ->searchable()
                             ->searchPrompt('Search or click + to add')
                             ->createOptionForm([
@@ -83,13 +84,14 @@ class DeviceResource extends Resource
                                     ->required(),
                             ])
                             ->createOptionUsing(function (array $data) {
+                                DropdownOptionsService::clearCache(); // Clear cache when new option is added
                                 return $data['new_brand'];
                             }),
 
                         Forms\Components\Select::make('brand_name')
                             ->label('Brand Name (Model/Series)')
                             ->required()
-                            ->options(Device::distinct()->pluck('brand_name', 'brand_name')->toArray())
+                            ->options(DropdownOptionsService::getDeviceBrandNames())
                             ->searchable()
                             ->searchPrompt('Search or click + to add')
                             ->createOptionForm([
@@ -98,10 +100,11 @@ class DeviceResource extends Resource
                                     ->maxLength(50)
                                     ->required(),
                             ])
-                            ->helperText('e.g., OptiPlex 7090, ThinkPad X1 Carbon')
                             ->createOptionUsing(function (array $data) {
+                                DropdownOptionsService::clearCache(); // Clear cache when new option is added
                                 return $data['new_brand_name'];
-                            }),
+                            })
+                            ->helperText('e.g., OptiPlex 7090, ThinkPad X1 Carbon'),
 
                         Forms\Components\TextInput::make('serial_number')
                             ->label('Serial Number')
@@ -244,6 +247,15 @@ class DeviceResource extends Resource
     {
 
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                // Optimize query with eager loading
+                return $query->with([
+                    'bribox:bribox_id,type,type_name,bribox_category_id',
+                    'bribox.category:bribox_category_id,category_name',
+                    'currentAssignment:id,device_id,user_id,returned_date',
+                    'currentAssignment.user:user_id,name,pn'
+                ]);
+            })
             // ->persistTableColumnToggleState(false)   
             ->columns([
                 Tables\Columns\TextColumn::make('device_id')
@@ -315,18 +327,12 @@ class DeviceResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('brand')
                     ->multiple()
-                    ->options(Device::distinct()->pluck('brand', 'brand')->toArray()),
+                    ->options(DropdownOptionsService::getDeviceBrands()),
                 Tables\Filters\SelectFilter::make('condition')
                     ->multiple()
-                    ->options([
-                        'Baik' => 'Baik',
-                        'Rusak' => 'Rusak',
-                        'Perlu Pengecekan' => 'Perlu Pengecekan',
-                    ]),
+                    ->options(DropdownOptionsService::getDeviceConditions()),
                 Tables\Filters\SelectFilter::make('bribox_category')
-                    // ->label('Category')
-                    // ->multiple()
-                    ->options(\App\Models\BriboxesCategory::all()->pluck('category_name', 'bribox_category_id'))
+                    ->options(DropdownOptionsService::getBriboxCategories())
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
                             $data['value'],
@@ -338,7 +344,7 @@ class DeviceResource extends Resource
                     }),
                 Tables\Filters\SelectFilter::make('bribox.type')
                     ->label('Type')
-                    ->options(Bribox::all()->pluck('type', 'bribox_id')),
+                    ->options(DropdownOptionsService::getBriboxTypes()),
             ])
 
             ->actions([

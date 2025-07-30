@@ -3,6 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Cache;
 
 class Device extends Model
 {
@@ -35,17 +39,20 @@ class Device extends Model
         'updated_at' => 'datetime',
     ];
 
-    public function bribox()
+    // Default eager loading for performance
+    protected $with = ['bribox'];
+
+    public function bribox(): BelongsTo
     {
         return $this->belongsTo(Bribox::class, 'bribox_id', 'bribox_id');
     }
 
-    public function assignments()
+    public function assignments(): HasMany
     {
         return $this->hasMany(DeviceAssignment::class, 'device_id', 'device_id');
     }
 
-    public function currentAssignment()
+    public function currentAssignment(): HasOne
     {
         return $this->hasOne(DeviceAssignment::class, 'device_id', 'device_id')
                     ->whereNull('returned_date');
@@ -53,13 +60,20 @@ class Device extends Model
     
     /**
      * Get the asset code with device type - used for display in dropdowns
+     * This method is cached for performance
      *
      * @return string
      */
     public function getAssetCodeWithTypeAttribute(): string
     {
-        $type = $this->bribox ? $this->bribox->type_name : 'Unknown';
-        return "{$this->serial_number} - {$type} ({$this->brand} {$this->brand_name}) {$this->asset_code}";
+        return Cache::remember(
+            "device_asset_code_with_type_{$this->device_id}",
+            3600, // 1 hour
+            function () {
+                $type = $this->bribox ? $this->bribox->type_name : 'Unknown';
+                return "{$this->serial_number} - {$type} ({$this->brand} {$this->brand_name}) {$this->asset_code}";
+            }
+        );
     }
     
     /**
