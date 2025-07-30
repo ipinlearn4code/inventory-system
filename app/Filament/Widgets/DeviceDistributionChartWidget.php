@@ -4,9 +4,9 @@ namespace App\Filament\Widgets;
 
 use App\Models\Branch;
 use App\Models\Device;
-use Filament\Widgets\ChartWidget;
+use App\Filament\Widgets\OptimizedChartWidget;
 
-class DeviceDistributionChartWidget extends ChartWidget
+class DeviceDistributionChartWidget extends OptimizedChartWidget
 {
     protected static ?string $heading = '🏢 Distribusi Perangkat per Cabang';
     protected static ?int $sort = 7;
@@ -21,7 +21,7 @@ class DeviceDistributionChartWidget extends ChartWidget
 
     protected static ?string $maxHeight = '300px';
 
-    protected function getData(): array
+    protected function getChartData(): array
     {
         $mainBranchId = session('dashboard_main_branch_filter');
         $branchId = session('dashboard_branch_filter');
@@ -48,54 +48,52 @@ class DeviceDistributionChartWidget extends ChartWidget
 
         // Ambil semua device yang sedang aktif dan berada di branch yang disaring
         $devices = Device::with([
-            'bribox.category',
-            'currentAssignment' => fn($q) => $q->select('device_id', 'branch_id')
-        ])
-            ->whereHas('currentAssignment', fn($q) => $q->whereIn('branch_id', $branchIds))
-            ->get();
+            'currentAssignment.branch',
+            'bribox.category'
+        ])->whereHas('currentAssignment', function ($query) use ($branchIds) {
+            if (!empty($branchIds)) {
+                $query->whereIn('branch_id', $branchIds);
+            }
+        })->get();
 
-        // Inisialisasi array hasil
-        $categories = [];
-        $branchCategoryCounts = [];
-
+        // Group by category dan branch
+        $categoryBranchCounts = [];
         foreach ($devices as $device) {
-            $branchId = $device->currentAssignment?->branch_id;
-            $categoryName = $device->bribox->category?->category_name ?? 'Tidak Diketahui';
-            // dd($categoryName);
-            if (!$branchId)
-                continue;
+            $category = $device->bribox->category->category_name ?? 'Unknown';
+            $assignedBranchId = $device->currentAssignment->branch_id ?? 'unassigned';
 
-            // Tambahkan nama category
-            $categories[$categoryName] = true;
+            if (!isset($categoryBranchCounts[$category])) {
+                $categoryBranchCounts[$category] = [];
+            }
 
-            // Hitung jumlah per kategori di setiap branch
-            $branchCategoryCounts[$categoryName][$branchId] =
-                ($branchCategoryCounts[$categoryName][$branchId] ?? 0) + 1;
+            if (!isset($categoryBranchCounts[$category][$assignedBranchId])) {
+                $categoryBranchCounts[$category][$assignedBranchId] = 0;
+            }
+
+            $categoryBranchCounts[$category][$assignedBranchId]++;
         }
 
-        // Finalisasi labels (branch names)
-        $labels = array_values($branchNames);
+        // Reorganize data for chart
+        $branchCategoryCounts = [];
+        foreach ($categoryBranchCounts as $categoryName => $branchCounts) {
+            foreach ($branchCounts as $branchId => $count) {
+                if (!isset($branchCategoryCounts[$categoryName])) {
+                    $branchCategoryCounts[$categoryName] = [];
+                }
+                $branchCategoryCounts[$categoryName][$branchId] = $count;
+            }
+        }
 
-        // Susun dataset per kategori
+        $labels = array_values($branchNames);
         $datasets = [];
+
         $backgroundColors = [
-            '#3b82f6',
-            '#ef4444',
-            '#10b981',
-            '#f59e0b',
-            '#8b5cf6',
-            '#06b6d4',
-            '#f97316',
-            '#84cc16',
-            '#ec4899',
-            '#6366f1',
-            '#14b8a6',
-            '#f43f5e'
+            '#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6',
+            '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1'
         ];
 
         $colorIndex = 0;
-
-        foreach (array_keys($categories) as $categoryName) {
+        foreach ($branchCategoryCounts as $categoryName => $branchCounts) {
             $data = [];
 
             foreach ($branchIds as $branchId) {
@@ -113,20 +111,18 @@ class DeviceDistributionChartWidget extends ChartWidget
             $colorIndex++;
         }
 
-        // dd($datasets, $labels);
-
         return [
             'datasets' => $datasets,
             'labels' => $labels,
         ];
     }
 
-    protected function getType(): string
+    protected function getChartType(): string
     {
         return 'radar';
     }
 
-    protected function getOptions(): array
+    protected function getChartOptions(): array
     {
         return [
             'plugins' => [

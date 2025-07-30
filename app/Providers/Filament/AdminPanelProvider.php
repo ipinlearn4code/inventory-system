@@ -21,6 +21,9 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Filament\Support\Assets\Js;
+use Filament\Support\Facades\FilamentAsset;
+use App\Services\DashboardOptimizationService;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -87,14 +90,19 @@ class AdminPanelProvider extends PanelProvider
 
     public function boot(): void
     {
+        // Register optimized assets to prevent duplicate loading
+        DashboardOptimizationService::registerOptimizedAssets();
+
         // Register the user menu component in the top bar
         FilamentView::registerRenderHook(
             PanelsRenderHook::TOPBAR_END,
             fn(): View => view('components.user-menu'),
         );
 
-        // Add BRI Blue Theme CSS for comprehensive styling using AssetHelper to handle versioning
-        // Use Filament's default CSS (remove custom dashboard-theme-improved.css)
-        // No need to register additional CSS or JS here for default styling.
+        // Inject global asset manager script in head
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::HEAD_END,
+            fn(): string => '<script src="' . asset('js/global-asset-manager.js') . '" defer></script>',
+        );
     }
 }

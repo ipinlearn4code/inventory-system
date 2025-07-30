@@ -2,9 +2,8 @@
 
 namespace App\Providers;
 
-// use Filament\Support\Assets\Js;
-// use Filament\Support\Facades\FilamentAsset;
-// use Illuminate\Support\Facades\Vite;
+use Filament\Support\Assets\Js;
+use Filament\Support\Facades\FilamentAsset;
 use Filament\Facades\Filament;
 use Filament\Navigation\NavigationGroup;
 use Illuminate\Support\ServiceProvider;
@@ -17,9 +16,20 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // FilamentAsset::register([
-        //     Js::make('chart-js-plugins', Vite::asset('resources/js/filament-chart-js-plugins.js'))->module(),
-        // ]);
+        // Register shared assets to prevent duplicates
+        FilamentAsset::register([
+            // Chart.js - loaded once for all chart widgets
+            Js::make('shared-chart', asset('js/filament/widgets/components/chart.js'))
+                ->loadedOnRequest(),
+            
+            // Support.js - core Filament functionality
+            Js::make('shared-support', asset('js/filament/support/support.js'))
+                ->loadedOnRequest(),
+                
+            // Echo.js - real-time features
+            Js::make('shared-echo', asset('js/filament/filament/echo.js'))
+                ->loadedOnRequest(),
+        ]);
 
         // Bind InventoryLogService interface
         $this->app->bind(

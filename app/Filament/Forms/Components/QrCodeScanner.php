@@ -6,7 +6,7 @@ use Fadlee\FilamentQrCodeField\Forms\Components\QrCodeInput;
 
 class QrCodeScanner extends QrCodeInput
 {
-    protected string $view = 'filament.forms.components.qr-code-scanner';
+    protected string $view = 'filament.forms.components.optimized-qr-code-scanner';
 
     protected string $displayType = 'button';
     protected ?string $buttonText = null;

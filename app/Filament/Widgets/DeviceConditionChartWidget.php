@@ -3,9 +3,9 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Device;
-use Filament\Widgets\ChartWidget;
+use App\Filament\Widgets\OptimizedChartWidget;
 
-class DeviceConditionChartWidget extends ChartWidget
+class DeviceConditionChartWidget extends OptimizedChartWidget
 {
     protected static ?string $heading = '📊 Komposisi Kondisi Perangkat';
     protected static ?int $sort = 6;
@@ -21,7 +21,7 @@ class DeviceConditionChartWidget extends ChartWidget
     protected static ?string $maxHeight = '300px';
     
 
-    protected function getData(): array
+    protected function getChartData(): array
     {
         // Get filter values from session
         $mainBranchId = session('dashboard_main_branch_filter');
@@ -76,12 +76,12 @@ class DeviceConditionChartWidget extends ChartWidget
         ];
     }
 
-    protected function getType(): string
+    protected function getChartType(): string
     {
         return 'doughnut';
     }
 
-    protected function getOptions(): array
+    protected function getChartOptions(): array
     {
         return [
             'plugins' => [
