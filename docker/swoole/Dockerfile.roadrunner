@@ -1,0 +1,64 @@
+FROM laravelsail/php82-composer
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    netcat-openbsd \
+    curl \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# Download and install RoadRunner
+RUN wget -O /tmp/rr.tar.gz "https://github.com/roadrunner-server/roadrunner/releases/download/v2024.1.4/roadrunner-2024.1.4-linux-amd64.tar.gz" \
+    && mkdir -p /tmp/rr \
+    && tar -xzf /tmp/rr.tar.gz -C /tmp/rr \
+    && find /tmp/rr -name "rr" -executable -type f -exec cp {} /usr/local/bin/rr \; \
+    && chmod +x /usr/local/bin/rr \
+    && rm -rf /tmp/rr.tar.gz /tmp/rr
+
+# Create startup script
+RUN cat > /usr/local/bin/start-container << 'EOF' && chmod +x /usr/local/bin/start-container
+#!/bin/bash
+echo "Waiting for MySQL..."
+while ! nc -z mysql 3306; do
+    sleep 1
+done
+
+echo "Waiting for Redis..."
+while ! nc -z redis 6379; do
+    sleep 1
+done
+
+echo "Starting Laravel Octane with RoadRunner..."
+cd /var/www/html
+exec php artisan octane:start --server=roadrunner --host=0.0.0.0 --port=8080
+EOF
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Create RoadRunner config
+RUN cat > .rr.yaml << 'EOF'
+version: "3"
+
+rpc:
+  listen: tcp://127.0.0.1:6001
+
+server:
+  command: "php /var/www/html/artisan octane:start --server=roadrunner"
+  relay: pipes
+
+http:
+  address: 0.0.0.0:8080
+  middleware: ["static"]
+  static:
+    dir: "/var/www/html/public"
+    forbid: [".php", ".htaccess"]
+
+logs:
+  mode: development
+  level: error
+EOF
+
+CMD ["/usr/local/bin/start-container"]

@@ -1,0 +1,34 @@
+FROM laravelsail/php82-composer
+
+# Install dependencies and Swoole via APT
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    netcat-openbsd \
+    php8.2-swoole \
+    && rm -rf /var/lib/apt/lists/*
+
+# Enable Swoole extension
+RUN echo "extension=swoole.so" > /usr/local/etc/php/conf.d/docker-php-ext-swoole.ini
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Simple startup script
+COPY --chmod=755 <<EOF /usr/local/bin/start-container
+#!/bin/bash
+echo "Waiting for MySQL..."
+while ! nc -z mysql 3306; do
+    sleep 1
+done
+
+echo "Waiting for Redis..."
+while ! nc -z redis 6379; do
+    sleep 1
+done
+
+echo "Starting Laravel Octane..."
+exec php artisan octane:start --host=0.0.0.0 --port=8080
+EOF
+
+CMD ["/usr/local/bin/start-container"]

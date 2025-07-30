@@ -50,6 +50,11 @@ class OptimizationServiceProvider extends ServiceProvider
      */
     private function cacheConfigValues(): void
     {
+        // Skip caching in Octane environment to avoid Redis facade conflicts
+        if (config('octane.server') === 'swoole') {
+            return;
+        }
+        
         // Cache app configuration for 1 day
         Cache::remember('app_config', 86400, function () {
             return [

@@ -250,9 +250,9 @@ class DeviceResource extends Resource
             ->modifyQueryUsing(function (Builder $query) {
                 // Optimize query with eager loading
                 return $query->with([
-                    'bribox:bribox_id,type,type_name,bribox_category_id',
+                    'bribox:bribox_id,type,type,bribox_category_id',
                     'bribox.category:bribox_category_id,category_name',
-                    'currentAssignment:id,device_id,user_id,returned_date',
+                    'currentAssignment:assignment_id,device_id,user_id,returned_date',
                     'currentAssignment.user:user_id,name,pn'
                 ]);
             })

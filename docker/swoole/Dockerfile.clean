@@ -1,0 +1,52 @@
+FROM laravelsail/php82-composer
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    netcat-openbsd \
+    curl \
+    wget \
+    libicu-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install PHP Redis extension
+RUN pecl install redis \
+    && docker-php-ext-enable redis
+
+# Install required PHP extensions for Filament
+RUN docker-php-ext-install intl
+
+# Install sockets extension for RoadRunner
+RUN docker-php-ext-install sockets
+
+# Download and install RoadRunner
+RUN wget -O /tmp/rr.tar.gz "https://github.com/roadrunner-server/roadrunner/releases/download/v2024.1.4/roadrunner-2024.1.4-linux-amd64.tar.gz" \
+    && mkdir -p /tmp/rr \
+    && tar -xzf /tmp/rr.tar.gz -C /tmp/rr \
+    && find /tmp/rr -name "rr" -executable -type f -exec cp {} /usr/local/bin/rr \; \
+    && chmod +x /usr/local/bin/rr \
+    && rm -rf /tmp/rr.tar.gz /tmp/rr
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Create simple startup script using RUN commands
+RUN printf '#!/bin/bash\n\
+echo "Waiting for MySQL..."\n\
+while ! nc -z mysql 3306; do\n\
+    sleep 1\n\
+done\n\
+\n\
+echo "Waiting for Redis..."\n\
+while ! nc -z redis 6379; do\n\
+    sleep 1\n\
+done\n\
+\n\
+echo "Installing RoadRunner via Laravel Octane..."\n\
+php artisan octane:install --server=roadrunner\n\
+\n\
+echo "Starting Laravel Octane with RoadRunner..."\n\
+cd /var/www/html\n\
+exec php artisan octane:start --server=roadrunner --host=0.0.0.0 --port=8080\n' > /usr/local/bin/start-container \
+    && chmod +x /usr/local/bin/start-container
+
+CMD ["/usr/local/bin/start-container"]
