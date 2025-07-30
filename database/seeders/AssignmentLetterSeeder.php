@@ -12,8 +12,8 @@ class AssignmentLetterSeeder extends Seeder
     public function run(): void
     {
         // Get the admin user ID dynamically
-        $adminUser = User::where('pn', 'ADMIN01')->first();
-        $adminUserPn = $adminUser ? $adminUser->pn : 'SYS_Init'; // Fallback to first user
+        $adminUserId = User::where('user_id', 'ADMIN01')->first();
+        $adminUserPn = $adminUserId ? $adminUserId->pn : 'SYS_Init'; // Fallback to first user
 
         $letters = [
             [
@@ -21,7 +21,7 @@ class AssignmentLetterSeeder extends Seeder
                 'letter_type' => 'assignment',
                 'letter_number' => 'ASG/2024/001',
                 'letter_date' => '2024-01-01',
-                'approver_id' => $adminUserPn,
+                'approver_id' => $adminUserId ?? 4, // Fallback to 'SYS_Init' if admin user not found
                 'created_at' => Carbon::now(),
                 'created_by' => $adminUserPn,
             ],
@@ -30,7 +30,7 @@ class AssignmentLetterSeeder extends Seeder
                 'letter_type' => 'assignment',
                 'letter_number' => 'ASG/2024/002',
                 'letter_date' => '2024-01-15',
-                'approver_id' => $adminUserPn,
+                'approver_id' => $adminUserId ?? 4,
                 'created_at' => Carbon::now(),
                 'created_by' => $adminUserPn,
             ],
