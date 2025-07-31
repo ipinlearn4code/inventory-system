@@ -262,8 +262,21 @@ class DeviceAssignmentController extends BaseApiController
      */
     public function update(Request $request, int $id): JsonResponse
     {
-        $validated = $request->validate([
-            'status' => 'sometimes|in:Digunakan,Tidak Digunakan,Cadangan',
+        // 'device_id' => 'required|exists:devices,device_id',
+        //     'user_id' => 'required|exists:users,user_id',
+        //     'assigned_date' => 'required|date|before_or_equal:today',
+        //     'notes' => 'nullable|string|max:500',
+        //     'letter_number' => 'required|string|max:50',
+        //     'letter_date' => 'required|date',
+        //     'letter_file'
+        if (isset($request)) {
+            
+        } else {
+            return response()->json([
+                'message' => 'Request data is required'
+            ], 400);
+        }
+        $request->validate([
             'notes' => 'nullable|string|max:500',
             'returned_date' => 'nullable|date|after_or_equal:assigned_date',
             'letter_number' => 'sometimes|string|max:50',
@@ -272,16 +285,23 @@ class DeviceAssignmentController extends BaseApiController
         ]);
 
         try {
-            $responseData = DB::transaction(function () use ($request, $validated, $id) {
+            $responseData = DB::transaction(function () use ($request, $id) {
                 // Update the device assignment first
+                if ($request->hasAny(['device_id', 'user_id', 'assigned_date', 'notes'])) {
+                    $validated['device_id'] = $request->input('device_id', null);
+                    $validated['user_id'] = $request->input('user_id', null);
+                    $validated['assigned_date'] = $request->input('assigned_date', null);
+                    $validated['notes'] = $request->input('notes', null);
+                }
+                // Process the assignment update
                 $assignmentData = $this->assignmentService->updateAssignment($id, $validated);
 
                 // Update or create the assignment letter if letter-related data is provided
                 if ($request->hasAny(['letter_number', 'letter_date', 'letter_file'])) {
                     // Get existing letter or create new one
-                    $letter = AssignmentLetter::where('assignment_id', $id)->first() ?? 
-                             new AssignmentLetter(['assignment_id' => $id]);
-                    
+                    $letter = AssignmentLetter::where('assignment_id', $id)->first() ??
+                        new AssignmentLetter(['assignment_id' => $id]);
+
                     // Update letter details if provided
                     if ($request->has('letter_number')) {
                         $letter->letter_number = $request->input('letter_number');
@@ -297,7 +317,7 @@ class DeviceAssignmentController extends BaseApiController
                     // Handle file upload with rollback protection if present
                     if ($request->hasFile('letter_file') && $request->file('letter_file')->isValid()) {
                         $uploadResult = $letter->updateFile($request->file('letter_file'));
-                        
+
                         if (!$uploadResult['success']) {
                             throw new \Exception('Failed to update letter file: ' . $uploadResult['message']);
                         }
@@ -318,7 +338,7 @@ class DeviceAssignmentController extends BaseApiController
                     $this->inventoryLogService->logAssignmentAction(
                         $assignmentData,
                         InventoryLog::ACTION_TYPES['UPDATE'],
-                        ['status' => $assignmentData['oldStatus']], 
+                        ['status' => $assignmentData['oldStatus']],
                         ['status' => $assignmentData['status'], 'letter' => $letterData],
                         $assignmentData['userId']
                     );
