@@ -255,6 +255,7 @@ class DeviceAssignmentController extends BaseApiController
      * 
      * This endpoint updates both the assignment details and its associated letter.
      * It supports updating assignment notes, status, and optional file uploads.
+     * Uses multipart form data to handle file uploads consistently with store method.
      *
      * @param Request $request The incoming request with update data
      * @param int $id The ID of the assignment to update
@@ -262,39 +263,58 @@ class DeviceAssignmentController extends BaseApiController
      */
     public function update(Request $request, int $id): JsonResponse
     {
-        // 'device_id' => 'required|exists:devices,device_id',
-        //     'user_id' => 'required|exists:users,user_id',
-        //     'assigned_date' => 'required|date|before_or_equal:today',
-        //     'notes' => 'nullable|string|max:500',
-        //     'letter_number' => 'required|string|max:50',
-        //     'letter_date' => 'required|date',
-        //     'letter_file'
-        if (isset($request)) {
-            
-        } else {
-            return response()->json([
-                'message' => 'Request data is required'
-            ], 400);
-        }
-        $request->validate([
+        $validated = $request->validate([
+            'device_id' => 'sometimes|exists:devices,device_id',
+            'user_id' => 'sometimes|exists:users,user_id',
+            'assigned_date' => 'sometimes|date|before_or_equal:today',
             'notes' => 'nullable|string|max:500',
-            'returned_date' => 'nullable|date|after_or_equal:assigned_date',
             'letter_number' => 'sometimes|string|max:50',
             'letter_date' => 'sometimes|date',
             'letter_file' => 'sometimes|file|mimes:pdf|max:10240' // 10MB max size for PDF
         ]);
 
         try {
-            $responseData = DB::transaction(function () use ($request, $id) {
-                // Update the device assignment first
+            $responseData = DB::transaction(function () use ($request, $id, $validated) {
+                $assignmentData = null;
+                
+                // Update the device assignment if assignment-related fields are provided
                 if ($request->hasAny(['device_id', 'user_id', 'assigned_date', 'notes'])) {
-                    $validated['device_id'] = $request->input('device_id', null);
-                    $validated['user_id'] = $request->input('user_id', null);
-                    $validated['assigned_date'] = $request->input('assigned_date', null);
-                    $validated['notes'] = $request->input('notes', null);
+                    $assignmentUpdateData = [];
+                    
+                    // Only include fields that are actually present in the request
+                    if ($request->has('device_id')) {
+                        $assignmentUpdateData['device_id'] = $validated['device_id'];
+                    }
+                    if ($request->has('user_id')) {
+                        $assignmentUpdateData['user_id'] = $validated['user_id'];
+                    }
+                    if ($request->has('assigned_date')) {
+                        $assignmentUpdateData['assigned_date'] = $validated['assigned_date'];
+                    }
+                    if ($request->has('notes')) {
+                        $assignmentUpdateData['notes'] = $validated['notes'];
+                    }
+                    
+                    // Process the assignment update
+                    $assignmentData = $this->assignmentService->updateAssignment($id, $assignmentUpdateData);
+                    
+                    // Get user PN for logging - use updated user_id if provided, otherwise existing
+                    if (isset($validated['user_id'])) {
+                        $userPn = User::find($validated['user_id'])->userPn ?? User::find($validated['user_id'])->pn;
+                    } else {
+                        // Get existing user for logging
+                        $existingAssignment = $this->assignmentRepository->findById($id);
+                        $userPn = $existingAssignment?->user?->pn;
+                    }
+                    
+                    $this->inventoryLogService->logAssignmentAction(
+                        $assignmentData ?: ['assignmentId' => $id],
+                        InventoryLog::ACTION_TYPES['UPDATE'],
+                        null, // old_value for assignment update
+                        $assignmentUpdateData, // new_value is the updated assignment data
+                        $userPn // user_affected
+                    );
                 }
-                // Process the assignment update
-                $assignmentData = $this->assignmentService->updateAssignment($id, $validated);
 
                 // Update or create the assignment letter if letter-related data is provided
                 if ($request->hasAny(['letter_number', 'letter_date', 'letter_file'])) {
@@ -311,21 +331,33 @@ class DeviceAssignmentController extends BaseApiController
                     }
                     $letter->letter_type = 'assignment'; // Default for update
                     $letter->approver_id = Auth::id();
-                    $letter->updated_by = Auth::id();
-                    $letter->updated_at = now();
+                    
+                    if ($letter->exists) {
+                        $letter->updated_by = Auth::id();
+                        $letter->updated_at = now();
+                    } else {
+                        $letter->created_by = Auth::id();
+                        $letter->created_at = now();
+                    }
 
-                    // Handle file upload with rollback protection if present
+                    // Store the letter file if present (consistent with store method)
                     if ($request->hasFile('letter_file') && $request->file('letter_file')->isValid()) {
-                        $uploadResult = $letter->updateFile($request->file('letter_file'));
-
-                        if (!$uploadResult['success']) {
-                            throw new \Exception('Failed to update letter file: ' . $uploadResult['message']);
+                        if ($letter->exists) {
+                            // Update existing file
+                            $uploadResult = $letter->updateFile($request->file('letter_file'));
+                            if (!$uploadResult['success']) {
+                                throw new \Exception('Failed to update letter file: ' . $uploadResult['message']);
+                            }
+                        } else {
+                            // Store new file (same as store method)
+                            $path = $letter->storeFile($request->file('letter_file'));
+                            $letter->file_path = $path;
                         }
                     }
 
                     $letter->save();
 
-                    // Transform letter data for response
+                    // Get the letter data with file URL (consistent with store method)
                     $letterData = [
                         'assignmentLetterId' => $letter->getKey(),
                         'assignmentType' => $letter->getAttribute('letter_type'),
@@ -334,20 +366,20 @@ class DeviceAssignmentController extends BaseApiController
                         'fileUrl' => $letter->hasFile() ? $this->pdfPreviewService->getPreviewData($letter)['previewUrl'] : null,
                     ];
 
-                    // Log the assignment update with letter changes
-                    $this->inventoryLogService->logAssignmentAction(
-                        $assignmentData,
-                        InventoryLog::ACTION_TYPES['UPDATE'],
-                        ['status' => $assignmentData['oldStatus']],
-                        ['status' => $assignmentData['status'], 'letter' => $letterData],
-                        $assignmentData['userId']
-                    );
-
-                    // Combine response data
-                    return array_merge($assignmentData, ['assignmentLetter' => $letterData]);
+                    // Return assignment data with the letter in an array (consistent with store method)
+                    if ($assignmentData) {
+                        $responseData = array_merge($assignmentData, ['assignmentLetters' => [$letterData]]);
+                    } else {
+                        // If only letter was updated, get assignment data
+                        $existingAssignment = $this->assignmentService->getAssignmentDetails($id);
+                        $responseData = array_merge($existingAssignment, ['assignmentLetters' => [$letterData]]);
+                    }
+                    
+                    return $responseData;
                 }
 
-                return $assignmentData;
+                // Return assignment data if no letter update
+                return $assignmentData ?: $this->assignmentService->getAssignmentDetails($id);
             });
 
             return response()->json(['data' => $responseData]);
@@ -355,10 +387,18 @@ class DeviceAssignmentController extends BaseApiController
             $errorCode = 'ERR_ASSIGNMENT_UPDATE_FAILED';
             $message = $e->getMessage();
 
-            // Handle specific error cases
-            if (str_contains($message, 'letter_number_unique')) {
+            // Handle duplicate letter_number unique constraint
+            if (
+                ($e instanceof \Illuminate\Database\QueryException || $e instanceof \PDOException)
+                && str_contains($message, '1062')
+                && str_contains($message, 'assignment_letters_letter_number_unique')
+            ) {
                 $errorCode = 'ERR_DUPLICATE_LETTER_NUMBER';
-                $message = 'Letter number already exists. Please use a different number.';
+                $message = 'Letter number already used. Please use a different letter number.';
+            } elseif (str_contains($message, 'already assigned')) {
+                $errorCode = 'ERR_DEVICE_ALREADY_ASSIGNED';
+            } elseif (str_contains($message, 'already has an active assignment')) {
+                $errorCode = 'ERR_USER_ALREADY_HAS_DEVICE_TYPE';
             }
 
             return response()->json([

@@ -342,8 +342,8 @@ class DeviceResource extends Resource
                             )
                         );
                     }),
-                Tables\Filters\SelectFilter::make('bribox.type')
-                    ->label('Type')
+                Tables\Filters\SelectFilter::make('type')
+                    ->label('Bribox Type')
                     ->options(DropdownOptionsService::getBriboxTypes()),
             ])
 

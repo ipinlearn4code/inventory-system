@@ -129,7 +129,7 @@ class UserResource extends Resource
                             ->default('user')
                             ->helperText('Determines what actions the user can perform'),
                     ])
-                    ->visible(fn (Forms\Get $get): bool => $get('create_auth'))
+                    // ->visible(fn (Forms\Get $get): bool => $get('create_auth'))
                     ->columns(2),
             ]);
     }
