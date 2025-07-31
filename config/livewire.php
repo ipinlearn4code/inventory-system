@@ -69,9 +69,22 @@ return [
         'directory' => null,   // Example: 'tmp'                      | Default: 'livewire-tmp'
         'middleware' => null,  // Example: 'throttle:5,1'             | Default: 'throttle:60,1'
         'preview_mimes' => [   // Supported file types for temporary pre-signed file URLs...
-            'png', 'gif', 'bmp', 'svg', 'wav', 'mp4',
-            'mov', 'avi', 'wmv', 'mp3', 'm4a',
-            'jpg', 'jpeg', 'mpga', 'webp', 'wma',
+            'png',
+            'gif',
+            'bmp',
+            'svg',
+            'wav',
+            'mp4',
+            'mov',
+            'avi',
+            'wmv',
+            'mp3',
+            'm4a',
+            'jpg',
+            'jpeg',
+            'mpga',
+            'webp',
+            'wma',
         ],
         'max_upload_time' => 5, // Max duration (in minutes) before an upload is invalidated...
         'cleanup' => true, // Should cleanup temporary uploads older than 24 hrs...
@@ -102,6 +115,19 @@ return [
     */
 
     'legacy_model_binding' => false,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Asset URL
+    |--------------------------------------------------------------------------
+    |
+    | If you would like to serve Livewire assets from a CDN or a different 
+    | path, specify it here. This can improve performance by using a 
+    | published version of Livewire's assets.
+    |
+    */
+
+    'asset_url' => '/vendor/livewire/livewire.js',
 
     /*
     |---------------------------------------------------------------------------

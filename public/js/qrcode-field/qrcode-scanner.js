@@ -1,4 +1,3 @@
-// Load ZXing library
 let ZXing;
 const loadZXingLibrary = async () => {
     if (!ZXing) {

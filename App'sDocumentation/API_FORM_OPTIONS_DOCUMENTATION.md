@@ -106,16 +106,10 @@ Get all dropdown options for device assignment creation/editing forms.
       {
         "device_id": 4,
         "label": "Lenovo Thinkpad P52 (1254846454)",
-        "asset_code": "7OCFAEC10PWDGKU",
-        "condition": "Baik",
-        "status": "Tidak Digunakan"
       },
       {
         "device_id": 6,
         "label": "HP Elitedesk (45646213546)",
-        "asset_code": "a45s46a5s4d64",
-        "condition": "Baik",
-        "status": "Tidak Digunakan"
       }
     ],
     "users": [
