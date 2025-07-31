@@ -197,8 +197,6 @@ class FormOptionsService implements FormOptionsServiceInterface
                 'device_id' => $device->getKey(),
                 'label' => "{$device->brand} {$device->brand_name} ({$device->serial_number})",
                 'asset_code' => $device->asset_code,
-                'condition' => $device->condition,
-                'status' => $device->status,
             ])
             ->toArray();
     }
