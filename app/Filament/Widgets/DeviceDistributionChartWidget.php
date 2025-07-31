@@ -78,19 +78,19 @@ class DeviceDistributionChartWidget extends ChartWidget
 
         // Susun dataset per kategori
         $datasets = [];
-        $backgroundColors = [
-            '#3b82f6',
-            '#ef4444',
-            '#10b981',
-            '#f59e0b',
-            '#8b5cf6',
-            '#06b6d4',
-            '#f97316',
-            '#84cc16',
-            '#ec4899',
-            '#6366f1',
-            '#14b8a6',
-            '#f43f5e'
+        $borderColors = [
+            'rgba(59, 130, 246, 0.8)',
+            'rgba(239, 68, 68, 0.8)',
+            'rgba(16, 185, 129, 0.8)',
+            'rgba(245, 158, 11, 0.8)',
+            'rgba(139, 92, 246, 0.8)',
+            'rgba(6, 182, 212, 0.8)',
+            'rgba(249, 115, 22, 0.8)',
+            'rgba(132, 204, 22, 0.8)',
+            'rgba(236, 72, 153, 0.8)',
+            'rgba(99, 102, 241, 0.8)',
+            'rgba(20, 184, 166, 0.8)',
+            'rgba(244, 63, 94, 0.8)'
         ];
 
         $colorIndex = 0;
@@ -105,8 +105,8 @@ class DeviceDistributionChartWidget extends ChartWidget
             $datasets[] = [
                 'label' => $categoryName,
                 'data' => $data,
-                'backgroundColor' => $backgroundColors[$colorIndex % count($backgroundColors)],
-                'borderColor' => '#ffffff',
+                'borderColor' => $borderColors[$colorIndex % count($borderColors)],
+                'backgroundColor' => str_replace('0.8', '0.3', $borderColors[$colorIndex % count($borderColors)]),
                 'borderWidth' => 2,
             ];
 
