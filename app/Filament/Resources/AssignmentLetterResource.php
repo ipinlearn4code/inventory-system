@@ -2,6 +2,14 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Tables\Actions\ViewAction;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\ViewField;
+
 use App\Filament\Resources\AssignmentLetterResource\Pages;
 use App\Filament\Resources\AssignmentLetterResource\RelationManagers;
 use App\Models\AssignmentLetter;
@@ -38,7 +46,7 @@ class AssignmentLetterResource extends Resource
         // Check storage health before displaying table
         $healthService = app(StorageHealthService::class);
         $storageStatus = $healthService->checkMinioHealth();
-        
+
         return $table
             ->headerActions([
                 Tables\Actions\Action::make('storage_status')
@@ -59,7 +67,7 @@ class AssignmentLetterResource extends Resource
                     ->action(function () use ($healthService) {
                         $refreshedStatus = $healthService->refreshStorageHealth();
                         $minioStatus = $refreshedStatus['minio'];
-                        
+
                         Notification::make()
                             ->title('Storage Status Refreshed')
                             ->body($minioStatus['message'])
@@ -78,7 +86,7 @@ class AssignmentLetterResource extends Resource
                         }
                         return $storageStatus['message'] . $details;
                     }),
-                    
+
                 Tables\Actions\Action::make('storage_info')
                     ->label('Storage Info')
                     ->icon('heroicon-o-information-circle')
@@ -111,7 +119,7 @@ class AssignmentLetterResource extends Resource
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('assignment.user.name')
-                    ->label('User')
+                    ->label('Assigned To')
                     ->searchable()
                     ->sortable()
                     ->toggleable(),
@@ -163,51 +171,68 @@ class AssignmentLetterResource extends Resource
                     Tables\Actions\ViewAction::make()
                         ->slideOver()
                         ->tooltip('View assignment letter details')
+                        ->icon('heroicon-o-eye')
+                        ->color('gray') // Neutral color for a clean look
+                        ->modalHeading(fn(AssignmentLetter $record) => "Assignment Letter #{$record->letter_number}")
                         ->form(function (AssignmentLetter $record) {
                             $pdfPreviewService = app(PdfPreviewService::class);
                             $previewData = $pdfPreviewService->getPreviewData($record);
-                            
+                            // dd($record);
                             return [
-                                Forms\Components\Section::make('Assignment Letter Details')
+                                // Main Details Section
+                                Section::make('Assignment Letter Details')
+                                    ->collapsible()
+                                    ->icon('heroicon-o-document-text')
                                     ->schema([
-                                        Forms\Components\Grid::make(2)
+                                        Grid::make(2) // 3-column grid for better spacing
                                             ->schema([
-                                                Forms\Components\TextInput::make('letter_number')
+                                                Placeholder::make('letter_number')
                                                     ->label('Letter Number')
-                                                    ->disabled(),
-                                                Forms\Components\TextInput::make('letter_type')
+                                                    ->content($record->letter_number ?? 'N/A')
+                                                    ->inlineLabel(),
+                                                Placeholder::make('letter_type')
                                                     ->label('Letter Type')
-                                                    ->disabled(),
-                                                Forms\Components\DatePicker::make('letter_date')
+                                                    ->content($record->letter_type ?? 'N/A')
+                                                    ->inlineLabel(),
+                                                Placeholder::make('letter_date')
                                                     ->label('Letter Date')
-                                                    ->disabled(),
-                                                Forms\Components\TextInput::make('assignment.user.name')
+                                                    ->content($record->letter_date ? $record->letter_date->format('d M Y') : 'N/A')
+                                                    ->inlineLabel(),
+                                                Placeholder::make('user')
                                                     ->label('Assigned To')
-                                                    ->disabled(),
-                                                Forms\Components\TextInput::make('assignment.device.asset_code')
+                                                    ->content($record->assignment?->user->name ?? 'N/A')
+                                                    ->inlineLabel(),
+                                                Placeholder::make('device')
                                                     ->label('Device')
-                                                    ->disabled(),
-                                                Forms\Components\TextInput::make('approver.name')
+                                                    ->content(optional($record->assignment?->device, fn($device) => "{$device->brand} {$device->brand_name}") ?? 'N/A')
+                                                    ->inlineLabel(),
+                                                Placeholder::make('approver')
                                                     ->label('Approver')
-                                                    ->disabled(),
+                                                    ->content($record->approver?->name ?? 'N/A')
+                                                    ->inlineLabel(),
                                             ]),
                                     ]),
-                                
-                                Forms\Components\Section::make('PDF Preview')
+
+                                // PDF Preview Section
+                                Section::make('PDF Preview')
+                                    ->collapsible()
+                                    ->icon('heroicon-o-document-magnifying-glass')
                                     ->schema([
-                                        Forms\Components\ViewField::make('pdf_preview')
-                                            ->label('')
-                                            ->view('filament.components.pdf-preview', [
-                                                'previewData' => $previewData
-                                            ]),
+                                        ViewField::make('pdf_preview')
+                                            ->view('filament.components.pdf-preview', ['previewData' => $previewData])
+                                            ->label(''),
                                     ])
                                     ->visible($previewData['hasFile']),
-                                
-                                Forms\Components\Section::make('File Information')
+
+                                // File Information Section (Fallback)
+                                Section::make('File Information')
+                                    ->collapsible()
+                                    ->icon('heroicon-o-exclamation-circle')
                                     ->schema([
-                                        Forms\Components\Placeholder::make('no_file')
+                                        Placeholder::make('no_file')
                                             ->label('')
                                             ->content('No PDF file uploaded for this assignment letter.')
+                                            ->extraAttributes(['class' => 'text-warning-600']),
                                     ])
                                     ->visible(!$previewData['hasFile']),
                             ];
@@ -223,9 +248,9 @@ class AssignmentLetterResource extends Resource
                     Tables\Actions\DeleteAction::make()
                         ->tooltip('Delete this assignment letter'),
                 ])
-                ->iconButton()
-                ->icon('heroicon-o-ellipsis-horizontal')
-                ->tooltip('Assignment Letter Actions'),
+                    ->iconButton()
+                    ->icon('heroicon-o-ellipsis-horizontal')
+                    ->tooltip('Assignment Letter Actions'),
             ])
             ->recordUrl(null)
             ->bulkActions([
