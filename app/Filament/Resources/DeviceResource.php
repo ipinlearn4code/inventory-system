@@ -537,7 +537,7 @@ class DeviceResource extends Resource
             ])
             // ->heading('Devices')
             
-            ->deferLoading()            
+            // ->deferLoading()            
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make()
                     ->label('Add Device')

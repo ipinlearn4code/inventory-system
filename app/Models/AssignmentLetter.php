@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Services\MinioStorageService;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 
 class AssignmentLetter extends Model
 {
+    use HasFactory;
     protected $primaryKey = 'letter_id';
     public $timestamps = false; // Using custom created_at/updated_at fields
 

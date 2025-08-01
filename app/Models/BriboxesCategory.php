@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class BriboxesCategory extends Model
 {
+    use HasFactory;
     protected $table = 'briboxes_category';
     protected $primaryKey = 'bribox_category_id';
     protected $keyType = 'integer';

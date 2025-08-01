@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class MainBranch extends Model
 {
+    use HasFactory;
     protected $table = 'main_branch';
     protected $primaryKey = 'main_branch_id';
     protected $keyType = 'integer';

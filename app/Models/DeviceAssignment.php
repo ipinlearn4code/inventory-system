@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class DeviceAssignment extends Model
 {
+    use HasFactory;
     protected $primaryKey = 'assignment_id';
     public $timestamps = false; // Using custom created_at/updated_at fields
 
