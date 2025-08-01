@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function () {
     // Public routes
     require __DIR__ . '/api/system.php';
-    require __DIR__ . '/api/test.php';
+    // require __DIR__ . '/api/test.php';
 
     // Authentication routes
     Route::prefix('auth')->group(function () {

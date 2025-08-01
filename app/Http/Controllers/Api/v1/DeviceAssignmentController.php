@@ -56,8 +56,8 @@ class DeviceAssignmentController extends BaseApiController
 
         return $this->paginatedResponse($assignments, ['data' => $data->toArray()]);
     }    /**
-     * Get assignment details by ID
-     */
+         * Get assignment details by ID
+         */
     public function show(int $id): JsonResponse
     {
         try {
@@ -139,6 +139,10 @@ class DeviceAssignmentController extends BaseApiController
             'letter_date' => 'sometimes|date',
             'letter_file' => 'sometimes|file|mimes:pdf|max:10240' // 10MB max size for PDF
         ]);
+
+        if (empty($validated)) {
+            return $this->errorResponse('No fields provided for update.', 'ERR_NO_DATA_PROVIDED', 422);
+        }
 
         try {
             $responseData = $this->assignmentService->updateAssignmentWithLetter($id, $validated, $request);
