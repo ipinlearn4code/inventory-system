@@ -4,15 +4,17 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Api\BaseApiController;
 use App\Contracts\UserRepositoryInterface;
-use App\Models\Branch;
-use App\Models\Bribox;
+use App\Contracts\BranchRepositoryInterface;
+use App\Contracts\BriboxRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class MetadataController extends BaseApiController
 {
     public function __construct(
-        private UserRepositoryInterface $userRepository
+        private UserRepositoryInterface $userRepository,
+        private BranchRepositoryInterface $branchRepository,
+        private BriboxRepositoryInterface $briboxRepository
     ) {}
 
     /**
@@ -63,7 +65,7 @@ class MetadataController extends BaseApiController
      */
     public function branches(Request $request): JsonResponse
     {
-        $branches = Branch::with('mainBranch')->get();
+        $branches = $this->branchRepository->getAll();
 
         $data = $branches->map(function ($branch) {
             return [
@@ -78,7 +80,7 @@ class MetadataController extends BaseApiController
             ];
         });
 
-        return response()->json(['data' => $data]);
+        return $this->successResponse($data->toArray());
     }
 
     /**
@@ -86,7 +88,7 @@ class MetadataController extends BaseApiController
      */
     public function categories(Request $request): JsonResponse
     {
-        $categories = Bribox::with('category')->get();
+        $categories = $this->briboxRepository->getAll();
 
         $data = $categories->map(function ($bribox) {
             return [
@@ -100,6 +102,6 @@ class MetadataController extends BaseApiController
             ];
         });
 
-        return response()->json(['data' => $data]);
+        return $this->successResponse($data->toArray());
     }
 }

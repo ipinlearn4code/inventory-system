@@ -29,9 +29,8 @@ class DeviceController extends BaseApiController
 
         $perPage = $request->input('perPage', 20);
         $devices = $this->deviceRepository->getPaginated($filters, $perPage);
-        // dd($devices);
+
         $data = collect($devices->items())->map(function ($device) {
-            // dd($device);
             return [
                 'deviceId' => $device->device_id,
                 'assetCode' => $device->asset_code,
@@ -62,12 +61,9 @@ class DeviceController extends BaseApiController
     {
         try {
             $data = $this->deviceService->getDeviceDetails($id);
-            return response()->json(['data' => $data]);
+            return $this->successResponse($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => $e->getMessage(),
-                'errorCode' => 'ERR_DEVICE_NOT_FOUND'
-            ], 404);
+            return $this->errorResponse($e->getMessage(), 'ERR_DEVICE_NOT_FOUND', 404);
         }
     }
 
@@ -93,12 +89,9 @@ class DeviceController extends BaseApiController
 
         try {
             $data = $this->deviceService->createDevice($validatedData);
-            return response()->json(['data' => $data], 201);
+            return $this->successResponse($data, 201);
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => $e->getMessage(),
-                'errorCode' => 'ERR_DEVICE_CREATION_FAILED'
-            ], 400);
+            return $this->errorResponse($e->getMessage(), 'ERR_DEVICE_CREATION_FAILED', 400);
         }
     }
 
@@ -124,12 +117,9 @@ class DeviceController extends BaseApiController
 
         try {
             $data = $this->deviceService->updateDevice($id, $validatedData);
-            return response()->json(['data' => $data]);
+            return $this->successResponse($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => $e->getMessage(),
-                'errorCode' => 'ERR_DEVICE_UPDATE_FAILED'
-            ], 400);
+            return $this->errorResponse($e->getMessage(), 'ERR_DEVICE_UPDATE_FAILED', 400);
         }
     }
 
@@ -146,10 +136,7 @@ class DeviceController extends BaseApiController
             ]);
         } catch (\Exception $e) {
             $errorCode = str_contains($e->getMessage(), 'assigned') ? 'ERR_DEVICE_ASSIGNED' : 'ERR_DEVICE_DELETION_FAILED';
-            return response()->json([
-                'message' => $e->getMessage(),
-                'errorCode' => $errorCode
-            ], 400);
+            return $this->errorResponse($e->getMessage(), $errorCode, 400);
         }
     }
 }

@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Api\v1;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\BaseApiController;
 
-class TestController extends Controller
+class TestController extends BaseApiController
 {
     public function ping(): JsonResponse
     {
@@ -24,10 +24,7 @@ class TestController extends Controller
                 'total_assignments' => $count
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
+            return $this->errorResponse($e->getMessage(), 'ERR_TEST_FAILED', 500);
         }
     }
 }

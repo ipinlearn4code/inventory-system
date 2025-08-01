@@ -29,16 +29,22 @@ abstract class BaseApiController extends Controller
     /**
      * Return paginated response
      */
-    protected function paginatedResponse($paginator, array $meta = []): JsonResponse
+    protected function paginatedResponse($paginator, array $additionalData = []): JsonResponse
     {
+        $data = $paginator->items();
+        if (isset($additionalData['data'])) {
+            $data = $additionalData['data'];
+            unset($additionalData['data']);
+        }
+
         return response()->json([
-            'data' => $paginator->items(),
+            'data' => $data,
             'meta' => array_merge([
                 'currentPage' => $paginator->currentPage(),
                 'lastPage' => $paginator->lastPage(),
                 'total' => $paginator->total(),
                 'perPage' => $paginator->perPage(),
-            ], $meta)
+            ], $additionalData)
         ]);
     }
 }

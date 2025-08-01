@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Api\v1;
 use App\Http\Controllers\Api\BaseApiController;
 use App\Contracts\UserRepositoryInterface;
 use App\Contracts\DeviceAssignmentRepositoryInterface;
+use App\Contracts\InventoryLogServiceInterface;
 use App\Http\Requests\Api\ReportIssueRequest;
-use App\Models\InventoryLog;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -14,7 +14,8 @@ class UserController extends BaseApiController
 {
     public function __construct(
         private UserRepositoryInterface $userRepository,
-        private DeviceAssignmentRepositoryInterface $assignmentRepository
+        private DeviceAssignmentRepositoryInterface $assignmentRepository,
+        private InventoryLogServiceInterface $inventoryLogService
     ) {}
 
     /**
@@ -27,11 +28,9 @@ class UserController extends BaseApiController
         $activeDevices = $this->assignmentRepository->getUserActiveDevices($user->user_id);
         $deviceHistory = $this->assignmentRepository->getAssignmentsByUser($user->user_id);
 
-        return response()->json([
-            'data' => [
-                'activeDevicesCount' => $activeDevices->count(),
-                'deviceHistoryCount' => $deviceHistory->count()
-            ]
+        return $this->successResponse([
+            'activeDevicesCount' => $activeDevices->count(),
+            'deviceHistoryCount' => $deviceHistory->count()
         ]);
     }
 
@@ -43,14 +42,11 @@ class UserController extends BaseApiController
         $user = $request->user();
         $page = $request->input('page', 1);
         $perPage = $request->input('perPage', 10);
+        
         try {
             $activeDevices = $this->assignmentRepository->getUserActiveDevices($user->user_id);
         } catch (\Exception $e) {
-            // return response()->json([
-            //     'message' => 'Error fetching active devices.',
-            //     'errorCode' => 'ERR_FETCH_ACTIVE_DEVICES',
-            //     'details' => $e->getMessage()
-            // ], 500);
+            return $this->errorResponse('Error fetching active devices.', 'ERR_FETCH_ACTIVE_DEVICES', 500);
         }
         
         // Manual pagination for collection
@@ -92,28 +88,23 @@ class UserController extends BaseApiController
             ->first();
 
         if (!$assignment) {
-            return response()->json([
-                'message' => 'Device not found or not assigned to you.',
-                'errorCode' => 'ERR_DEVICE_NOT_FOUND'
-            ], 404);
+            return $this->errorResponse('Device not found or not assigned to you.', 'ERR_DEVICE_NOT_FOUND', 404);
         }
 
         $device = $assignment->device;
 
-        return response()->json([
-            'data' => [
-                'deviceId' => $device->device_id,
-                'brand' => $device->brand,
-                'brandName' => $device->brand_name,
-                'serialNumber' => $device->serial_number,
-                'assetCode' => $device->asset_code,
-                'assignedDate' => (string) $assignment->assigned_date,
-                'spec1' => $device->spec1,
-                'spec2' => $device->spec2,
-                'spec3' => $device->spec3,
-                'spec4' => $device->spec4,
-                'spec5' => $device->spec5
-            ]
+        return $this->successResponse([
+            'deviceId' => $device->device_id,
+            'brand' => $device->brand,
+            'brandName' => $device->brand_name,
+            'serialNumber' => $device->serial_number,
+            'assetCode' => $device->asset_code,
+            'assignedDate' => (string) $assignment->assigned_date,
+            'spec1' => $device->spec1,
+            'spec2' => $device->spec2,
+            'spec3' => $device->spec3,
+            'spec4' => $device->spec4,
+            'spec5' => $device->spec5
         ]);
     }
 
@@ -129,28 +120,23 @@ class UserController extends BaseApiController
             ->first();
 
         if (!$assignment) {
-            return response()->json([
-                'message' => 'Device not found or not assigned to you.',
-                'errorCode' => 'ERR_DEVICE_NOT_FOUND'
-            ], 404);
+            return $this->errorResponse('Device not found or not assigned to you.', 'ERR_DEVICE_NOT_FOUND', 404);
         }
 
-        // Log the issue report
-        InventoryLog::create([
-            'changed_fields' => 'devices',
-            'action_type' => 'ISSUE_REPORT',
-            'old_value' => null,
-            'new_value' => json_encode([
+        // Log the issue report using the service
+        $this->inventoryLogService->logInventoryAction(
+            'devices',
+            'ISSUE_REPORT',
+            null,
+            [
                 'device_id' => $id,
                 'type' => 'issue_report',
                 'description' => $request->description,
                 'date' => $request->date,
                 'reported_by' => $user->pn
-            ]),
-            'user_affected' => $user->pn,
-            'created_at' => now(),
-            'created_by' => $user->pn
-        ]);
+            ],
+            $user->pn
+        );
 
         return response()->json([
             'message' => 'Report submitted successfully.',
@@ -166,14 +152,12 @@ class UserController extends BaseApiController
         $user = $request->user();
         $userWithRelations = $this->userRepository->findById($user->user_id);
 
-        return response()->json([
-            'data' => [
-                'name' => $userWithRelations->name,
-                'pn' => $userWithRelations->pn,
-                'department' => $userWithRelations->department->name ?? 'Unknown',
-                'branch' => $userWithRelations->branch->unit_name ?? 'Unknown',
-                'position' => $userWithRelations->position
-            ]
+        return $this->successResponse([
+            'name' => $userWithRelations->name,
+            'pn' => $userWithRelations->pn,
+            'department' => $userWithRelations->department->name ?? 'Unknown',
+            'branch' => $userWithRelations->branch->unit_name ?? 'Unknown',
+            'position' => $userWithRelations->position
         ]);
     }
 

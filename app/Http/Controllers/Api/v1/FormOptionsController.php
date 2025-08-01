@@ -18,9 +18,6 @@ class FormOptionsController extends BaseApiController
 
     /**
      * Get all form options for device creation/editing
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function deviceFormOptions(Request $request): JsonResponse
     {
@@ -46,9 +43,6 @@ class FormOptionsController extends BaseApiController
 
     /**
      * Get all form options for device assignment creation/editing
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function deviceAssignmentFormOptions(Request $request): JsonResponse
     {

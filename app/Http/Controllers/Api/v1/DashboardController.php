@@ -22,9 +22,7 @@ class DashboardController extends BaseApiController
         $kpis = $this->dashboardService->getKpis($branchId);
         $activityLog = $this->dashboardService->getActivityLog();
 
-        return response()->json([
-            'data' => array_merge($kpis, ['activityLog' => $activityLog])
-        ]);
+        return $this->successResponse(array_merge($kpis, ['activityLog' => $activityLog]));
     }
 
     /**
@@ -35,8 +33,6 @@ class DashboardController extends BaseApiController
         $branchId = $request->input('branchId');
         $chartData = $this->dashboardService->getChartData($branchId);
 
-        return response()->json([
-            'data' => $chartData
-        ]);
+        return $this->successResponse($chartData);
     }
 }
