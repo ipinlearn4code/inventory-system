@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Api\BaseApiController;
 use App\Models\AssignmentLetter;
+use App\Models\DeviceAssignment;
 use App\Services\DeviceAssignmentService;
 use App\Contracts\DeviceAssignmentRepositoryInterface;
-use App\Contracts\InventoryLogServiceInterface;
 use App\Services\PdfPreviewService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class DeviceAssignmentController extends BaseApiController
 {
@@ -169,6 +171,8 @@ class DeviceAssignmentController extends BaseApiController
     public function update(Request $request, int $id): JsonResponse
     {
         $validated = $request->validate([
+            'device_id' => 'sometimes|exists:devices,device_id',
+            'user_id' => 'sometimes|exists:users,user_id',
             'notes' => 'sometimes|nullable|string|max:500',
             'assigned_date' => 'sometimes|date|before_or_equal:today',
             'letter_number' => 'sometimes|string|max:50',
@@ -177,9 +181,150 @@ class DeviceAssignmentController extends BaseApiController
         ]);
 
         try {
-            $responseData = $this->assignmentService->updateAssignmentWithLetter($id, $validated, $request);
+            return DB::transaction(function () use ($request, $id, $validated) {
+                // Find the assignment
+                $assignment = DeviceAssignment::with(['device', 'user.branch', 'assignmentLetters'])->findOrFail($id);
+                
+                $assignmentData = null;
+                
+                // Update assignment fields if provided
+                if ($request->hasAny(['device_id', 'user_id', 'assigned_date', 'notes'])) {
+                    $updateData = [];
+                    
+                    if ($request->has('device_id')) {
+                        $updateData['device_id'] = $validated['device_id'];
+                    }
+                    if ($request->has('user_id')) {
+                        $updateData['user_id'] = $validated['user_id'];
+                    }
+                    if ($request->has('assigned_date')) {
+                        $updateData['assigned_date'] = $validated['assigned_date'];
+                    }
+                    if ($request->has('notes')) {
+                        $updateData['notes'] = $validated['notes'];
+                    }
+                    
+                    $updateData['updated_at'] = now();
+                    $updateData['updated_by'] = Auth::id();
+                    
+                    // Update the assignment
+                    DeviceAssignment::where('assignment_id', $id)->update($updateData);
+                    
+                    // Refresh the assignment
+                    $assignment = DeviceAssignment::with(['device', 'user.branch'])->findOrFail($id);
+                    
+                    $assignmentData = [
+                        'assignmentId' => $assignment->assignment_id,
+                        'deviceId' => $assignment->device->device_id,
+                        'assetCode' => $assignment->device->asset_code,
+                        'brand' => $assignment->device->brand . ' ' . $assignment->device->brand_name,
+                        'serialNumber' => $assignment->device->serial_number,
+                        'assignedTo' => $assignment->user->name,
+                        'unitName' => $assignment->user->branch->unit_name,
+                        'assignedDate' => $assignment->assigned_date,
+                        'returnedDate' => $assignment->returned_date,
+                        'notes' => $assignment->notes,
+                    ];
+                }
 
-            return response()->json(['data' => $responseData]);
+                // Handle assignment letter updates
+                if ($request->hasAny(['letter_number', 'letter_date', 'letter_file'])) {
+                    // Get existing letter or create new one
+                    $letter = AssignmentLetter::where('assignment_id', $id)->first();
+                    
+                    if (!$letter) {
+                        $letter = new AssignmentLetter([
+                            'assignment_id' => $id,
+                            'letter_type' => 'assignment',
+                            'approver_id' => Auth::id(),
+                            'created_by' => Auth::id(),
+                            'created_at' => now(),
+                        ]);
+                    }
+
+                    // Update letter details if provided
+                    if ($request->has('letter_number')) {
+                        $letter->letter_number = $request->input('letter_number');
+                    }
+                    if ($request->has('letter_date')) {
+                        $letter->letter_date = $request->input('letter_date');
+                    }
+                    
+                    if ($letter->exists) {
+                        $letter->updated_by = Auth::id();
+                        $letter->updated_at = now();
+                    }
+
+                    // Handle file upload with proper rollback support
+                    if ($request->hasFile('letter_file') && $request->file('letter_file')->isValid()) {
+                        if ($letter->exists) {
+                            // Update existing file with rollback protection
+                            $uploadResult = $letter->updateFile($request->file('letter_file'));
+                            if (!$uploadResult['success']) {
+                                throw new \Exception('Failed to update letter file: ' . $uploadResult['message']);
+                            }
+                        } else {
+                            // Store new file for new letter
+                            $path = $letter->storeFile($request->file('letter_file'));
+                            if (!$path) {
+                                throw new \Exception('Failed to store letter file');
+                            }
+                            $letter->file_path = $path;
+                        }
+                    }
+
+                    $letter->save();
+
+                    // Get the letter data with file URL
+                    $letterData = [
+                        'assignmentLetterId' => $letter->getKey(),
+                        'assignmentType' => $letter->getAttribute('letter_type'),
+                        'letterNumber' => $letter->getAttribute('letter_number'),
+                        'letterDate' => $letter->getAttribute('letter_date'),
+                        'fileUrl' => $letter->hasFile() ? $this->pdfPreviewService->getPreviewData($letter)['previewUrl'] : null,
+                    ];
+
+                    // Prepare response data
+                    if (!$assignmentData) {
+                        // If only letter was updated, get assignment data
+                        $assignment = DeviceAssignment::with(['device', 'user.branch'])->findOrFail($id);
+                        $assignmentData = [
+                            'assignmentId' => $assignment->assignment_id,
+                            'deviceId' => $assignment->device->device_id,
+                            'assetCode' => $assignment->device->asset_code,
+                            'brand' => $assignment->device->brand . ' ' . $assignment->device->brand_name,
+                            'serialNumber' => $assignment->device->serial_number,
+                            'assignedTo' => $assignment->user->name,
+                            'unitName' => $assignment->user->branch->unit_name,
+                            'assignedDate' => $assignment->assigned_date,
+                            'returnedDate' => $assignment->returned_date,
+                            'notes' => $assignment->notes,
+                        ];
+                    }
+                    
+                    return array_merge($assignmentData, ['assignmentLetters' => [$letterData]]);
+                }
+
+                // Return assignment data if no letter update
+                if (!$assignmentData) {
+                    $assignment = DeviceAssignment::with(['device', 'user.branch'])->findOrFail($id);
+                    $assignmentData = [
+                        'assignmentId' => $assignment->assignment_id,
+                        'deviceId' => $assignment->device->device_id,
+                        'assetCode' => $assignment->device->asset_code,
+                        'brand' => $assignment->device->brand . ' ' . $assignment->device->brand_name,
+                        'serialNumber' => $assignment->device->serial_number,
+                        'assignedTo' => $assignment->user->name,
+                        'unitName' => $assignment->user->branch->unit_name,
+                        'assignedDate' => $assignment->assigned_date,
+                        'returnedDate' => $assignment->returned_date,
+                        'notes' => $assignment->notes,
+                    ];
+                }
+                
+                return $assignmentData;
+            });
+
         } catch (\Exception $e) {
             $errorCode = 'ERR_ASSIGNMENT_UPDATE_FAILED';
             $message = $e->getMessage();
