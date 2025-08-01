@@ -3,44 +3,30 @@
 namespace App\Filament\Resources\DeviceAssignmentResource\Pages;
 
 use App\Filament\Resources\DeviceAssignmentResource;
+use App\Services\DeviceAssignmentService;
 use App\Traits\HasInventoryLogging;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
-use Illuminate\Support\Facades\DB;
 
 class EditDeviceAssignment extends EditRecord
 {
     use HasInventoryLogging;
     
     protected static string $resource = DeviceAssignmentResource::class;
-
-    // Store original data for logging
     protected array $originalData = [];
 
     protected function getHeaderActions(): array
     {
-        
         return [
             Actions\DeleteAction::make()
-                ->action(function () {
-                    // Wrap deletion in transaction
-                    DB::transaction(function () {
-                        // Store original data before deletion
-                        $originalData = $this->record->toArray();
-                        
-                        // Delete the record
-                        $this->record->delete();
-                        
-                        // Log the assignment deletion with original data - if this fails, the transaction will rollback
-                        $this->logAssignmentModelChanges($this->record, 'deleted', $originalData);
-                    });
+                ->before(function () {
+                    $this->logAssignmentModelChanges($this->record, 'deleted', $this->record->toArray());
                 }),
         ];
     }
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        // Store original data for logging
         $this->originalData = $this->record->toArray();
         return $data;
     }
@@ -56,14 +42,36 @@ class EditDeviceAssignment extends EditRecord
 
     public function save(bool $shouldRedirect = true, bool $shouldSendSavedNotification = true): void
     {
-        // Wrap the entire save process in a transaction
-        DB::transaction(function () use ($shouldRedirect, $shouldSendSavedNotification) {
-            // Call the parent save method which will handle the actual update
-            parent::save($shouldRedirect, $shouldSendSavedNotification);
+        try {
+            // Only allow updating certain fields (follow PATCH endpoint constraints)
+            $allowedFields = ['notes', 'assigned_date'];
+            $updateData = array_intersect_key($this->data, array_flip($allowedFields));
             
-            // Log the assignment update - if this fails, the transaction will rollback
-            $this->logAssignmentModelChanges($this->record, 'updated', $this->originalData);
-        });
+            if (!empty($updateData)) {
+                $assignmentService = app(\App\Services\DeviceAssignmentService::class);
+                $assignmentService->updateAssignment($this->record->assignment_id, $updateData);
+                
+                // Log the change
+                $this->logAssignmentModelChanges($this->record, 'updated', $this->originalData);
+            }
+            
+            \Filament\Notifications\Notification::make()
+                ->title('Assignment Updated')
+                ->body('Device assignment has been updated successfully.')
+                ->success()
+                ->send();
+                
+            if ($shouldRedirect) {
+                $this->redirect($this->getRedirectUrl());
+            }
+            
+        } catch (\Exception $e) {
+            \Filament\Notifications\Notification::make()
+                ->title('Update Failed')
+                ->body('Failed to update assignment: ' . $e->getMessage())
+                ->danger()
+                ->send();
+        }
     }
 
     protected function getRedirectUrl(): string
