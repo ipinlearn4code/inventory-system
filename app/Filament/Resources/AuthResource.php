@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\AuthResource\Pages;
 use App\Models\Auth;
 use App\Models\User;
+use App\Filament\Helpers\FormSchemaHelper;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -167,7 +168,8 @@ class AuthResource extends Resource
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make()
                         ->slideOver()
-                        ->tooltip('View auth details'),
+                        ->tooltip('View auth details')
+                        ->form(fn(Auth $record) => FormSchemaHelper::getAuthViewSchema($record)),
                     Tables\Actions\EditAction::make()
                         ->tooltip('Edit auth information'),
                     Tables\Actions\DeleteAction::make()

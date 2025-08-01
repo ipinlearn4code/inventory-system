@@ -3,6 +3,8 @@
 namespace App\Filament\Helpers;
 
 use App\Models\Branch;
+use App\Models\DeviceAssignment;
+use App\Filament\Helpers\FormSchemaHelper;
 use Filament\Tables;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -121,7 +123,8 @@ class TableSchemaHelper
             Tables\Actions\ActionGroup::make([
                 Tables\Actions\ViewAction::make()
                     ->slideOver()
-                    ->tooltip('View assignment details'),
+                    ->tooltip('View assignment details')
+                    ->form(fn(DeviceAssignment $record) => FormSchemaHelper::getDeviceAssignmentViewSchema($record)),
                 Tables\Actions\EditAction::make()
                     ->tooltip('Edit assignment information'),
                 Tables\Actions\DeleteAction::make()

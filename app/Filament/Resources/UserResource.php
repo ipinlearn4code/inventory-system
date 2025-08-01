@@ -98,7 +98,8 @@ class UserResource extends Resource
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make()
                         ->slideOver()
-                        ->tooltip('View user details'),
+                        ->tooltip('View user details')
+                        ->form(fn(User $record) => FormSchemaHelper::getUserViewSchema($record)),
                     Tables\Actions\EditAction::make()
                         ->tooltip('Edit user information'),
                     Tables\Actions\DeleteAction::make()

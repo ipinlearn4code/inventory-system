@@ -9,6 +9,9 @@ use App\Models\Bribox;
 use App\Models\BriboxesCategory;
 use App\Models\Department;
 use App\Models\MainBranch;
+use App\Models\DeviceAssignment;
+use App\Models\AssignmentLetter;
+use App\Models\Auth;
 use App\Services\DropdownOptionsService;
 use App\Services\QRCodeService;
 use App\Filament\Forms\Components\QrCodeScanner;
@@ -23,6 +26,8 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\RichEditor;
 
 class FormSchemaHelper
 {
@@ -502,121 +507,152 @@ class FormSchemaHelper
         }
 
         return [
-            Section::make('Device Information')
+    Section::make('Device Information')
+        ->collapsible()
+        ->icon('heroicon-o-cpu-chip')
+        ->schema([
+            Grid::make(2) // 2-column grid for better spacing
                 ->schema([
-                    Grid::make(2)
-                        ->schema([
-                            TextInput::make('asset_code')
-                                ->label('Asset Code')
-                                ->disabled()
-                                ->suffixAction(
-                                    Action::make('copy')
-                                        ->icon('heroicon-m-clipboard')
-                                        ->tooltip('Copy Asset Code')
-                                ),
-                            TextInput::make('brand')
-                                ->label('Brand')
-                                ->disabled(),
-                            TextInput::make('brand_name')
-                                ->label('Model/Series')
-                                ->disabled(),
-                            TextInput::make('serial_number')
-                                ->label('Serial Number')
-                                ->disabled(),
-                            TextInput::make('bribox.type')
-                                ->label('Type')
-                                ->disabled(),
-                            TextInput::make('bribox.category.category_name')
-                                ->label('Category')
-                                ->disabled(),
-                            TextInput::make('condition')
-                                ->label('Condition')
-                                ->disabled(),
-                            DatePicker::make('dev_date')
-                                ->label('Development Date')
-                                ->disabled(),
-                        ]),
+                    Placeholder::make('asset_code')
+                        ->label('Asset Code')
+                        ->content(fn ($record) => $record->asset_code ?? 'N/A')
+                        // ->suffixAction(
+                        //     Action::make('copy')
+                        //         ->icon('heroicon-m-clipboard')
+                        //         ->tooltip('Copy Asset Code')
+                        //         ->action(fn ($record) => \Filament\Support\copy_to_clipboard($record->asset_code))
+                        // ),
+                        ->inlineLabel(),
+                    Placeholder::make('brand')
+                        ->label('Brand')
+                        ->content(fn ($record) => $record->brand ?? 'N/A')
+                        ->inlineLabel(),
+                    Placeholder::make('brand_name')
+                        ->label('Model/Series')
+                        ->content(fn ($record) => $record->brand_name ?? 'N/A')
+                        ->inlineLabel(),
+                    Placeholder::make('serial_number')
+                        ->label('Serial Number')
+                        ->content(fn ($record) => $record->serial_number ?? 'N/A')
+                        ->inlineLabel(),
+                    Placeholder::make('bribox_type')
+                        ->label('Type')
+                        ->content(fn ($record) => $record->bribox?->type ?? 'N/A')
+                        ->inlineLabel(),
+                    Placeholder::make('category')
+                        ->label('Category')
+                        ->content(fn ($record) => $record->bribox?->category?->category_name ?? 'N/A')
+                        ->inlineLabel(),
+                    Placeholder::make('condition')
+                        ->label('Condition')
+                        ->content(fn ($record) => $record->condition ?? 'N/A')
+                        ->inlineLabel(),
+                    Placeholder::make('dev_date')
+                        ->label('Development Date')
+                        ->content(fn ($record) => $record->dev_date ? $record->dev_date->format('d M Y') : 'N/A')
+                        ->inlineLabel(),
                 ]),
+        ]),
 
-            Section::make('QR Code')
-                ->description('QR code for this device containing: briven-' . $record->asset_code)
+    Section::make('Specifications')
+        ->collapsible()
+        ->icon('heroicon-o-information-circle')
+        ->schema([
+            Grid::make(2)
                 ->schema([
-                    Grid::make(1)
-                        ->schema([
-                            ViewField::make('qr_code_preview')
-                                ->label('')
-                                ->view('filament.components.qr-code-preview', [
-                                    'qrCodeDataUrl' => $qrCodeDataUrl,
-                                    'assetCode' => $record->asset_code,
-                                    'deviceId' => $record->device_id,
-                                ])
-                                ->extraAttributes(['style' => 'text-align: center;']),
-                        ]),
+                    Placeholder::make('spec1')
+                        ->label('Specification 1')
+                        ->content(fn ($record) => $record->spec1 ?? 'N/A')
+                        ->inlineLabel(),
+                    Placeholder::make('spec2')
+                        ->label('Specification 2')
+                        ->content(fn ($record) => $record->spec2 ?? 'N/A')
+                        ->inlineLabel(),
+                    Placeholder::make('spec3')
+                        ->label('Specification 3')
+                        ->content(fn ($record) => $record->spec3 ?? 'N/A')
+                        ->inlineLabel(),
+                    Placeholder::make('spec4')
+                        ->label('Specification 4')
+                        ->content(fn ($record) => $record->spec4 ?? 'N/A')
+                        ->inlineLabel(),
+                    Placeholder::make('spec5')
+                        ->label('Specification 5')
+                        ->content(fn ($record) => $record->spec5 ?? 'N/A')
+                        ->inlineLabel(),
                 ]),
+        ]),
 
-            Section::make('Specifications')
+    Section::make('QR Code')
+        ->description(fn ($record) => 'QR code for this device: briven-' . ($record->asset_code ?? 'N/A'))
+        ->collapsible()
+        ->icon('heroicon-o-qr-code')
+        ->schema([
+            Grid::make(2)
                 ->schema([
-                    Grid::make(2)
-                        ->schema([
-                            TextInput::make('spec1')
-                                ->label('Specification 1')
-                                ->disabled(),
-                            TextInput::make('spec2')
-                                ->label('Specification 2')
-                                ->disabled(),
-                            TextInput::make('spec3')
-                                ->label('Specification 3')
-                                ->disabled(),
-                            TextInput::make('spec4')
-                                ->label('Specification 4')
-                                ->disabled(),
-                            TextInput::make('spec5')
-                                ->label('Specification 5')
-                                ->disabled(),
-                        ]),
-                ])
-                ->collapsible(),
+                    ViewField::make('qr_code_preview')
+                        ->label('')
+                        ->view('filament.components.qr-code-preview', [
+                            'qrCodeDataUrl' => $qrCodeDataUrl,
+                            'assetCode' => $record->asset_code,
+                            'deviceId' => $record->device_id,
+                        ])
+                        ->extraAttributes(['class' => 'flex justify-center']),
+                ]),
+        ]),
 
-            Section::make('Assignment Information')
+    Section::make('Assignment Information')
+        ->collapsible()
+        ->icon('heroicon-o-user-plus')
+        ->schema([
+            Grid::make(1)
                 ->schema([
-                    Grid::make(2)
-                        ->schema([
-                            TextInput::make('currentAssignment.user.name')
-                                ->label('Assigned To')
-                                ->disabled(),
-                            TextInput::make('currentAssignment.branch.branch_name')
-                                ->label('Branch')
-                                ->disabled(),
-                            DatePicker::make('currentAssignment.assigned_date')
-                                ->label('Assignment Date')
-                                ->disabled(),
-                            Textarea::make('currentAssignment.notes')
-                                ->label('Assignment Notes')
-                                ->disabled(),
-                        ]),
-                ])
-                ->visible(fn() => $record->currentAssignment !== null),
+                    Placeholder::make('assigned_to')
+                        ->label('Assigned To')
+                        ->content(fn ($record) => $record->currentAssignment?->user?->name ?? 'N/A')
+                        ->inlineLabel(),
+                    Placeholder::make('branch')
+                        ->label('Branch')
+                        ->content(fn ($record) => $record->currentAssignment?->branch?->branch_name ?? 'N/A')
+                        ->inlineLabel(),
+                    Placeholder::make('assigned_date')
+                        ->label('Assignment Date')
+                        ->content(fn ($record) => $record->currentAssignment?->assigned_date ? $record->currentAssignment->assigned_date->format('d M Y') : 'N/A')
+                        ->inlineLabel(),
+                    RichEditor::make('assignment_notes')
+                        ->label('Assignment Notes')
+                        ->default(fn ($record) => $record->currentAssignment?->notes ?? 'No notes available.')
+                        ->disabled()
+                        ->columnSpanFull(),
+                ]),
+        ])
+        ->visible(fn ($record) => $record->currentAssignment !== null),
 
-            Section::make('Audit Trail')
+    Section::make('Audit Trail')
+        ->collapsible()
+        ->icon('heroicon-o-clock')
+        ->schema([
+            Grid::make(2)
                 ->schema([
-                    Grid::make(2)
-                        ->schema([
-                            TextInput::make('created_by')
-                                ->label('Created By')
-                                ->disabled(),
-                            DateTimePicker::make('created_at')
-                                ->label('Created At')
-                                ->disabled(),
-                            TextInput::make('updated_by')
-                                ->label('Updated By')
-                                ->disabled(),
-                            DateTimePicker::make('updated_at')
-                                ->label('Updated At')
-                                ->disabled(),
-                        ]),
-                ])
-                ->collapsible(),
-        ];
+                    Placeholder::make('created_by')
+                        ->label('Created By')
+                        ->content(fn ($record) => $record->created_by ?? 'N/A')
+                        ->inlineLabel(),
+                    Placeholder::make('created_at')
+                        ->label('Created At')
+                        ->content(fn ($record) => $record->created_at ? $record->created_at->format('d M Y H:i') : 'N/A')
+                        ->inlineLabel(),
+                    Placeholder::make('updated_by')
+                        ->label('Updated By')
+                        ->content(fn ($record) => $record->updated_by ?? 'N/A')
+                        ->inlineLabel(),
+                    Placeholder::make('updated_at')
+                        ->label('Updated At')
+                        ->content(fn ($record) => $record->updated_at ? $record->updated_at->format('d M Y H:i') : 'N/A')
+                        ->inlineLabel(),
+                ]),
+        ]),
+];
     }
 
     /**
@@ -815,6 +851,471 @@ class FormSchemaHelper
             self::getBranchCodeField(),
             self::getBranchUnitNameField(),
             self::getBranchMainBranchField(),
+        ];
+    }
+
+    // =======================================================================
+    // VIEW SCHEMA METHODS
+    // These methods provide standardized view-only schemas for all resources
+    // following the DeviceViewSchema pattern with collapsible sections,
+    // using Placeholder components instead of disabled form fields
+    // =======================================================================
+
+    /**
+     * Get user view form schema for modal display
+     */
+    public static function getUserViewSchema(User $record): array
+    {
+        return [
+            Section::make('User Information')
+                ->collapsible()
+                ->icon('heroicon-o-user')
+                ->schema([
+                    Grid::make(2)
+                        ->schema([
+                            Placeholder::make('pn')
+                                ->label('Personnel Number')
+                                ->content(fn ($record) => $record->pn ?? 'N/A')
+                                ->inlineLabel(),
+                            Placeholder::make('name')
+                                ->label('Name')
+                                ->content(fn ($record) => $record->name ?? 'N/A')
+                                ->inlineLabel(),
+                            Placeholder::make('position')
+                                ->label('Position')
+                                ->content(fn ($record) => $record->position ?? 'N/A')
+                                ->inlineLabel(),
+                            Placeholder::make('department')
+                                ->label('Department')
+                                ->content(fn ($record) => $record->department?->name ?? 'N/A')
+                                ->inlineLabel(),
+                            Placeholder::make('branch')
+                                ->label('Branch')
+                                ->content(fn ($record) => $record->branch?->unit_name ?? 'N/A')
+                                ->inlineLabel(),
+                            Placeholder::make('main_branch')
+                                ->label('Main Branch')
+                                ->content(fn ($record) => $record->branch?->mainBranch?->main_branch_name ?? 'N/A')
+                                ->inlineLabel(),
+                        ]),
+                ]),
+
+            Section::make('Assignment Summary')
+                ->collapsible()
+                ->icon('heroicon-o-computer-desktop')
+                ->schema([
+                    Grid::make(2)
+                        ->schema([
+                            Placeholder::make('total_assignments')
+                                ->label('Total Assignments')
+                                ->content(fn ($record) => $record->deviceAssignments()->count())
+                                ->inlineLabel(),
+                            Placeholder::make('active_assignments')
+                                ->label('Active Assignments')
+                                ->content(fn ($record) => $record->deviceAssignments()->whereNull('returned_date')->count())
+                                ->inlineLabel(),
+                        ]),
+                ]),
+
+            Section::make('Authentication Status')
+                ->collapsible()
+                ->icon('heroicon-o-key')
+                ->schema([
+                    Grid::make(2)
+                        ->schema([
+                            Placeholder::make('has_auth')
+                                ->label('Has Authentication')
+                                ->content(fn ($record) => $record->auth ? 'Yes' : 'No')
+                                ->inlineLabel(),
+                            Placeholder::make('role')
+                                ->label('Role')
+                                ->content(fn ($record) => $record->auth?->role ?? 'N/A')
+                                ->inlineLabel(),
+                        ]),
+                ])
+                ->visible(fn ($record) => $record->auth !== null),
+        ];
+    }
+
+    /**
+     * Get branch view form schema for modal display
+     */
+    public static function getBranchViewSchema(Branch $record): array
+    {
+        return [
+            Section::make('Branch Information')
+                ->collapsible()
+                ->icon('heroicon-o-building-office-2')
+                ->schema([
+                    Grid::make(2)
+                        ->schema([
+                            Placeholder::make('branch_code')
+                                ->label('Branch Code')
+                                ->content(fn ($record) => $record->branch_code ?? 'N/A')
+                                ->inlineLabel(),
+                            Placeholder::make('unit_name')
+                                ->label('Unit Name')
+                                ->content(fn ($record) => $record->unit_name ?? 'N/A')
+                                ->inlineLabel(),
+                            Placeholder::make('main_branch')
+                                ->label('Main Branch')
+                                ->content(fn ($record) => $record->mainBranch?->main_branch_name ?? 'N/A')
+                                ->inlineLabel(),
+                        ]),
+                ]),
+
+            Section::make('Statistics')
+                ->collapsible()
+                ->icon('heroicon-o-chart-bar')
+                ->schema([
+                    Grid::make(2)
+                        ->schema([
+                            Placeholder::make('total_users')
+                                ->label('Total Users')
+                                ->content(fn ($record) => $record->users()->count())
+                                ->inlineLabel(),
+                            Placeholder::make('total_assignments')
+                                ->label('Total Device Assignments')
+                                ->content(fn ($record) => $record->deviceAssignments()->count())
+                                ->inlineLabel(),
+                        ]),
+                ]),
+        ];
+    }
+
+    /**
+     * Get main branch view form schema for modal display
+     */
+    public static function getMainBranchViewSchema(MainBranch $record): array
+    {
+        return [
+            Section::make('Main Branch Information')
+                ->collapsible()
+                ->icon('heroicon-o-building-office')
+                ->schema([
+                    Grid::make(2)
+                        ->schema([
+                            Placeholder::make('main_branch_name')
+                                ->label('Main Branch Name')
+                                ->content(fn ($record) => $record->main_branch_name ?? 'N/A')
+                                ->inlineLabel(),
+                        ]),
+                ]),
+
+            Section::make('Branch Statistics')
+                ->collapsible()
+                ->icon('heroicon-o-chart-bar')
+                ->schema([
+                    Grid::make(2)
+                        ->schema([
+                            Placeholder::make('total_branches')
+                                ->label('Total Sub-Branches')
+                                ->content(fn ($record) => $record->branches()->count())
+                                ->inlineLabel(),
+                        ]),
+                ]),
+        ];
+    }
+
+    /**
+     * Get department view form schema for modal display
+     */
+    public static function getDepartmentViewSchema(Department $record): array
+    {
+        return [
+            Section::make('Department Information')
+                ->collapsible()
+                ->icon('heroicon-o-building-library')
+                ->schema([
+                    Grid::make(2)
+                        ->schema([
+                            Placeholder::make('name')
+                                ->label('Department Name')
+                                ->content(fn ($record) => $record->name ?? 'N/A')
+                                ->inlineLabel(),
+                        ]),
+                ]),
+
+            Section::make('Department Statistics')
+                ->collapsible()
+                ->icon('heroicon-o-chart-bar')
+                ->schema([
+                    Grid::make(2)
+                        ->schema([
+                            Placeholder::make('total_users')
+                                ->label('Total Users')
+                                ->content(fn ($record) => $record->users()->count())
+                                ->inlineLabel(),
+                        ]),
+                ]),
+        ];
+    }
+
+    /**
+     * Get bribox view form schema for modal display
+     */
+    public static function getBriboxViewSchema(Bribox $record): array
+    {
+        return [
+            Section::make('Bribox Information')
+                ->collapsible()
+                ->icon('heroicon-o-cube')
+                ->schema([
+                    Grid::make(2)
+                        ->schema([
+                            Placeholder::make('type')
+                                ->label('Type')
+                                ->content(fn ($record) => $record->type ?? 'N/A')
+                                ->inlineLabel(),
+                            Placeholder::make('category')
+                                ->label('Category')
+                                ->content(fn ($record) => $record->category?->category_name ?? 'N/A')
+                                ->inlineLabel(),
+                        ]),
+                ]),
+
+            Section::make('Device Statistics')
+                ->collapsible()
+                ->icon('heroicon-o-chart-bar')
+                ->schema([
+                    Grid::make(2)
+                        ->schema([
+                            Placeholder::make('total_devices')
+                                ->label('Total Devices')
+                                ->content(fn ($record) => $record->devices()->count())
+                                ->inlineLabel(),
+                        ]),
+                ]),
+        ];
+    }
+
+    /**
+     * Get bribox category view form schema for modal display
+     */
+    public static function getBriboxesCategoryViewSchema(BriboxesCategory $record): array
+    {
+        return [
+            Section::make('Category Information')
+                ->collapsible()
+                ->icon('heroicon-o-tag')
+                ->schema([
+                    Grid::make(2)
+                        ->schema([
+                            Placeholder::make('category_name')
+                                ->label('Category Name')
+                                ->content(fn ($record) => $record->category_name ?? 'N/A')
+                                ->inlineLabel(),
+                        ]),
+                ]),
+
+            Section::make('Category Statistics')
+                ->collapsible()
+                ->icon('heroicon-o-chart-bar')
+                ->schema([
+                    Grid::make(2)
+                        ->schema([
+                            Placeholder::make('total_briboxes')
+                                ->label('Total Bribox Types')
+                                ->content(fn ($record) => $record->briboxes()->count())
+                                ->inlineLabel(),
+                        ]),
+                ]),
+        ];
+    }
+
+    /**
+     * Get device assignment view form schema for modal display
+     */
+    public static function getDeviceAssignmentViewSchema(DeviceAssignment $record): array
+    {
+        return [
+            Section::make('Assignment Information')
+                ->collapsible()
+                ->icon('heroicon-o-clipboard-document-list')
+                ->schema([
+                    Grid::make(2)
+                        ->schema([
+                            Placeholder::make('device')
+                                ->label('Device')
+                                ->content(fn ($record) => $record->device?->brand . ' ' . $record->device?->brand_name . ' (' . $record->device?->asset_code . ')' ?? 'N/A')
+                                ->inlineLabel(),
+                            Placeholder::make('user')
+                                ->label('Assigned To')
+                                ->content(fn ($record) => $record->user?->name . ' (' . $record->user?->pn . ')' ?? 'N/A')
+                                ->inlineLabel(),
+                            Placeholder::make('branch')
+                                ->label('Branch')
+                                ->content(fn ($record) => $record->branch?->unit_name ?? 'N/A')
+                                ->inlineLabel(),
+                            Placeholder::make('assigned_date')
+                                ->label('Assignment Date')
+                                ->content(fn ($record) => $record->assigned_date ? $record->assigned_date->format('d M Y') : 'N/A')
+                                ->inlineLabel(),
+                            Placeholder::make('returned_date')
+                                ->label('Return Date')
+                                ->content(fn ($record) => $record->returned_date ? $record->returned_date->format('d M Y') : 'Active Assignment')
+                                ->inlineLabel(),
+                            Placeholder::make('status')
+                                ->label('Status')
+                                ->content(fn ($record) => $record->returned_date ? 'Returned' : 'Active')
+                                ->inlineLabel(),
+                        ]),
+                ]),
+
+            Section::make('Assignment Notes')
+                ->collapsible()
+                ->icon('heroicon-o-document-text')
+                ->schema([
+                    RichEditor::make('notes')
+                        ->label('')
+                        ->default(fn ($record) => $record->notes ?? 'No notes available.')
+                        ->disabled()
+                        ->columnSpanFull(),
+                ]),
+
+            Section::make('Audit Trail')
+                ->collapsible()
+                ->icon('heroicon-o-clock')
+                ->schema([
+                    Grid::make(2)
+                        ->schema([
+                            Placeholder::make('created_by')
+                                ->label('Created By')
+                                ->content(fn ($record) => $record->created_by ?? 'N/A')
+                                ->inlineLabel(),
+                            Placeholder::make('created_at')
+                                ->label('Created At')
+                                ->content(fn ($record) => $record->created_at ? $record->created_at->format('d M Y H:i') : 'N/A')
+                                ->inlineLabel(),
+                            Placeholder::make('updated_by')
+                                ->label('Updated By')
+                                ->content(fn ($record) => $record->updated_by ?? 'N/A')
+                                ->inlineLabel(),
+                            Placeholder::make('updated_at')
+                                ->label('Updated At')
+                                ->content(fn ($record) => $record->updated_at ? $record->updated_at->format('d M Y H:i') : 'N/A')
+                                ->inlineLabel(),
+                        ]),
+                ]),
+        ];
+    }
+
+    /**
+     * Get assignment letter view form schema for modal display
+     */
+    public static function getAssignmentLetterViewSchema(AssignmentLetter $record): array
+    {
+        return [
+            Section::make('Letter Information')
+                ->collapsible()
+                ->icon('heroicon-o-document')
+                ->schema([
+                    Grid::make(2)
+                        ->schema([
+                            Placeholder::make('letter_number')
+                                ->label('Letter Number')
+                                ->content(fn ($record) => $record->letter_number ?? 'N/A')
+                                ->inlineLabel(),
+                            Placeholder::make('assignment')
+                                ->label('Assignment')
+                                ->content(fn ($record) => $record->deviceAssignment?->device?->brand . ' ' . $record->deviceAssignment?->device?->brand_name ?? 'N/A')
+                                ->inlineLabel(),
+                            Placeholder::make('user')
+                                ->label('Assigned To')
+                                ->content(fn ($record) => $record->deviceAssignment?->user?->name ?? 'N/A')
+                                ->inlineLabel(),
+                            Placeholder::make('letter_date')
+                                ->label('Letter Date')
+                                ->content(fn ($record) => $record->letter_date ? $record->letter_date->format('d M Y') : 'N/A')
+                                ->inlineLabel(),
+                            Placeholder::make('type')
+                                ->label('Letter Type')
+                                ->content(fn ($record) => $record->type ?? 'N/A')
+                                ->inlineLabel(),
+                        ]),
+                ]),
+
+            Section::make('File Attachments')
+                ->collapsible()
+                ->icon('heroicon-o-paper-clip')
+                ->schema([
+                    Placeholder::make('file_info')
+                        ->label('File Status')
+                        ->content(fn ($record) => $record->file_path ? 'File attached' : 'No file attached')
+                        ->inlineLabel(),
+                ])
+                ->visible(fn ($record) => $record->file_path !== null),
+
+            Section::make('Audit Trail')
+                ->collapsible()
+                ->icon('heroicon-o-clock')
+                ->schema([
+                    Grid::make(2)
+                        ->schema([
+                            Placeholder::make('created_by')
+                                ->label('Created By')
+                                ->content(fn ($record) => $record->created_by ?? 'N/A')
+                                ->inlineLabel(),
+                            Placeholder::make('created_at')
+                                ->label('Created At')
+                                ->content(fn ($record) => $record->created_at ? $record->created_at->format('d M Y H:i') : 'N/A')
+                                ->inlineLabel(),
+                            Placeholder::make('updated_by')
+                                ->label('Updated By')
+                                ->content(fn ($record) => $record->updated_by ?? 'N/A')
+                                ->inlineLabel(),
+                            Placeholder::make('updated_at')
+                                ->label('Updated At')
+                                ->content(fn ($record) => $record->updated_at ? $record->updated_at->format('d M Y H:i') : 'N/A')
+                                ->inlineLabel(),
+                        ]),
+                ]),
+        ];
+    }
+
+    /**
+     * Get auth view form schema for modal display
+     */
+    public static function getAuthViewSchema(Auth $record): array
+    {
+        return [
+            Section::make('Authentication Information')
+                ->collapsible()
+                ->icon('heroicon-o-key')
+                ->schema([
+                    Grid::make(2)
+                        ->schema([
+                            Placeholder::make('pn')
+                                ->label('Personnel Number')
+                                ->content(fn ($record) => $record->pn ?? 'N/A')
+                                ->inlineLabel(),
+                            Placeholder::make('role')
+                                ->label('Role')
+                                ->content(fn ($record) => $record->role ?? 'N/A')
+                                ->inlineLabel(),
+                            Placeholder::make('user')
+                                ->label('User')
+                                ->content(fn ($record) => $record->user?->name ?? 'N/A')
+                                ->inlineLabel(),
+                        ]),
+                ]),
+
+            Section::make('Audit Trail')
+                ->collapsible()
+                ->icon('heroicon-o-clock')
+                ->schema([
+                    Grid::make(2)
+                        ->schema([
+                            Placeholder::make('created_at')
+                                ->label('Created At')
+                                ->content(fn ($record) => $record->created_at ? $record->created_at->format('d M Y H:i') : 'N/A')
+                                ->inlineLabel(),
+                            Placeholder::make('updated_at')
+                                ->label('Updated At')
+                                ->content(fn ($record) => $record->updated_at ? $record->updated_at->format('d M Y H:i') : 'N/A')
+                                ->inlineLabel(),
+                        ]),
+                ]),
         ];
     }
 }

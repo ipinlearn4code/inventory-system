@@ -80,7 +80,8 @@ class BranchResource extends Resource
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make()
                         ->slideOver()
-                        ->tooltip('View branch details'),
+                        ->tooltip('View branch details')
+                        ->form(fn(Branch $record) => FormSchemaHelper::getBranchViewSchema($record)),
                     Tables\Actions\EditAction::make()
                         ->tooltip('Edit branch information'),
                     Tables\Actions\DeleteAction::make()

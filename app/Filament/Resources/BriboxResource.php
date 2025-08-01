@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\BriboxResource\Pages;
 use App\Models\Bribox;
 use App\Models\BriboxesCategory;
+use App\Filament\Helpers\FormSchemaHelper;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -112,7 +113,8 @@ class BriboxResource extends Resource
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make()
                         ->slideOver()
-                        ->tooltip('View bribox details'),
+                        ->tooltip('View bribox details')
+                        ->form(fn(Bribox $record) => FormSchemaHelper::getBriboxViewSchema($record)),
                     Tables\Actions\EditAction::make()
                         ->tooltip('Edit bribox information'),
                     Tables\Actions\DeleteAction::make()

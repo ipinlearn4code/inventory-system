@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\DepartmentResource\Pages;
 use App\Models\Department;
+use App\Filament\Helpers\FormSchemaHelper;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -89,7 +90,8 @@ class DepartmentResource extends Resource
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make()
                         ->slideOver()
-                        ->tooltip('View department details'),
+                        ->tooltip('View department details')
+                        ->form(fn(Department $record) => FormSchemaHelper::getDepartmentViewSchema($record)),
                     Tables\Actions\EditAction::make()
                         ->tooltip('Edit department information'),
                     Tables\Actions\DeleteAction::make()
