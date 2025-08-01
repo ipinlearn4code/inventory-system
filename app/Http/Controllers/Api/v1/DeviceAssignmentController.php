@@ -181,7 +181,7 @@ class DeviceAssignmentController extends BaseApiController
         ]);
 
         try {
-            return DB::transaction(function () use ($request, $id, $validated) {
+            $responseData = DB::transaction(function () use ($request, $id, $validated) {
                 // Find the assignment
                 $assignment = DeviceAssignment::with(['device', 'user.branch', 'assignmentLetters'])->findOrFail($id);
                 
@@ -324,6 +324,8 @@ class DeviceAssignmentController extends BaseApiController
                 
                 return $assignmentData;
             });
+
+            return response()->json($responseData);
 
         } catch (\Exception $e) {
             $errorCode = 'ERR_ASSIGNMENT_UPDATE_FAILED';
