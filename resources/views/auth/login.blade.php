@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .bg-gradient {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(10deg, #ffffffff 0%, #00529B 100%);
         }
     </style>
 </head>
@@ -15,7 +15,7 @@
     <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
         <!-- Logo/Header -->
         <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-[#0073E6] rounded-full mb-4">
                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                 </svg>
@@ -40,7 +40,7 @@
                     maxlength="8"
                     required 
                     value="{{ old('pn') }}"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 @error('pn') border-red-500 @enderror"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0073E6] focus:border-transparent transition duration-200 @error('pn') border-red-500 @enderror"
                     placeholder="Enter your PN (e.g., ADM001)"
                     autocomplete="username"
                 >
@@ -90,6 +90,7 @@
                     id="remember" 
                     name="remember" 
                     type="checkbox" 
+                    value="1"
                     class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 >
                 <label for="remember" class="ml-2 block text-sm text-gray-700">
@@ -100,7 +101,7 @@
             <!-- Submit Button -->
             <button 
                 type="submit" 
-                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                class="w-full bg-[#0073E6] hover:bg-[#398de0] text-white font-semibold py-3 px-4 rounded-lg transition duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
                 Sign In to Admin Panel
             </button>
@@ -114,13 +115,19 @@
             </p>
         </div>
 
-        <!-- Demo Credentials (Remove in production) -->
-        <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-            <p class="text-xs text-gray-600 font-medium mb-2">Demo Credentials:</p>
-            <p class="text-xs text-gray-500">PN: SUPER01 | Password: super123</p>
-            <p class="text-xs text-gray-500">PN: ADMIN01 | Password: admin123</p>
-            <p class="text-xs text-gray-500">PN: USER01 | Password: password123</p>
-        </div>
+        
+        <!-- /**
+         * Note: Ensure this block is removed or disabled in production environments
+         * to prevent exposing sensitive information.
+         */ -->
+        @if (app()->environment('local') || config('app.debug'))
+            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                <p class="text-xs text-gray-600 font-medium mb-2">Demo Credentials:</p>
+                <p class="text-xs text-gray-500">PN: SUPER01 | Password: super123</p>
+                <p class="text-xs text-gray-500">PN: ADMIN01 | Password: admin123</p>
+                <p class="text-xs text-gray-500">PN: USER01 | Password: password123</p>
+            </div>
+        @endif
     </div>
 
     <!-- Background Pattern -->
