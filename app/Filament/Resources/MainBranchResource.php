@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\MainBranchResource\Pages;
 use App\Models\MainBranch;
+use App\Filament\Helpers\FormSchemaHelper;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -94,7 +95,8 @@ class MainBranchResource extends Resource
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make()
                         ->slideOver()
-                        ->tooltip('View main branch details'),
+                        ->tooltip('View main branch details')
+                        ->form(fn(MainBranch $record) => FormSchemaHelper::getMainBranchViewSchema($record)),
                     Tables\Actions\EditAction::make()
                         ->tooltip('Edit main branch information'),
                     Tables\Actions\DeleteAction::make()

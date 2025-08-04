@@ -5,133 +5,42 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
 use App\Models\Department;
-use Filament\Forms;
+use App\Services\FilamentPermissionService;
+use App\Filament\Helpers\FormSchemaHelper;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
-
     protected static ?string $navigationIcon = 'heroicon-o-users';
     protected static ?string $navigationGroup = 'User Management';
 
     public static function canViewAny(): bool
     {
-        $auth = session('authenticated_user');
-        if (!$auth) return false;
-        
-        $authModel = \App\Models\Auth::where('pn', $auth['pn'])->first();
-        return $authModel && ($authModel->hasRole('superadmin') || $authModel->hasRole('admin'));
+        return FilamentPermissionService::canViewAny();
     }
 
     public static function canCreate(): bool
     {
-        $auth = session('authenticated_user');
-        if (!$auth) return false;
-        
-        $authModel = \App\Models\Auth::where('pn', $auth['pn'])->first();
-        return $authModel && $authModel->hasRole('superadmin');
+        return FilamentPermissionService::isSuperAdmin();
     }
 
     public static function canEdit($record): bool
     {
-        $auth = session('authenticated_user');
-        if (!$auth) return false;
-        
-        $authModel = \App\Models\Auth::where('pn', $auth['pn'])->first();
-        return $authModel && $authModel->hasRole('superadmin');
+        return FilamentPermissionService::isSuperAdmin();
     }
 
     public static function canDelete($record): bool
     {
-        $auth = session('authenticated_user');
-        if (!$auth) return false;
-        
-        $authModel = \App\Models\Auth::where('pn', $auth['pn'])->first();
-        return $authModel && $authModel->hasRole('superadmin');
+        return FilamentPermissionService::isSuperAdmin();
     }
 
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('pn')
-                    ->label('Personnel Number')
-                    ->required()
-                    ->maxLength(8)
-                    ->unique(ignoreRecord: true),
-                Forms\Components\Select::make('branch_id')
-                    ->label('Branch')
-                    ->options(\App\Models\Branch::all()->pluck('unit_name', 'branch_id'))
-                    ->required()
-                    ->searchable(),
-                
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(50),
-                
-                Forms\Components\Select::make('department_id')
-                    ->label('Department')
-                    ->options(Department::all()->pluck('name', 'department_id'))
-                    ->required()
-                    ->searchable(),
-                
-                Forms\Components\TextInput::make('position')
-                    ->label('Position')
-                    ->datalist(
-                        \App\Models\User::query()
-                            ->whereNotNull('position')
-                            ->distinct()
-                            ->orderBy('position')
-                            ->pluck('position')
-                            ->toArray()
-                    )
-                    ->autocomplete(false)
-                    ->required(),
-                
-                Forms\Components\Toggle::make('create_auth')
-                    ->label('Add Authentication')
-                    ->helperText('Create authentication credentials for this user')
-                    ->default(false)
-                    ->live()
-                    ->visible(fn ($livewire) => $livewire instanceof \App\Filament\Resources\UserResource\Pages\CreateUser),
-                
-                Forms\Components\Section::make('Authentication Details')
-                    ->schema([
-                        Forms\Components\TextInput::make('auth.password')
-                            ->label('Password')
-                            ->password()
-                            ->dehydrated(fn ($state) => filled($state))
-                            ->required(fn ($livewire) => $livewire instanceof Pages\CreateUser && $livewire->data['create_auth'])
-                            ->confirmed()
-                            ->minLength(8)
-                            ->helperText('Leave blank to keep the same password when editing'),
-                        
-                        Forms\Components\TextInput::make('auth.password_confirmation')
-                            ->label('Confirm Password')
-                            ->password()
-                            ->required(fn ($livewire) => $livewire instanceof Pages\CreateUser && $livewire->data['create_auth'])
-                            ->dehydrated(false)
-                            ->minLength(8),
-                        
-                        Forms\Components\Select::make('auth.role')
-                            ->label('Role')
-                            ->options([
-                                'user' => 'Regular User',
-                                'admin' => 'Administrator',
-                                'superadmin' => 'Super Administrator'
-                            ])
-                            ->required(fn (Forms\Get $get): bool => $get('create_auth'))
-                            ->default('user')
-                            ->helperText('Determines what actions the user can perform'),
-                    ])
-                    // ->visible(fn (Forms\Get $get): bool => $get('create_auth'))
-                    ->columns(2),
-            ]);
+        return $form->schema(FormSchemaHelper::getUserFormSchema());
     }
 
     public static function table(Table $table): Table
@@ -189,7 +98,8 @@ class UserResource extends Resource
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make()
                         ->slideOver()
-                        ->tooltip('View user details'),
+                        ->tooltip('View user details')
+                        ->form(fn(User $record) => FormSchemaHelper::getUserViewSchema($record)),
                     Tables\Actions\EditAction::make()
                         ->tooltip('Edit user information'),
                     Tables\Actions\DeleteAction::make()

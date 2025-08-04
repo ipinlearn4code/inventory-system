@@ -3,10 +3,10 @@
 namespace App\Filament\Resources\DeviceAssignmentResource\Pages;
 
 use App\Filament\Resources\DeviceAssignmentResource;
+use App\Services\DeviceAssignmentService;
 use App\Traits\HasInventoryLogging;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\DB;
-use App\Models\Device;
 
 class CreateDeviceAssignment extends CreateRecord
 {
@@ -25,29 +25,35 @@ class CreateDeviceAssignment extends CreateRecord
         $data['created_at'] = now();
         $data['created_by'] = $auth['pn'] ?? 'system';
         
-        // Set status if not provided
-        // if (empty($data['status'])) {
-        //     $data['status'] = 'Digunakan';
-        // }
-        // dd($data['device_id']);
-
         return $data;
     }
 
     public function create(bool $anotherIsQueued = false): void
     {
-        // Wrap the entire creation process in a transaction
-        // dd(['id' => $this->data->device_id]);
-        DB::transaction(function () use ($anotherIsQueued) {
-            // Call the parent create method which will handle the actual creation
-            parent::create($anotherIsQueued);
-            // dd(Device::find( $this->data['device_id']), 'id');
-
-            Device::find($this->data['device_id'])
-                ->update(['status' => 'Digunakan']);
+        try {
+            $assignmentService = app(DeviceAssignmentService::class);
+            $result = $assignmentService->createAssignment($this->data);
             
-            // Log the assignment creation - if this fails, the transaction will rollback
-            $this->logAssignmentModelChanges($this->record, 'created');
-        });
+            // Set the record for proper redirect functionality
+            $this->record = $result['assignment'];
+            
+            // Show success notification
+            \Filament\Notifications\Notification::make()
+                ->title('Assignment Created')
+                ->body('Device assignment has been created successfully.')
+                ->success()
+                ->send();
+                
+            $this->getResource()::getUrl('index');
+            
+        } catch (\Exception $e) {
+            \Filament\Notifications\Notification::make()
+                ->title('Assignment Failed')
+                ->body('Failed to create assignment: ' . $e->getMessage())
+                ->danger()
+                ->send();
+                
+            $this->halt();
+        }
     }
 }

@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\BriboxesCategoryResource\Pages;
 use App\Models\BriboxesCategory;
+use App\Filament\Helpers\FormSchemaHelper;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -82,7 +83,8 @@ class BriboxesCategoryResource extends Resource
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make()
                         ->slideOver()
-                        ->tooltip('View category details'),
+                        ->tooltip('View category details')
+                        ->form(fn(BriboxesCategory $record) => FormSchemaHelper::getBriboxesCategoryViewSchema($record)),
                     Tables\Actions\EditAction::make()
                         ->tooltip('Edit category information'),
                     Tables\Actions\DeleteAction::make()

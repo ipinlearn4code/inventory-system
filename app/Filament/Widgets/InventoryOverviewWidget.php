@@ -46,11 +46,11 @@ class InventoryOverviewWidget extends BaseWidget
         // }
 
         if ($branchId) {
-            $deviceQuery->whereHas('currentAssignment', fn($q) => $q->where('branch_id', $branchId));
+            // $deviceQuery->whereHas('currentAssignment', fn($q) => $q->where('branch_id', $branchId));
             $deviceAssignmentQuery->where('branch_id', $branchId);
             $userQuery->where('branch_id', $branchId);
         } elseif ($mainBranchId) {
-            $deviceQuery->whereHas('currentAssignment.branch', fn($q) => $q->where('main_branch_id', $mainBranchId));
+            // $deviceQuery->whereHas('currentAssignment.branch', fn($q) => $q->where('main_branch_id', $mainBranchId));
             $deviceAssignmentQuery->whereHas('branch', fn($q) => $q->where('main_branch_id', $mainBranchId));
             $userQuery->whereHas('branch', fn($q) => $q->where('main_branch_id', $mainBranchId));
         }
@@ -67,7 +67,7 @@ class InventoryOverviewWidget extends BaseWidget
         $deviceAssignmentCount = $deviceAssignmentQuery
             ->where(function ($query) {
             $query->whereNull('returned_date')
-                  ->orWhere('returned_date', '');
+                  ->orWhere('returned_date', '00-00-00');
             })
             ->count();
 
