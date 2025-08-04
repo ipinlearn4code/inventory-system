@@ -20,27 +20,16 @@ class CustomAuth
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Debug: log what's happening
-        \Log::info('CustomAuth middleware triggered', [
-            'url' => $request->url(),
-            'has_session' => session()->has('authenticated_user'),
-            'session_data' => session('authenticated_user'),
-            'has_remember_cookie' => $request->hasCookie('remember_token')
-        ]);
-        
         // Check if user is authenticated via our custom session
         if (!session()->has('authenticated_user')) {
             // Check for remember token as fallback
             if ($this->checkRememberToken($request)) {
-                \Log::info('User authenticated via remember token');
                 return $next($request);
             }
             
-            \Log::info('No authenticated user session or remember token, redirecting to login');
             return redirect('/login');
         }
 
-        \Log::info('User is authenticated via session, allowing access');
         return $next($request);
     }
 

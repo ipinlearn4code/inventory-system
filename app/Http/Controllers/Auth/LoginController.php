@@ -34,7 +34,6 @@ class LoginController extends Controller
         $request->validate([
             'pn' => 'required|string|max:8',
             'password' => 'required|string',
-            'remember' => 'boolean',
         ]);
 
         $auth = AuthModel::where('pn', $request->pn)->first();
@@ -65,14 +64,19 @@ class LoginController extends Controller
         Session::put('authenticated_user', $userData);
 
         // Handle remember me functionality
-        if ($request->boolean('remember')) {
-            $this->createRememberToken($auth);
+        if ($request->has('remember') && $request->input('remember')) {
+            try {
+                $this->createRememberToken($auth);
+            } catch (\Exception $e) {
+                // Don't fail the login if remember token creation fails
+                \Log::error('Failed to create remember token', ['error' => $e->getMessage()]);
+            }
         }
 
         // Debug: let's first test if session is working
         Session::save(); // Force save session
         
-        // Redirect to test page first to verify authentication
+        // Redirect to admin panel
         return redirect('/admin');
     }
 
