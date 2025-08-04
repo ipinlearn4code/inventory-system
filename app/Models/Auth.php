@@ -22,6 +22,7 @@ class Auth extends Model
         'pn',
         'password',
         'role',
+        'remember_token',
     ];
 
     protected $hidden = [
