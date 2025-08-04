@@ -140,7 +140,7 @@ class DeviceAssignmentService
             throw new \Exception('Device has already been returned before.');
         }
 
-        $currentUserPn = $data['updated_by'];
+        $currentUserPn = $data['updated_by']?? $this->getCurrentUserPn();
         $oldData = $assignment->toArray();
 
         $returnDate = $data['returned_date'] ?? now()->toDateString();
@@ -407,7 +407,7 @@ class DeviceAssignmentService
         return DB::transaction(function () use ($assignmentId, $validated, $request) {
             // Process the device return first
             $data = $this->returnDevice($assignmentId, $validated);
-
+            
             // Update the device status to "Cadangan" using repository
             $deviceId = $this->assignmentRepository->findById($assignmentId)?->device_id;
             $this->deviceRepository->update($deviceId, ['status' => 'Cadangan']);
@@ -449,7 +449,7 @@ class DeviceAssignmentService
 
     private function getCurrentUserPn(): string
     {
-        // return Auth::id();
-        return 'system';
+        return User::where('user_id', Auth::id())->value('pn');
+        // return 'system';
     }
 }
