@@ -11,7 +11,7 @@ class DeviceRepository implements DeviceRepositoryInterface
 {
     public function findById(int $id): ?Device
     {
-        return Device::with(['bribox.category', 'currentAssignment.user.branch', 'assignments.user'])
+        return Device::with(['bribox', 'currentAssignment.user.branch', 'assignments.user'])
             ->find($id);
     }
 
