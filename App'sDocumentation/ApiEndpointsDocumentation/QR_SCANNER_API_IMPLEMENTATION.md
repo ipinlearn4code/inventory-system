@@ -3,7 +3,7 @@
 ## Endpoint
 
 ```
-GET /api/v1/user/devices/scan/{qr_code}
+GET /api/v1/admin/scan/{qr_code}
 ```
 
 ## Description
