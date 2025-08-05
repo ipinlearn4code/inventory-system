@@ -29,4 +29,6 @@ interface DeviceRepositoryInterface
     public function countByCondition(): Collection;
     
     public function getDeviceHistory(int $deviceId): Collection;
+    
+    public function findByAssetCodeWithRelations(string $assetCode): ?Device;
 }

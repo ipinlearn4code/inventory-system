@@ -50,14 +50,7 @@ class MetadataController extends BaseApiController
             ];
         });
 
-        return response()->json([
-            'data' => $data,
-            'meta' => [
-                'currentPage' => $users->currentPage(),
-                'lastPage' => $users->lastPage(),
-                'total' => $users->total()
-            ]
-        ]);
+        return $this->paginatedResponse($users, ['data' => $data->toArray()]);
     }
 
     /**

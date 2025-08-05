@@ -124,4 +124,19 @@ class DeviceRepository implements DeviceRepositoryInterface
             ->orderBy('assigned_date', 'desc')
             ->get();
     }
+    
+    public function findByAssetCodeWithRelations(string $assetCode): ?Device
+    {
+        return Device::with([
+            'bribox.category',
+            'currentAssignment.user.department',
+            'currentAssignment.user.branch',
+            'assignments' => function ($query) {
+                $query->with([
+                    'user:user_id,name',
+                    'assignmentLetters.approver:user_id,name'
+                ])->orderBy('assigned_date', 'desc');
+            }
+        ])->where('asset_code', $assetCode)->first();
+    }
 }

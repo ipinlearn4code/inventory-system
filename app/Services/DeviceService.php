@@ -153,4 +153,98 @@ class DeviceService
             'updatedBy' => $device->updated_by,
         ];
     }
+
+    public function scanDeviceByQRCode(string $qrCode): array
+    {
+        // Validate QR code format (must start with 'briven-')
+        if (!str_starts_with($qrCode, 'briven-')) {
+            throw new \InvalidArgumentException('Invalid QR code format. QR code must start with "briven-".');
+        }
+
+        // Extract asset code from QR code
+        $assetCode = substr($qrCode, 7); // Remove 'briven-' prefix
+
+        // Find device by asset code with necessary relationships
+        $device = $this->deviceRepository->findByAssetCodeWithRelations($assetCode);
+
+        if (!$device) {
+            throw new \Exception('Device not found with the provided QR code.');
+        }
+
+        // Build device information
+        $deviceData = [
+            'id' => $device->device_id,
+            'asset_code' => $device->asset_code,
+            'name' => trim(sprintf('%s %s %s', 
+                $device->bribox->category->category_name ?? '',
+                $device->brand ?? '',
+                $device->brand_name ?? ''
+            )),
+            'type' => $device->bribox->type ?? 'Unknown',
+            'serial_number' => $device->serial_number,
+            'dev_date' => $device->dev_date ? (string) $device->dev_date : null,
+            'status' => $device->status,
+            'condition' => $device->condition,
+            'spec1' => $device->spec1,
+            'spec2' => $device->spec2,
+            'spec3' => $device->spec3,
+            'spec4' => $device->spec4,
+            'spec5' => $device->spec5,
+        ];
+
+        // Add assigned user information if device is currently assigned
+        if ($device->currentAssignment) {
+            $currentUser = $device->currentAssignment->user;
+            $deviceData['assigned_to'] = [
+                'id' => $currentUser->user_id,
+                'name' => $currentUser->name,
+                'department' => $currentUser->department->name ?? 'Unknown',
+                'position' => $currentUser->position,
+                'pn' => $currentUser->pn,
+                'branch' => $currentUser->branch->name ?? 'Unknown',
+                'branch_code' => $currentUser->branch->branch_code ?? 'Unknown',
+            ];
+        } else {
+            $deviceData['assigned_to'] = null;
+        }
+
+        // Build assignment history
+        $history = [];
+        foreach ($device->assignments as $assignment) {
+            // Add returned action if device was returned
+            if ($assignment->returned_date) {
+                $approver = $assignment->assignmentLetters
+                    ->where('letter_type', 'return')
+                    ->first()?->approver;
+
+                $history[] = [
+                    'assignment_id' => $assignment->assignment_id,
+                    'action' => 'returned',
+                    'user' => $assignment->user->name,
+                    'approver' => $approver?->name ?? 'Unknown',
+                    'date' => (string) $assignment->returned_date,
+                    'note' => $assignment->notes ?? '',
+                ];
+            }
+
+            // Add assigned action
+            $approver = $assignment->assignmentLetters
+                ->where('letter_type', 'assignment')
+                ->first()?->approver;
+
+            $history[] = [
+                'assignment_id' => $assignment->assignment_id,
+                'action' => 'assigned',
+                'user' => $assignment->user->name,
+                'approver' => $approver?->name ?? 'Unknown',
+                'date' => (string) $assignment->assigned_date,
+                'note' => $assignment->notes ?? '',
+            ];
+        }
+
+        return [
+            'device' => $deviceData,
+            'history' => $history,
+        ];
+    }
 }

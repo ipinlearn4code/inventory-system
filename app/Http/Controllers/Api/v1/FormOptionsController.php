@@ -27,17 +27,9 @@ class FormOptionsController extends BaseApiController
 
             $data = $this->formOptionsService->getDeviceFormOptions($search, $field);
 
-            return response()->json([
-                'success' => true,
-                'data' => $data
-            ]);
-
+            return $this->successResponse($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to get device form options',
-                'error' => config('app.debug') ? $e->getMessage() : null
-            ], 500);
+            return $this->errorResponse('Failed to get device form options', 'ERR_DEVICE_FORM_OPTIONS_FAILED', 500);
         }
     }
 
@@ -52,17 +44,9 @@ class FormOptionsController extends BaseApiController
 
             $data = $this->formOptionsService->getDeviceAssignmentFormOptions($search, $field);
 
-            return response()->json([
-                'success' => true,
-                'data' => $data
-            ]);
-
+            return $this->successResponse($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to get device assignment form options',
-                'error' => config('app.debug') ? $e->getMessage() : null
-            ], 500);
+            return $this->errorResponse('Failed to get device assignment form options', 'ERR_ASSIGNMENT_FORM_OPTIONS_FAILED', 500);
         }
     }
 
@@ -76,17 +60,9 @@ class FormOptionsController extends BaseApiController
         try {
             $data = $this->formOptionsService->getDeviceValidationRules();
 
-            return response()->json([
-                'success' => true,
-                'data' => $data
-            ]);
-
+            return $this->successResponse($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to get device validation rules',
-                'error' => config('app.debug') ? $e->getMessage() : null
-            ], 500);
+            return $this->errorResponse('Failed to get device validation rules', 'ERR_DEVICE_VALIDATION_RULES_FAILED', 500);
         }
     }
 
@@ -100,17 +76,9 @@ class FormOptionsController extends BaseApiController
         try {
             $data = $this->formOptionsService->getDeviceAssignmentValidationRules();
 
-            return response()->json([
-                'success' => true,
-                'data' => $data
-            ]);
-
+            return $this->successResponse($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to get device assignment validation rules',
-                'error' => config('app.debug') ? $e->getMessage() : null
-            ], 500);
+            return $this->errorResponse('Failed to get device assignment validation rules', 'ERR_ASSIGNMENT_VALIDATION_RULES_FAILED', 500);
         }
     }
 
@@ -128,27 +96,14 @@ class FormOptionsController extends BaseApiController
             $search = $request->input('search');
 
             if (!$field) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Field parameter is required'
-                ], 400);
+                return $this->errorResponse('Field parameter is required', 'ERR_FIELD_REQUIRED', 400);
             }
 
             $options = $this->formOptionsService->getFieldOptions($field, $search);
 
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    $field => $options
-                ]
-            ]);
-
+            return $this->successResponse([$field => $options]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to get field options',
-                'error' => config('app.debug') ? $e->getMessage() : null
-            ], 500);
+            return $this->errorResponse('Failed to get field options', 'ERR_FIELD_OPTIONS_FAILED', 500);
         }
     }
 }
