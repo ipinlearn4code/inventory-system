@@ -33,6 +33,7 @@ Route::prefix('devices')->group(function () {
     Route::get('/{id}', [DeviceController::class, 'show']);
     Route::post('/', [DeviceController::class, 'store']);
     Route::put('/{id}', [DeviceController::class, 'update']);
+    Route::post('/{id}', [DeviceController::class, 'update']);
     Route::delete('/{id}', [DeviceController::class, 'destroy']);
 });
 
