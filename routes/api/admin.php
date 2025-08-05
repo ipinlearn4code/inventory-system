@@ -53,6 +53,9 @@ Route::prefix('assignment-letters')->group(function () {
     Route::get('/{id}', [AssignmentLetterFileController::class, 'getAssignmentLetterById']);
 });
 
+// Device Scanning
+Route::get('/scan/{qr_code}', [DeviceController::class, 'scanDevice']);
+
 // Master Data
 Route::get('/users', [MetadataController::class, 'users']);
 Route::get('/branches', [MetadataController::class, 'branches']);
