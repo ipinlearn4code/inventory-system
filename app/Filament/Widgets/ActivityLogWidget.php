@@ -21,6 +21,8 @@ class ActivityLogWidget extends Widget
     //     'lg' => 'full',
     // ];
 
+    protected int $height = 400;
+
     protected int|string|array $columnSpan = [
         'default' => 1,  // Full width on mobile
         'md' => 1,       // Full width on medium (single chart gets full space)

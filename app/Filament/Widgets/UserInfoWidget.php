@@ -26,7 +26,7 @@ class UserInfoWidget extends BaseWidget
         $currentTime = now()->locale('id')->translatedFormat('H:i');
         
         return [
-            Stat::make('� Selamat datang, ' . $user['name'] . '!', $currentDate . ' • ' . $currentTime)
+            Stat::make('� Welcome, ' . $user['name'] . '!', $currentDate . ' • ' . $currentTime)
                 ->description('📋 PN: ' . $user['pn'] . ' • 👤 Role: ' . ucfirst($user['role']) . ' • 🔵 BRI Inventory Management System')
                 ->color('secondary')
                 ->extraAttributes([
